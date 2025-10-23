@@ -12,6 +12,7 @@ import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare } fr
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
+import { PessoaDialog } from "@/components/company/PessoaDialog";
 import { UsuarioDialog } from "@/components/admin/UsuarioDialog";
 import {
   Breadcrumb,
@@ -29,8 +30,10 @@ export default function EmpresaDetalhes() {
   const [activeTab, setActiveTab] = useState("info");
   const [isEmpresaDialogOpen, setIsEmpresaDialogOpen] = useState(false);
   const [isProdutoDialogOpen, setIsProdutoDialogOpen] = useState(false);
+  const [isPessoaDialogOpen, setIsPessoaDialogOpen] = useState(false);
   const [isUsuarioDialogOpen, setIsUsuarioDialogOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
+  const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
 
   // Fetch empresa data
   const { data: empresa, isLoading: isLoadingEmpresa } = useQuery({
@@ -193,6 +196,46 @@ export default function EmpresaDetalhes() {
     },
   });
 
+  // Pessoa mutations
+  const createPessoaMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const { error } = await supabase.from("pessoas").insert({
+        ...data,
+        empresa_id: id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pessoas", id] });
+      toast.success("Cliente criado com sucesso!");
+      setIsPessoaDialogOpen(false);
+      setSelectedPessoa(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao criar cliente");
+    },
+  });
+
+  const updatePessoaMutation = useMutation({
+    mutationFn: async ({ pessoaId, data }: { pessoaId: string; data: any }) => {
+      const { error } = await supabase
+        .from("pessoas")
+        .update(data)
+        .eq("id", pessoaId)
+        .eq("empresa_id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pessoas", id] });
+      toast.success("Cliente atualizado com sucesso!");
+      setIsPessoaDialogOpen(false);
+      setSelectedPessoa(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar cliente");
+    },
+  });
+
   const handleSaveEmpresa = (data: any) => {
     updateEmpresaMutation.mutate({ id: id!, data });
   };
@@ -205,6 +248,14 @@ export default function EmpresaDetalhes() {
     }
   };
 
+  const handleSavePessoa = async (data: any) => {
+    if (selectedPessoa) {
+      await updatePessoaMutation.mutateAsync({ pessoaId: selectedPessoa.id, data });
+    } else {
+      await createPessoaMutation.mutateAsync(data);
+    }
+  };
+
   const handleEditProduto = (produto: any) => {
     setSelectedProduto(produto);
     setIsProdutoDialogOpen(true);
@@ -213,6 +264,16 @@ export default function EmpresaDetalhes() {
   const handleCreateProduto = () => {
     setSelectedProduto(null);
     setIsProdutoDialogOpen(true);
+  };
+
+  const handleEditPessoa = (pessoa: any) => {
+    setSelectedPessoa(pessoa);
+    setIsPessoaDialogOpen(true);
+  };
+
+  const handleCreatePessoa = () => {
+    setSelectedPessoa(null);
+    setIsPessoaDialogOpen(true);
   };
 
   if (isLoadingEmpresa) {
@@ -467,8 +528,12 @@ export default function EmpresaDetalhes() {
           {/* Aba Clientes */}
           <TabsContent value="clientes">
             <Card className="shadow-soft">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Clientes (Pessoas)</CardTitle>
+                <Button size="sm" onClick={handleCreatePessoa}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Cliente
+                </Button>
               </CardHeader>
               <CardContent>
                 {isLoadingPessoas ? (
@@ -483,6 +548,7 @@ export default function EmpresaDetalhes() {
                         <TableHead>E-mail</TableHead>
                         <TableHead>Celular</TableHead>
                         <TableHead>CNPJ/CPF</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -492,6 +558,15 @@ export default function EmpresaDetalhes() {
                           <TableCell>{pessoa.email || "-"}</TableCell>
                           <TableCell>{pessoa.celular || "-"}</TableCell>
                           <TableCell>{pessoa.cnpjf || "-"}</TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditPessoa(pessoa)}
+                            >
+                              Editar
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -626,6 +701,14 @@ export default function EmpresaDetalhes() {
         produto={selectedProduto}
         onSave={handleSaveProduto}
         isLoading={createProdutoMutation.isPending || updateProdutoMutation.isPending}
+      />
+
+      <PessoaDialog
+        open={isPessoaDialogOpen}
+        onOpenChange={setIsPessoaDialogOpen}
+        pessoa={selectedPessoa}
+        onSave={handleSavePessoa}
+        isLoading={createPessoaMutation.isPending || updatePessoaMutation.isPending}
       />
 
       <UsuarioDialog
