@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -18,6 +19,7 @@ import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { toast } from "sonner";
 
 export default function Empresas() {
+  const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedEmpresa, setSelectedEmpresa] = useState<any>(null);
   const queryClient = useQueryClient();
@@ -117,7 +119,7 @@ export default function Empresas() {
                     <TableHead>CNPJ</TableHead>
                     <TableHead>Cidade</TableHead>
                     <TableHead>WhatsApp</TableHead>
-                    <TableHead>Status</TableHead>
+                  <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -134,9 +136,19 @@ export default function Empresas() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" onClick={() => handleEdit(empresa)}>
-                          Editar
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => navigate(`/admin/empresas/${empresa.id}`)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Ver Detalhes
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(empresa)}>
+                            Editar
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

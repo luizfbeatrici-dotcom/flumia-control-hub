@@ -21,7 +21,7 @@ interface AuthContextType {
   roles: UserRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, nome: string, empresaId?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, nome: string, empresaId?: string, isCompanyAdmin?: boolean) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdminMaster: boolean;
   isCompanyAdmin: boolean;
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, nome: string, empresaId?: string) => {
+  const signUp = async (email: string, password: string, nome: string, empresaId?: string, isCompanyAdmin?: boolean) => {
     const redirectUrl = `${window.location.origin}/`;
 
     const { error } = await supabase.auth.signUp({
@@ -121,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           nome,
           empresa_id: empresaId,
+          is_company_admin: isCompanyAdmin,
         },
       },
     });
@@ -129,6 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.error("Erro ao criar conta", {
         description: error.message,
       });
+    } else {
+      toast.success("Usuário criado com sucesso!");
     }
 
     return { error };

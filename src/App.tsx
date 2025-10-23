@@ -9,6 +9,7 @@ import { EmpresaSelectorProvider } from "@/contexts/EmpresaSelectorContext";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/admin/Dashboard";
 import Empresas from "./pages/admin/Empresas";
+import EmpresaDetalhes from "./pages/admin/EmpresaDetalhes";
 import UsuariosAdmin from "./pages/admin/Usuarios";
 import CompanyDashboard from "./pages/company/Dashboard";
 import Produtos from "./pages/company/Produtos";
@@ -43,6 +44,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdminMaster>
                     <Empresas />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/empresas/:id"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <EmpresaDetalhes />
                   </ProtectedRoute>
                 }
               />

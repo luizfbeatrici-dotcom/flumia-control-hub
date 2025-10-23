@@ -27,6 +27,7 @@ export default function Produtos() {
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
 
   const empresaIdParaFiltrar = isAdminMaster ? selectedEmpresaId : profile?.empresa_id;
+  const podeGerenciarProdutos = isAdminMaster ? selectedEmpresaId !== null : true;
 
   const { data: produtos, isLoading } = useQuery({
     queryKey: ["produtos", empresaIdParaFiltrar],
@@ -46,14 +47,17 @@ export default function Produtos() {
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
+      if (!empresaIdParaFiltrar) {
+        throw new Error("Empresa não selecionada");
+      }
       const { error } = await supabase.from("produtos").insert({
         ...data,
-        empresa_id: profile?.empresa_id,
+        empresa_id: empresaIdParaFiltrar,
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["produtos", profile?.empresa_id] });
+      queryClient.invalidateQueries({ queryKey: ["produtos", empresaIdParaFiltrar] });
       toast({
         title: "Produto criado",
         description: "Produto cadastrado com sucesso!",
@@ -72,15 +76,18 @@ export default function Produtos() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      if (!empresaIdParaFiltrar) {
+        throw new Error("Empresa não selecionada");
+      }
       const { error } = await supabase
         .from("produtos")
         .update(data)
         .eq("id", id)
-        .eq("empresa_id", profile?.empresa_id);
+        .eq("empresa_id", empresaIdParaFiltrar);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["produtos", profile?.empresa_id] });
+      queryClient.invalidateQueries({ queryKey: ["produtos", empresaIdParaFiltrar] });
       toast({
         title: "Produto atualizado",
         description: "Produto editado com sucesso!",
@@ -111,6 +118,14 @@ export default function Produtos() {
   };
 
   const handleCreate = () => {
+    if (!podeGerenciarProdutos) {
+      toast({
+        title: "Selecione uma empresa",
+        description: "Por favor, selecione uma empresa antes de criar produtos.",
+        variant: "destructive",
+      });
+      return;
+    }
     setSelectedProduto(null);
     setIsDialogOpen(true);
   };
@@ -123,7 +138,11 @@ export default function Produtos() {
             <h1 className="text-3xl font-bold">Produtos</h1>
             <p className="text-muted-foreground">Gerencie seu catálogo de produtos</p>
           </div>
-          <Button className="gap-2" onClick={handleCreate}>
+          <Button 
+            className="gap-2" 
+            onClick={handleCreate}
+            disabled={!podeGerenciarProdutos}
+          >
             <Plus className="h-4 w-4" />
             Novo Produto
           </Button>

@@ -43,12 +43,13 @@ type UsuarioFormData = z.infer<typeof usuarioSchema>;
 interface UsuarioDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (data: UsuarioFormData) => void;
+  onSave?: (data: UsuarioFormData) => void;
   usuario?: any;
+  empresaId?: string;
 }
 
-export function UsuarioDialog({ open, onOpenChange, onSave, usuario }: UsuarioDialogProps) {
-  const { isAdminMaster, profile } = useAuth();
+export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }: UsuarioDialogProps) {
+  const { isAdminMaster, profile, signUp } = useAuth();
 
   const { data: empresas } = useQuery({
     queryKey: ["empresas-select"],
@@ -75,13 +76,25 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario }: UsuarioDi
       nome: "",
       email: "",
       senha: "",
-      empresa_id: isAdminMaster ? "" : (profile?.empresa_id || ""),
+      empresa_id: empresaId || (isAdminMaster ? "" : (profile?.empresa_id || "")),
       is_company_admin: false,
     },
   });
 
-  const handleSubmit = (data: UsuarioFormData) => {
-    onSave(data);
+  const handleSubmit = async (data: UsuarioFormData) => {
+    if (onSave) {
+      onSave(data);
+    } else {
+      // Default behavior: create user via signUp
+      await signUp(
+        data.email, 
+        data.senha || "", 
+        data.nome, 
+        data.empresa_id,
+        data.is_company_admin
+      );
+      onOpenChange(false);
+    }
     form.reset();
   };
 
@@ -137,7 +150,7 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario }: UsuarioDi
                 )}
               />
             )}
-            {isAdminMaster && (
+            {isAdminMaster && !empresaId && (
               <FormField
                 control={form.control}
                 name="empresa_id"
