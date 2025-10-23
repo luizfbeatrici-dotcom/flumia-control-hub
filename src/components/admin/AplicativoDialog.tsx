@@ -23,11 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
 const aplicativoSchema = z.object({
-  app_contato: z.string().max(20).optional().nullable(),
-  app_ativo: z.boolean().default(false),
-  app_meta_id: z.string().max(255).optional().nullable(),
-  app_whatsapp_id: z.string().max(255).optional().nullable(),
-  app_business_id: z.string().max(255).optional().nullable(),
+  nome: z.string().min(1, "Nome é obrigatório").max(255),
+  contato: z.string().max(20).optional().nullable(),
+  ativo: z.boolean().default(true),
+  meta_id: z.string().max(255).optional().nullable(),
+  whatsapp_id: z.string().max(255).optional().nullable(),
+  business_id: z.string().max(255).optional().nullable(),
 });
 
 type AplicativoFormValues = z.infer<typeof aplicativoSchema>;
@@ -35,7 +36,7 @@ type AplicativoFormValues = z.infer<typeof aplicativoSchema>;
 interface AplicativoDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  empresa?: any;
+  aplicativo?: any;
   onSave: (data: AplicativoFormValues) => Promise<void>;
   isLoading?: boolean;
 }
@@ -43,52 +44,58 @@ interface AplicativoDialogProps {
 export function AplicativoDialog({
   open,
   onOpenChange,
-  empresa,
+  aplicativo,
   onSave,
   isLoading,
 }: AplicativoDialogProps) {
   const form = useForm<AplicativoFormValues>({
     resolver: zodResolver(aplicativoSchema),
     defaultValues: {
-      app_contato: "",
-      app_ativo: false,
-      app_meta_id: "",
-      app_whatsapp_id: "",
-      app_business_id: "",
+      nome: "",
+      contato: "",
+      ativo: true,
+      meta_id: "",
+      whatsapp_id: "",
+      business_id: "",
     },
   });
 
   useEffect(() => {
-    if (empresa) {
+    if (aplicativo) {
       form.reset({
-        app_contato: empresa.app_contato || "",
-        app_ativo: empresa.app_ativo || false,
-        app_meta_id: empresa.app_meta_id || "",
-        app_whatsapp_id: empresa.app_whatsapp_id || "",
-        app_business_id: empresa.app_business_id || "",
+        nome: aplicativo.nome || "",
+        contato: aplicativo.contato || "",
+        ativo: aplicativo.ativo ?? true,
+        meta_id: aplicativo.meta_id || "",
+        whatsapp_id: aplicativo.whatsapp_id || "",
+        business_id: aplicativo.business_id || "",
       });
     } else {
       form.reset({
-        app_contato: "",
-        app_ativo: false,
-        app_meta_id: "",
-        app_whatsapp_id: "",
-        app_business_id: "",
+        nome: "",
+        contato: "",
+        ativo: true,
+        meta_id: "",
+        whatsapp_id: "",
+        business_id: "",
       });
     }
-  }, [empresa, form]);
+  }, [aplicativo, form]);
 
   const onSubmit = async (data: AplicativoFormValues) => {
     await onSave(data);
+    form.reset();
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Configurações de Aplicativos</DialogTitle>
+          <DialogTitle>
+            {aplicativo ? "Editar Aplicativo" : "Novo Aplicativo"}
+          </DialogTitle>
           <DialogDescription>
-            Configure as integrações com Meta/WhatsApp Business
+            {aplicativo ? "Atualize as informações do aplicativo" : "Configure um novo aplicativo para integração"}
           </DialogDescription>
         </DialogHeader>
 
@@ -96,7 +103,27 @@ export function AplicativoDialog({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="app_contato"
+              name="nome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nome do aplicativo"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Identificação do aplicativo (ex: WhatsApp Principal)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="contato"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Contato (Celular)</FormLabel>
@@ -117,13 +144,13 @@ export function AplicativoDialog({
 
             <FormField
               control={form.control}
-              name="app_ativo"
+              name="ativo"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Status da Integração</FormLabel>
+                    <FormLabel className="text-base">Status</FormLabel>
                     <FormDescription>
-                      {field.value ? "Integração ativa" : "Integração inativa"}
+                      {field.value ? "Aplicativo ativo" : "Aplicativo inativo"}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -138,7 +165,7 @@ export function AplicativoDialog({
 
             <FormField
               control={form.control}
-              name="app_meta_id"
+              name="meta_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ID App Meta</FormLabel>
@@ -156,7 +183,7 @@ export function AplicativoDialog({
 
             <FormField
               control={form.control}
-              name="app_whatsapp_id"
+              name="whatsapp_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ID WhatsApp</FormLabel>
@@ -174,7 +201,7 @@ export function AplicativoDialog({
 
             <FormField
               control={form.control}
-              name="app_business_id"
+              name="business_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ID Business</FormLabel>

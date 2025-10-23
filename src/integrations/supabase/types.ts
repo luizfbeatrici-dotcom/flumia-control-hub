@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      aplicativos: {
+        Row: {
+          ativo: boolean | null
+          business_id: string | null
+          contato: string | null
+          created_at: string | null
+          empresa_id: string
+          id: string
+          meta_id: string | null
+          nome: string
+          updated_at: string | null
+          whatsapp_id: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          business_id?: string | null
+          contato?: string | null
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          meta_id?: string | null
+          nome: string
+          updated_at?: string | null
+          whatsapp_id?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          business_id?: string | null
+          contato?: string | null
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          meta_id?: string | null
+          nome?: string
+          updated_at?: string | null
+          whatsapp_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aplicativos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cidades: {
         Row: {
           cidade: string
@@ -37,11 +84,6 @@ export type Database = {
       }
       empresas: {
         Row: {
-          app_ativo: boolean | null
-          app_business_id: string | null
-          app_contato: string | null
-          app_meta_id: string | null
-          app_whatsapp_id: string | null
           ativo: boolean | null
           celular: string | null
           cidade: string | null
@@ -56,11 +98,6 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
-          app_ativo?: boolean | null
-          app_business_id?: string | null
-          app_contato?: string | null
-          app_meta_id?: string | null
-          app_whatsapp_id?: string | null
           ativo?: boolean | null
           celular?: string | null
           cidade?: string | null
@@ -75,11 +112,6 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
-          app_ativo?: boolean | null
-          app_business_id?: string | null
-          app_contato?: string | null
-          app_meta_id?: string | null
-          app_whatsapp_id?: string | null
           ativo?: boolean | null
           celular?: string | null
           cidade?: string | null

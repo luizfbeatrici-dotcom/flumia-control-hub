@@ -36,6 +36,7 @@ export default function EmpresaDetalhes() {
   const [isAplicativoDialogOpen, setIsAplicativoDialogOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
+  const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
 
   // Fetch empresa data
   const { data: empresa, isLoading: isLoadingEmpresa } = useQuery({
@@ -71,6 +72,20 @@ export default function EmpresaDetalhes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pessoas")
+        .select("*")
+        .eq("empresa_id", id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch aplicativos
+  const { data: aplicativos, isLoading: isLoadingAplicativos } = useQuery({
+    queryKey: ["aplicativos", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("aplicativos")
         .select("*")
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
@@ -242,27 +257,62 @@ export default function EmpresaDetalhes() {
     updateEmpresaMutation.mutate({ id: id!, data });
   };
 
-  // Aplicativo mutation
-  const updateAplicativoMutation = useMutation({
+  // Aplicativo mutations
+  const createAplicativoMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { error } = await supabase
-        .from("empresas")
-        .update(data)
-        .eq("id", id);
+      const { error } = await supabase.from("aplicativos").insert({
+        ...data,
+        empresa_id: id,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["empresa", id] });
-      toast.success("Configurações de aplicativo atualizadas com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["aplicativos", id] });
+      toast.success("Aplicativo criado com sucesso!");
       setIsAplicativoDialogOpen(false);
+      setSelectedAplicativo(null);
     },
     onError: (error: any) => {
-      toast.error(error.message || "Erro ao atualizar configurações");
+      toast.error(error.message || "Erro ao criar aplicativo");
+    },
+  });
+
+  const updateAplicativoMutation = useMutation({
+    mutationFn: async ({ aplicativoId, data }: { aplicativoId: string; data: any }) => {
+      const { error } = await supabase
+        .from("aplicativos")
+        .update(data)
+        .eq("id", aplicativoId)
+        .eq("empresa_id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["aplicativos", id] });
+      toast.success("Aplicativo atualizado com sucesso!");
+      setIsAplicativoDialogOpen(false);
+      setSelectedAplicativo(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar aplicativo");
     },
   });
 
   const handleSaveAplicativo = async (data: any) => {
-    await updateAplicativoMutation.mutateAsync(data);
+    if (selectedAplicativo) {
+      await updateAplicativoMutation.mutateAsync({ aplicativoId: selectedAplicativo.id, data });
+    } else {
+      await createAplicativoMutation.mutateAsync(data);
+    }
+  };
+
+  const handleEditAplicativo = (aplicativo: any) => {
+    setSelectedAplicativo(aplicativo);
+    setIsAplicativoDialogOpen(true);
+  };
+
+  const handleCreateAplicativo = () => {
+    setSelectedAplicativo(null);
+    setIsAplicativoDialogOpen(true);
   };
 
   const handleSaveProduto = async (data: any) => {
@@ -492,44 +542,63 @@ export default function EmpresaDetalhes() {
           <TabsContent value="aplicativos">
             <Card className="shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5" />
-                  <CardTitle>Configurações de Aplicativos</CardTitle>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsAplicativoDialogOpen(true)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar
+                <CardTitle>Aplicativos</CardTitle>
+                <Button size="sm" onClick={handleCreateAplicativo}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Aplicativo
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Contato</p>
-                    <p className="text-base">{empresa.app_contato || "-"}</p>
+              <CardContent>
+                {isLoadingAplicativos ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Status</p>
-                    <Badge variant={empresa.app_ativo ? "default" : "secondary"}>
-                      {empresa.app_ativo ? "Ativo" : "Inativo"}
-                    </Badge>
+                ) : aplicativos && aplicativos.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Contato</TableHead>
+                        <TableHead>ID Meta</TableHead>
+                        <TableHead>ID WhatsApp</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {aplicativos.map((aplicativo) => (
+                        <TableRow key={aplicativo.id}>
+                          <TableCell className="font-medium">{aplicativo.nome}</TableCell>
+                          <TableCell>{aplicativo.contato || "-"}</TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {aplicativo.meta_id || "-"}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {aplicativo.whatsapp_id || "-"}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={aplicativo.ativo ? "default" : "secondary"}>
+                              {aplicativo.ativo ? "Ativo" : "Inativo"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditAplicativo(aplicativo)}
+                            >
+                              Editar
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    Nenhum aplicativo cadastrado
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">ID App Meta</p>
-                    <p className="text-base font-mono text-sm">{empresa.app_meta_id || "-"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">ID WhatsApp</p>
-                    <p className="text-base font-mono text-sm">{empresa.app_whatsapp_id || "-"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">ID Business</p>
-                    <p className="text-base font-mono text-sm">{empresa.app_business_id || "-"}</p>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -792,9 +861,9 @@ export default function EmpresaDetalhes() {
       <AplicativoDialog
         open={isAplicativoDialogOpen}
         onOpenChange={setIsAplicativoDialogOpen}
-        empresa={empresa}
+        aplicativo={selectedAplicativo}
         onSave={handleSaveAplicativo}
-        isLoading={updateAplicativoMutation.isPending}
+        isLoading={createAplicativoMutation.isPending || updateAplicativoMutation.isPending}
       />
     </DashboardLayout>
   );
