@@ -294,90 +294,95 @@ export function PessoaDialog({
               </div>
 
               {/* Seção de Endereços */}
-              {pessoa && (
-                <>
-                  <Separator className="my-6" />
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5 text-muted-foreground" />
-                        <h3 className="text-lg font-semibold">Endereços</h3>
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={handleCreateEndereco}
-                        disabled={!pessoa?.id}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Adicionar
-                      </Button>
-                    </div>
-
-                    {isLoadingEnderecos ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                      </div>
-                    ) : enderecos && enderecos.length > 0 ? (
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Endereço</TableHead>
-                              <TableHead>Bairro</TableHead>
-                              <TableHead>Cidade</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Ações</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {enderecos.map((endereco) => (
-                              <TableRow key={endereco.id}>
-                                <TableCell className="font-medium">
-                                  {endereco.endereco}
-                                  {endereco.complemento && `, ${endereco.complemento}`}
-                                </TableCell>
-                                <TableCell>{endereco.bairro || "-"}</TableCell>
-                                <TableCell>{endereco.cidade || "-"}</TableCell>
-                                <TableCell>
-                                  {endereco.principal && (
-                                    <Badge variant="default">Principal</Badge>
-                                  )}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <div className="flex justify-end gap-2">
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleEditEndereco(endereco)}
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleDeleteEndereco(endereco.id)}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    ) : (
-                      <div className="py-8 text-center text-sm text-muted-foreground border rounded-md">
-                        Nenhum endereço cadastrado
-                      </div>
-                    )}
+              <Separator className="my-6" />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold">Endereços</h3>
                   </div>
-                </>
-              )}
+                  {pessoa && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCreateEndereco}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Adicionar
+                    </Button>
+                  )}
+                </div>
+
+                {!pessoa ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground border rounded-md bg-muted/50">
+                    <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>Salve o cliente primeiro para adicionar endereços</p>
+                  </div>
+                ) : (
+
+                  isLoadingEnderecos ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                    </div>
+                  ) : enderecos && enderecos.length > 0 ? (
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Endereço</TableHead>
+                            <TableHead>Bairro</TableHead>
+                            <TableHead>Cidade</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Ações</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {enderecos.map((endereco) => (
+                            <TableRow key={endereco.id}>
+                              <TableCell className="font-medium">
+                                {endereco.endereco}
+                                {endereco.complemento && `, ${endereco.complemento}`}
+                              </TableCell>
+                              <TableCell>{endereco.bairro || "-"}</TableCell>
+                              <TableCell>{endereco.cidade || "-"}</TableCell>
+                              <TableCell>
+                                {endereco.principal && (
+                                  <Badge variant="default">Principal</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleEditEndereco(endereco)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteEndereco(endereco.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-sm text-muted-foreground border rounded-md">
+                      Nenhum endereço cadastrado
+                    </div>
+                  )
+                )}
+              </div>
 
               <div className="flex justify-end gap-3 pt-4">
                 <Button
