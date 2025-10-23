@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,11 +31,14 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { KeyRound } from "lucide-react";
 
 const usuarioSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório").max(255),
   email: z.string().email("Email inválido").max(255),
   senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional(),
+  nova_senha: z.string().min(6, "Nova senha deve ter no mínimo 6 caracteres").optional(),
   empresa_id: z.string().optional(),
   is_admin_master: z.boolean().default(false),
   ativo: z.boolean().default(true),
@@ -62,6 +65,7 @@ interface UsuarioDialogProps {
 
 export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }: UsuarioDialogProps) {
   const { isAdminMaster, profile, signUp } = useAuth();
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   const { data: empresas } = useQuery({
     queryKey: ["empresas-select"],
@@ -120,6 +124,25 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
       }
     }
   }, [open, usuario, empresaId, isAdminMaster, profile?.empresa_id, form]);
+
+  const handleResetPassword = async () => {
+    if (!usuario?.email) return;
+    
+    setIsResettingPassword(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(usuario.email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Email de redefinição de senha enviado com sucesso!");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao enviar email de redefinição");
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
 
   const handleSubmit = async (data: UsuarioFormData) => {
     if (onSave) {
@@ -189,6 +212,30 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
                   </FormItem>
                 )}
               />
+            )}
+            {usuario && (
+              <div className="rounded-lg border p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <KeyRound className="h-4 w-4" />
+                      <span className="text-sm font-medium">Redefinir Senha</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Enviar email de redefinição de senha para o usuário
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetPassword}
+                    disabled={isResettingPassword}
+                  >
+                    {isResettingPassword ? "Enviando..." : "Enviar Email"}
+                  </Button>
+                </div>
+              </div>
             )}
             {!usuario && (
               <FormField
