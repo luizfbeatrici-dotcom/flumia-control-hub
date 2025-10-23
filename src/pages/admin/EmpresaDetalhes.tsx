@@ -94,6 +94,7 @@ export default function EmpresaDetalhes() {
     },
   });
 
+
   // Fetch usuarios
   const { data: usuarios, isLoading: isLoadingUsuarios } = useQuery({
     queryKey: ["usuarios-empresa", id],

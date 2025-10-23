@@ -95,7 +95,7 @@ export function AplicativoDialog({
             {aplicativo ? "Editar Aplicativo" : "Novo Aplicativo"}
           </DialogTitle>
           <DialogDescription>
-            {aplicativo ? "Atualize as informações do aplicativo" : "Configure um novo aplicativo para integração"}
+            Configure as integrações com Meta/WhatsApp Business
           </DialogDescription>
         </DialogHeader>
 
@@ -113,9 +113,6 @@ export function AplicativoDialog({
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Identificação do aplicativo (ex: WhatsApp Principal)
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -148,9 +145,9 @@ export function AplicativoDialog({
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Status</FormLabel>
+                    <FormLabel className="text-base">Status da Integração</FormLabel>
                     <FormDescription>
-                      {field.value ? "Aplicativo ativo" : "Aplicativo inativo"}
+                      {field.value ? "Integração ativa" : "Integração inativa"}
                     </FormDescription>
                   </div>
                   <FormControl>
