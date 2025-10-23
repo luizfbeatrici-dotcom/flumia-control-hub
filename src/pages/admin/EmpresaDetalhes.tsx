@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
 import { PessoaDialog } from "@/components/company/PessoaDialog";
 import { UsuarioDialog } from "@/components/admin/UsuarioDialog";
+import { AplicativoDialog } from "@/components/admin/AplicativoDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,6 +33,7 @@ export default function EmpresaDetalhes() {
   const [isProdutoDialogOpen, setIsProdutoDialogOpen] = useState(false);
   const [isPessoaDialogOpen, setIsPessoaDialogOpen] = useState(false);
   const [isUsuarioDialogOpen, setIsUsuarioDialogOpen] = useState(false);
+  const [isAplicativoDialogOpen, setIsAplicativoDialogOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
 
@@ -240,6 +242,29 @@ export default function EmpresaDetalhes() {
     updateEmpresaMutation.mutate({ id: id!, data });
   };
 
+  // Aplicativo mutation
+  const updateAplicativoMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const { error } = await supabase
+        .from("empresas")
+        .update(data)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["empresa", id] });
+      toast.success("Configurações de aplicativo atualizadas com sucesso!");
+      setIsAplicativoDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar configurações");
+    },
+  });
+
+  const handleSaveAplicativo = async (data: any) => {
+    await updateAplicativoMutation.mutateAsync(data);
+  };
+
   const handleSaveProduto = async (data: any) => {
     if (selectedProduto) {
       await updateProdutoMutation.mutateAsync({ produtoId: selectedProduto.id, data });
@@ -407,6 +432,7 @@ export default function EmpresaDetalhes() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="info">Informações</TabsTrigger>
+            <TabsTrigger value="aplicativos">Aplicativos</TabsTrigger>
             <TabsTrigger value="produtos">Produtos</TabsTrigger>
             <TabsTrigger value="clientes">Clientes</TabsTrigger>
             <TabsTrigger value="pedidos">Pedidos</TabsTrigger>
@@ -456,6 +482,52 @@ export default function EmpresaDetalhes() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Domínio</p>
                     <p className="text-base">{empresa.dominio || "-"}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Aba Aplicativos */}
+          <TabsContent value="aplicativos">
+            <Card className="shadow-soft">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="h-5 w-5" />
+                  <CardTitle>Configurações de Aplicativos</CardTitle>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAplicativoDialogOpen(true)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Contato</p>
+                    <p className="text-base">{empresa.app_contato || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Status</p>
+                    <Badge variant={empresa.app_ativo ? "default" : "secondary"}>
+                      {empresa.app_ativo ? "Ativo" : "Inativo"}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">ID App Meta</p>
+                    <p className="text-base font-mono text-sm">{empresa.app_meta_id || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">ID WhatsApp</p>
+                    <p className="text-base font-mono text-sm">{empresa.app_whatsapp_id || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">ID Business</p>
+                    <p className="text-base font-mono text-sm">{empresa.app_business_id || "-"}</p>
                   </div>
                 </div>
               </CardContent>
@@ -715,6 +787,14 @@ export default function EmpresaDetalhes() {
         open={isUsuarioDialogOpen}
         onOpenChange={setIsUsuarioDialogOpen}
         empresaId={id}
+      />
+
+      <AplicativoDialog
+        open={isAplicativoDialogOpen}
+        onOpenChange={setIsAplicativoDialogOpen}
+        empresa={empresa}
+        onSave={handleSaveAplicativo}
+        isLoading={updateAplicativoMutation.isPending}
       />
     </DashboardLayout>
   );
