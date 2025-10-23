@@ -34,8 +34,17 @@ const usuarioSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório").max(255),
   email: z.string().email("Email inválido").max(255),
   senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional(),
-  empresa_id: z.string().min(1, "Empresa é obrigatória"),
-  is_company_admin: z.boolean().default(false),
+  empresa_id: z.string().optional(),
+  is_admin_master: z.boolean().default(false),
+}).refine((data) => {
+  // Se NÃO for admin master, empresa_id é obrigatória
+  if (!data.is_admin_master && !data.empresa_id) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Empresa é obrigatória para usuários que não são administradores da plataforma",
+  path: ["empresa_id"],
 });
 
 type UsuarioFormData = z.infer<typeof usuarioSchema>;
@@ -71,15 +80,17 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
       nome: usuario.nome,
       email: usuario.email,
       empresa_id: usuario.empresa_id,
-      is_company_admin: false,
+      is_admin_master: false,
     } : {
       nome: "",
       email: "",
       senha: "",
       empresa_id: empresaId || (isAdminMaster ? "" : (profile?.empresa_id || "")),
-      is_company_admin: false,
+      is_admin_master: false,
     },
   });
+
+  const isAdminMasterChecked = form.watch("is_admin_master");
 
   const handleSubmit = async (data: UsuarioFormData) => {
     if (onSave) {
@@ -90,8 +101,8 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
         data.email, 
         data.senha || "", 
         data.nome, 
-        data.empresa_id,
-        data.is_company_admin
+        data.empresa_id || null,
+        data.is_admin_master
       );
       onOpenChange(false);
     }
@@ -150,7 +161,24 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
                 )}
               />
             )}
-            {isAdminMaster && !empresaId && (
+            {!usuario && (
+              <FormField
+                control={form.control}
+                name="is_admin_master"
+                render={({ field }) => (
+                  <FormItem className="flex items-center gap-2 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">Administrador da plataforma</FormLabel>
+                  </FormItem>
+                )}
+              />
+            )}
+            {isAdminMaster && !empresaId && !isAdminMasterChecked && (
               <FormField
                 control={form.control}
                 name="empresa_id"
@@ -172,23 +200,6 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            {!usuario && (
-              <FormField
-                control={form.control}
-                name="is_company_admin"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-2 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="!mt-0">Administrador da empresa</FormLabel>
                   </FormItem>
                 )}
               />
