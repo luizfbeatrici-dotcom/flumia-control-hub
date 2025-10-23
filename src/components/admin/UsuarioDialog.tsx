@@ -100,6 +100,21 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
   });
 
   const isAdminMasterChecked = form.watch("is_admin_master");
+  const empresaIdValue = form.watch("empresa_id");
+
+  // Quando is_admin_master mudar, limpar empresa_id se for true
+  useEffect(() => {
+    if (isAdminMasterChecked) {
+      form.setValue("empresa_id", "");
+    }
+  }, [isAdminMasterChecked, form]);
+
+  // Quando empresa_id for selecionada, desmarcar is_admin_master
+  useEffect(() => {
+    if (empresaIdValue && empresaIdValue !== "") {
+      form.setValue("is_admin_master", false);
+    }
+  }, [empresaIdValue, form]);
 
   // Reset form quando o dialog abrir ou o usuário mudar
   useEffect(() => {
@@ -237,23 +252,21 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
                 </div>
               </div>
             )}
-            {!usuario && (
-              <FormField
-                control={form.control}
-                name="is_admin_master"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-2 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="!mt-0">Administrador da plataforma</FormLabel>
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="is_admin_master"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-2 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="!mt-0">Administrador da plataforma</FormLabel>
+                </FormItem>
+              )}
+            />
             {isAdminMaster && !empresaId && !isAdminMasterChecked && (
               <FormField
                 control={form.control}

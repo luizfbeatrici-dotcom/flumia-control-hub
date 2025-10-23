@@ -83,15 +83,36 @@ export default function Usuarios() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { error } = await supabase
+      // Atualizar profile
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
           nome: data.nome,
           ativo: data.ativo,
+          empresa_id: data.is_admin_master ? null : data.empresa_id,
         })
         .eq("id", data.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Atualizar roles se necessário
+      if (data.is_admin_master !== undefined) {
+        // Remover todas as roles existentes
+        const { error: deleteError } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", data.id);
+
+        if (deleteError) throw deleteError;
+
+        // Inserir nova role
+        const newRole = data.is_admin_master ? "admin_master" : "company_admin";
+        const { error: insertError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: data.id, role: newRole });
+
+        if (insertError) throw insertError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["usuarios-admin"] });
