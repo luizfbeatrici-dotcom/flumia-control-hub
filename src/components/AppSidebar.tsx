@@ -34,6 +34,7 @@ export function AppSidebar() {
     { title: "Produtos", url: "/produtos", icon: Package },
     { title: "Clientes", url: "/clientes", icon: Users },
     { title: "Pedidos", url: "/pedidos", icon: ShoppingCart },
+    { title: "Usuários", url: "/usuarios", icon: Users },
     { title: "Configurações", url: "/configuracoes", icon: Settings },
   ];
 

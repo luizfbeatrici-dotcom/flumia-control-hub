@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 import {
   Table,
   TableBody,
@@ -19,26 +20,28 @@ import { ProdutoDialog } from "@/components/company/ProdutoDialog";
 import { toast } from "@/hooks/use-toast";
 
 export default function Produtos() {
-  const { profile } = useAuth();
+  const { profile, isAdminMaster } = useAuth();
+  const { selectedEmpresaId } = useEmpresaSelector();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
 
-  const { data: produtos, isLoading } = useQuery({
-    queryKey: ["produtos", profile?.empresa_id],
-    queryFn: async () => {
-      if (!profile?.empresa_id) return [];
+  const empresaIdParaFiltrar = isAdminMaster ? selectedEmpresaId : profile?.empresa_id;
 
-      const { data, error } = await supabase
-        .from("produtos")
-        .select("*")
-        .eq("empresa_id", profile.empresa_id)
-        .order("created_at", { ascending: false });
+  const { data: produtos, isLoading } = useQuery({
+    queryKey: ["produtos", empresaIdParaFiltrar],
+    queryFn: async () => {
+      let query = supabase.from("produtos").select("*");
+      
+      if (empresaIdParaFiltrar) {
+        query = query.eq("empresa_id", empresaIdParaFiltrar);
+      }
+      
+      const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.empresa_id,
   });
 
   const createMutation = useMutation({
