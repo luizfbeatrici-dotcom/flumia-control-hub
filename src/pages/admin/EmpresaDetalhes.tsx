@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
@@ -115,6 +115,19 @@ export default function EmpresaDetalhes() {
         `)
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch conversas ativas (jornadas)
+  const { data: jornadas } = useQuery({
+    queryKey: ["jornadas", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("jornadas")
+        .select("id")
+        .eq("empresa_id", id);
       if (error) throw error;
       return data;
     },
@@ -260,6 +273,74 @@ export default function EmpresaDetalhes() {
               </Badge>
             </div>
           </div>
+        </div>
+
+        {/* Cards de Estatísticas */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total de Clientes
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {pessoas?.length || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Clientes cadastrados
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total de Produtos
+              </CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {produtos?.length || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Produtos ativos
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total de Pedidos
+              </CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {pedidos?.length || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Pedidos realizados
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Conversas Ativas
+              </CardTitle>
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {jornadas?.length || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Jornadas registradas
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
