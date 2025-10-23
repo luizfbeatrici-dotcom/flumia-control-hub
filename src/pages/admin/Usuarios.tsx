@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -63,7 +63,7 @@ export default function Usuarios() {
           data: {
             nome: data.nome,
             empresa_id: data.empresa_id,
-            is_company_admin: data.is_company_admin,
+            is_admin_master: data.is_admin_master,
           },
         },
       });
@@ -81,15 +81,41 @@ export default function Usuarios() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          nome: data.nome,
+          ativo: data.ativo,
+        })
+        .eq("id", data.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["usuarios-admin"] });
+      toast.success("Usuário atualizado com sucesso!");
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar usuário");
+    },
+  });
+
   const handleCreate = () => {
     setSelectedUsuario(null);
     setIsDialogOpen(true);
   };
 
+  const handleEdit = (usuario: any) => {
+    setSelectedUsuario(usuario);
+    setIsDialogOpen(true);
+  };
+
   const handleSave = (data: any) => {
     if (selectedUsuario) {
-      // TODO: Implementar edição
-      toast.info("Edição de usuários será implementada em breve");
+      updateMutation.mutate({ ...data, id: selectedUsuario.id });
     } else {
       createMutation.mutate(data);
     }
@@ -127,6 +153,7 @@ export default function Usuarios() {
                     <TableHead>Empresa</TableHead>
                     <TableHead>Roles</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="w-[100px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -148,6 +175,16 @@ export default function Usuarios() {
                         <Badge variant={usuario.ativo ? "default" : "secondary"}>
                           {usuario.ativo ? "Ativo" : "Inativo"}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(usuario)}
+                          className="h-8 w-8"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

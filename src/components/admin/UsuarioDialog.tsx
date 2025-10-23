@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -36,6 +37,7 @@ const usuarioSchema = z.object({
   senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional(),
   empresa_id: z.string().optional(),
   is_admin_master: z.boolean().default(false),
+  ativo: z.boolean().default(true),
 }).refine((data) => {
   // Se NÃO for admin master, empresa_id é obrigatória
   if (!data.is_admin_master && !data.empresa_id) {
@@ -79,14 +81,16 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
     defaultValues: usuario ? {
       nome: usuario.nome,
       email: usuario.email,
-      empresa_id: usuario.empresa_id,
-      is_admin_master: false,
+      empresa_id: usuario.empresa_id || "",
+      is_admin_master: usuario.user_roles?.some((ur: any) => ur.role === 'admin_master') || false,
+      ativo: usuario.ativo ?? true,
     } : {
       nome: "",
       email: "",
       senha: "",
       empresa_id: empresaId || (isAdminMaster ? "" : (profile?.empresa_id || "")),
       is_admin_master: false,
+      ativo: true,
     },
   });
 
@@ -200,6 +204,28 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
                       </SelectContent>
                     </Select>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {usuario && (
+              <FormField
+                control={form.control}
+                name="ativo"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Status do Usuário</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        {field.value ? "Usuário pode acessar a plataforma" : "Usuário bloqueado de acessar a plataforma"}
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
                   </FormItem>
                 )}
               />
