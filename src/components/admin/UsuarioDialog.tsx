@@ -252,21 +252,23 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
                 </div>
               </div>
             )}
-            <FormField
-              control={form.control}
-              name="is_admin_master"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-2 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="!mt-0">Administrador da plataforma</FormLabel>
-                </FormItem>
-              )}
-            />
+            {!empresaId && (
+              <FormField
+                control={form.control}
+                name="is_admin_master"
+                render={({ field }) => (
+                  <FormItem className="flex items-center gap-2 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">Administrador da plataforma</FormLabel>
+                  </FormItem>
+                )}
+              />
+            )}
             {isAdminMaster && !empresaId && !isAdminMasterChecked && (
               <FormField
                 control={form.control}
