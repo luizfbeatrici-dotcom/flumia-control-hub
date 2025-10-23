@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -95,6 +96,30 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
   });
 
   const isAdminMasterChecked = form.watch("is_admin_master");
+
+  // Reset form quando o dialog abrir ou o usuário mudar
+  useEffect(() => {
+    if (open) {
+      if (usuario) {
+        form.reset({
+          nome: usuario.nome,
+          email: usuario.email,
+          empresa_id: usuario.empresa_id || "",
+          is_admin_master: usuario.user_roles?.some((ur: any) => ur.role === 'admin_master') || false,
+          ativo: usuario.ativo ?? true,
+        });
+      } else {
+        form.reset({
+          nome: "",
+          email: "",
+          senha: "",
+          empresa_id: empresaId || (isAdminMaster ? "" : (profile?.empresa_id || "")),
+          is_admin_master: false,
+          ativo: true,
+        });
+      }
+    }
+  }, [open, usuario, empresaId, isAdminMaster, profile?.empresa_id, form]);
 
   const handleSubmit = async (data: UsuarioFormData) => {
     if (onSave) {
