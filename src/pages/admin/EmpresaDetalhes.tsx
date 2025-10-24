@@ -8,15 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
+import { ImportProdutosDialog } from "@/components/company/ImportProdutosDialog";
 import { PessoaDialog } from "@/components/company/PessoaDialog";
 import { UsuarioDialog } from "@/components/admin/UsuarioDialog";
 import { AplicativoDialog } from "@/components/admin/AplicativoDialog";
 import { ApiTokenDialog } from "@/components/admin/ApiTokenDialog";
 import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
+import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,6 +35,7 @@ export default function EmpresaDetalhes() {
   const [activeTab, setActiveTab] = useState("info");
   const [isEmpresaDialogOpen, setIsEmpresaDialogOpen] = useState(false);
   const [isProdutoDialogOpen, setIsProdutoDialogOpen] = useState(false);
+  const [isImportProdutosDialogOpen, setIsImportProdutosDialogOpen] = useState(false);
   const [isPessoaDialogOpen, setIsPessoaDialogOpen] = useState(false);
   const [isUsuarioDialogOpen, setIsUsuarioDialogOpen] = useState(false);
   const [isAplicativoDialogOpen, setIsAplicativoDialogOpen] = useState(false);
@@ -453,6 +456,44 @@ export default function EmpresaDetalhes() {
     setIsPessoaDialogOpen(true);
   };
 
+  const handleDownloadTemplate = () => {
+    downloadProdutosTemplate();
+    toast.success("Download iniciado. O arquivo template foi baixado com sucesso!");
+  };
+
+  const handleImportProdutos = async (produtos: ProdutoImportRow[]) => {
+    if (!id) {
+      throw new Error("Empresa não identificada");
+    }
+
+    const chunkSize = 100;
+
+    for (let i = 0; i < produtos.length; i += chunkSize) {
+      const chunk = produtos.slice(i, i + chunkSize);
+      const dataToInsert = chunk.map(p => ({
+        empresa_id: id,
+        descricao: p.descricao,
+        sku: p.sku || null,
+        complemento: p.complemento || null,
+        preco1: p.preco1,
+        preco2: p.preco2 || null,
+        unidade: p.unidade || null,
+        categoria: p.categoria || null,
+        departamento: p.departamento || null,
+        grupo: p.grupo || null,
+        subgrupo: p.subgrupo || null,
+        visibilidade: p.visibilidade || "visible",
+        ativo: p.ativo !== undefined ? p.ativo : true,
+      }));
+
+      const { error } = await supabase.from("produtos").insert(dataToInsert);
+      
+      if (error) throw error;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["produtos", id] });
+  };
+
   if (isLoadingEmpresa) {
     return (
       <DashboardLayout>
@@ -714,10 +755,20 @@ export default function EmpresaDetalhes() {
             <Card className="shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Produtos da Empresa</CardTitle>
-                <Button size="sm" onClick={handleCreateProduto}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Produto
-                </Button>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={handleDownloadTemplate}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Baixar Modelo
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setIsImportProdutosDialogOpen(true)}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Importar Produtos
+                  </Button>
+                  <Button size="sm" onClick={handleCreateProduto}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Produto
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {isLoadingProdutos ? (
@@ -1066,6 +1117,12 @@ export default function EmpresaDetalhes() {
         produto={selectedProduto}
         onSave={handleSaveProduto}
         isLoading={createProdutoMutation.isPending || updateProdutoMutation.isPending}
+      />
+
+      <ImportProdutosDialog
+        open={isImportProdutosDialogOpen}
+        onOpenChange={setIsImportProdutosDialogOpen}
+        onImport={handleImportProdutos}
       />
 
       <PessoaDialog
