@@ -13,6 +13,9 @@ import EmpresaDetalhes from "./pages/admin/EmpresaDetalhes";
 import UsuariosAdmin from "./pages/admin/Usuarios";
 import CompanyDashboard from "./pages/company/Dashboard";
 import Produtos from "./pages/company/Produtos";
+import Clientes from "./pages/company/Clientes";
+import Pedidos from "./pages/company/Pedidos";
+import Configuracoes from "./pages/company/Configuracoes";
 import UsuariosEmpresa from "./pages/company/Usuarios";
 import NotFound from "./pages/NotFound";
 
@@ -82,10 +85,34 @@ const App = () => (
               }
             />
             <Route
+              path="/clientes"
+              element={
+                <ProtectedRoute>
+                  <Clientes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pedidos"
+              element={
+                <ProtectedRoute>
+                  <Pedidos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/usuarios"
               element={
                 <ProtectedRoute requireCompanyAdmin>
                   <UsuariosEmpresa />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/configuracoes"
+              element={
+                <ProtectedRoute>
+                  <Configuracoes />
                 </ProtectedRoute>
               }
             />
