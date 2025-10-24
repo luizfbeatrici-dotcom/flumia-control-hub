@@ -1302,6 +1302,79 @@ export default function EmpresaDetalhes() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Aba Parâmetros - Visível apenas para Admin Master */}
+          {isAdminMaster && (
+            <TabsContent value="parametros" className="space-y-4">
+              <Card className="shadow-soft">
+                <CardHeader>
+                  <CardTitle>Parâmetros Financeiros</CardTitle>
+                  <CardDescription>
+                    Configure os valores cobrados do cliente
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const taxaTransacao = formData.get("taxa_transacao");
+                      const valorMensal = formData.get("valor_mensal");
+
+                      updateEmpresa({
+                        taxa_transacao: taxaTransacao ? Number(taxaTransacao) : 0,
+                        valor_mensal: valorMensal ? Number(valorMensal) : 0,
+                      });
+                    }}
+                    className="space-y-4"
+                  >
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <label htmlFor="taxa_transacao" className="text-sm font-medium">
+                          Taxa de Transação (%)
+                        </label>
+                        <Input
+                          id="taxa_transacao"
+                          name="taxa_transacao"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          defaultValue={empresa?.taxa_transacao || 0}
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Percentual cobrado por transação
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="valor_mensal" className="text-sm font-medium">
+                          Valor Mensal (R$)
+                        </label>
+                        <Input
+                          id="valor_mensal"
+                          name="valor_mensal"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          defaultValue={empresa?.valor_mensal || 0}
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Valor fixo cobrado mensalmente
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button type="submit" disabled={updateEmpresaMutation.isPending}>
+                      {updateEmpresaMutation.isPending ? "Salvando..." : "Salvar Parâmetros"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
@@ -1555,79 +1628,6 @@ export default function EmpresaDetalhes() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-
-      {/* Aba Parâmetros - Visível apenas para Admin Master */}
-      {isAdminMaster && (
-        <TabsContent value="parametros" className="space-y-4">
-          <Card className="shadow-soft">
-            <CardHeader>
-              <CardTitle>Parâmetros Financeiros</CardTitle>
-              <CardDescription>
-                Configure os valores cobrados do cliente
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const taxaTransacao = formData.get("taxa_transacao");
-                  const valorMensal = formData.get("valor_mensal");
-
-                  updateEmpresa({
-                    taxa_transacao: taxaTransacao ? Number(taxaTransacao) : 0,
-                    valor_mensal: valorMensal ? Number(valorMensal) : 0,
-                  });
-                }}
-                className="space-y-4"
-              >
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <label htmlFor="taxa_transacao" className="text-sm font-medium">
-                      Taxa de Transação (%)
-                    </label>
-                    <Input
-                      id="taxa_transacao"
-                      name="taxa_transacao"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      defaultValue={empresa?.taxa_transacao || 0}
-                      placeholder="0.00"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Percentual cobrado por transação
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="valor_mensal" className="text-sm font-medium">
-                      Valor Mensal (R$)
-                    </label>
-                    <Input
-                      id="valor_mensal"
-                      name="valor_mensal"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={empresa?.valor_mensal || 0}
-                      placeholder="0.00"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Valor fixo cobrado mensalmente
-                    </p>
-                  </div>
-                </div>
-
-                <Button type="submit" disabled={updateEmpresaMutation.isPending}>
-                  {updateEmpresaMutation.isPending ? "Salvando..." : "Salvar Parâmetros"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      )}
     </DashboardLayout>
   );
 }
