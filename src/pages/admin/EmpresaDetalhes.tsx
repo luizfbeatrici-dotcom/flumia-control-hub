@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
 import { PessoaDialog } from "@/components/company/PessoaDialog";
 import { UsuarioDialog } from "@/components/admin/UsuarioDialog";
 import { AplicativoDialog } from "@/components/admin/AplicativoDialog";
+import { ApiTokenDialog } from "@/components/admin/ApiTokenDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -34,6 +35,7 @@ export default function EmpresaDetalhes() {
   const [isPessoaDialogOpen, setIsPessoaDialogOpen] = useState(false);
   const [isUsuarioDialogOpen, setIsUsuarioDialogOpen] = useState(false);
   const [isAplicativoDialogOpen, setIsAplicativoDialogOpen] = useState(false);
+  const [isApiTokenDialogOpen, setIsApiTokenDialogOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
   const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
@@ -89,6 +91,20 @@ export default function EmpresaDetalhes() {
         .select("*")
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch API tokens
+  const { data: apiTokens, isLoading: isLoadingApiTokens } = useQuery({
+    queryKey: ["api-tokens", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("api_tokens")
+        .select("*")
+        .eq("empresa_id", id)
+        .order("created_at", { ascending: false});
       if (error) throw error;
       return data;
     },
@@ -316,6 +332,89 @@ export default function EmpresaDetalhes() {
     setIsAplicativoDialogOpen(true);
   };
 
+  // API Token mutations
+  const createApiTokenMutation = useMutation({
+    mutationFn: async (data: any) => {
+      // Gerar token seguro
+      const token = crypto.randomUUID() + '-' + crypto.randomUUID();
+      
+      const { data: newToken, error } = await supabase.from("api_tokens").insert({
+        ...data,
+        empresa_id: id,
+        token,
+      }).select().single();
+      
+      if (error) throw error;
+      return newToken;
+    },
+    onSuccess: (newToken) => {
+      queryClient.invalidateQueries({ queryKey: ["api-tokens", id] });
+      toast.success("Token criado com sucesso!");
+      // Copiar token para clipboard
+      navigator.clipboard.writeText(newToken.token);
+      toast.info("Token copiado para a área de transferência");
+      setIsApiTokenDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao criar token");
+    },
+  });
+
+  const deleteApiTokenMutation = useMutation({
+    mutationFn: async (tokenId: string) => {
+      const { error } = await supabase
+        .from("api_tokens")
+        .delete()
+        .eq("id", tokenId)
+        .eq("empresa_id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["api-tokens", id] });
+      toast.success("Token excluído com sucesso!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao excluir token");
+    },
+  });
+
+  const toggleApiTokenMutation = useMutation({
+    mutationFn: async ({ tokenId, ativo }: { tokenId: string; ativo: boolean }) => {
+      const { error } = await supabase
+        .from("api_tokens")
+        .update({ ativo })
+        .eq("id", tokenId)
+        .eq("empresa_id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["api-tokens", id] });
+      toast.success("Status do token atualizado!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar token");
+    },
+  });
+
+  const handleSaveApiToken = async (data: any) => {
+    await createApiTokenMutation.mutateAsync(data);
+  };
+
+  const handleCopyToken = (token: string) => {
+    navigator.clipboard.writeText(token);
+    toast.success("Token copiado para a área de transferência!");
+  };
+
+  const handleDeleteToken = (tokenId: string) => {
+    if (confirm("Tem certeza que deseja excluir este token? Esta ação não pode ser desfeita.")) {
+      deleteApiTokenMutation.mutate(tokenId);
+    }
+  };
+
+  const handleToggleToken = (tokenId: string, currentStatus: boolean) => {
+    toggleApiTokenMutation.mutate({ tokenId, ativo: !currentStatus });
+  };
+
   const handleSaveProduto = async (data: any) => {
     if (selectedProduto) {
       await updateProdutoMutation.mutateAsync({ produtoId: selectedProduto.id, data });
@@ -488,6 +587,10 @@ export default function EmpresaDetalhes() {
             <TabsTrigger value="clientes">Clientes</TabsTrigger>
             <TabsTrigger value="pedidos">Pedidos</TabsTrigger>
             <TabsTrigger value="usuarios">Usuários</TabsTrigger>
+            <TabsTrigger value="api-tokens">
+              <Key className="h-4 w-4 mr-2" />
+              API Tokens
+            </TabsTrigger>
           </TabsList>
 
           {/* Aba Informações */}
@@ -827,6 +930,118 @@ export default function EmpresaDetalhes() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Aba API Tokens */}
+          <TabsContent value="api-tokens">
+            <Card className="shadow-soft">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>API Tokens</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Gerencie tokens de acesso aos webhooks da empresa
+                  </p>
+                </div>
+                <Button size="sm" onClick={() => setIsApiTokenDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Token
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {isLoadingApiTokens ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                  </div>
+                ) : apiTokens && apiTokens.length > 0 ? (
+                  <div className="space-y-4">
+                    <div className="bg-muted/50 border border-muted rounded-lg p-4 space-y-2">
+                      <h4 className="font-semibold text-sm">Endpoints Disponíveis:</h4>
+                      <div className="space-y-1 text-sm font-mono">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
+                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-produtos</code>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
+                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-produtos</code>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
+                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-pessoas</code>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
+                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-pessoas</code>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Descrição</TableHead>
+                          <TableHead>Token</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Criado em</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {apiTokens.map((token) => (
+                          <TableRow key={token.id}>
+                            <TableCell className="font-medium">{token.descricao}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <code className="text-xs bg-muted px-2 py-1 rounded">
+                                  {token.token.substring(0, 20)}...
+                                </code>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleCopyToken(token.token)}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={token.ativo ? "default" : "secondary"}>
+                                {token.ativo ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {new Date(token.created_at).toLocaleDateString("pt-BR")}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleToggleToken(token.id, token.ativo)}
+                                >
+                                  {token.ativo ? "Desativar" : "Ativar"}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteToken(token.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    Nenhum token criado ainda
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -865,6 +1080,12 @@ export default function EmpresaDetalhes() {
         aplicativo={selectedAplicativo}
         onSave={handleSaveAplicativo}
         isLoading={createAplicativoMutation.isPending || updateAplicativoMutation.isPending}
+      />
+
+      <ApiTokenDialog
+        open={isApiTokenDialogOpen}
+        onOpenChange={setIsApiTokenDialogOpen}
+        onSave={handleSaveApiToken}
       />
     </DashboardLayout>
   );

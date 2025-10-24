@@ -1,1 +1,7 @@
 project_id = "hybuoksgodflxjhjoufv"
+
+[functions.webhook-produtos]
+verify_jwt = false
+
+[functions.webhook-pessoas]
+verify_jwt = false
