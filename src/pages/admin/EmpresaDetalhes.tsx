@@ -19,6 +19,8 @@ import { AplicativoDialog } from "@/components/admin/AplicativoDialog";
 import { ApiTokenDialog } from "@/components/admin/ApiTokenDialog";
 import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
 import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
+import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClientes";
+import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -37,6 +39,7 @@ export default function EmpresaDetalhes() {
   const [isProdutoDialogOpen, setIsProdutoDialogOpen] = useState(false);
   const [isImportProdutosDialogOpen, setIsImportProdutosDialogOpen] = useState(false);
   const [isPessoaDialogOpen, setIsPessoaDialogOpen] = useState(false);
+  const [isImportClientesDialogOpen, setIsImportClientesDialogOpen] = useState(false);
   const [isUsuarioDialogOpen, setIsUsuarioDialogOpen] = useState(false);
   const [isAplicativoDialogOpen, setIsAplicativoDialogOpen] = useState(false);
   const [isApiTokenDialogOpen, setIsApiTokenDialogOpen] = useState(false);
@@ -494,6 +497,74 @@ export default function EmpresaDetalhes() {
     queryClient.invalidateQueries({ queryKey: ["produtos", id] });
   };
 
+  const handleDownloadClientesTemplate = () => {
+    downloadClientesTemplate();
+    toast.success("Download iniciado. O arquivo template foi baixado com sucesso!");
+  };
+
+  const handleImportClientes = async (clientes: ClienteImportRow[]) => {
+    if (!id) {
+      throw new Error("Empresa não identificada");
+    }
+
+    try {
+      const clientesData = clientes.map((cliente) => ({
+        nome: cliente.nome,
+        cnpjf: cliente.cnpjf,
+        email: cliente.email,
+        celular: cliente.celular,
+        empresa_id: id,
+      }));
+
+      const { error } = await supabase.from("pessoas").insert(clientesData);
+
+      if (error) throw error;
+
+      // Importar endereços se houver
+      const clientesComEndereco = clientes.filter(
+        (c) => c.endereco || c.bairro || c.cidade || c.cep
+      );
+
+      if (clientesComEndereco.length > 0) {
+        const { data: pessoasInseridas } = await supabase
+          .from("pessoas")
+          .select("id, nome")
+          .eq("empresa_id", id)
+          .order("created_at", { ascending: false })
+          .limit(clientesData.length);
+
+        if (pessoasInseridas) {
+          const enderecosData = clientesComEndereco
+            .map((cliente) => {
+              const pessoa = pessoasInseridas.find((p) => p.nome === cliente.nome);
+              if (!pessoa) return null;
+
+              return {
+                pessoa_id: pessoa.id,
+                endereco: cliente.endereco || "",
+                bairro: cliente.bairro,
+                cidade: cliente.cidade,
+                cep: cliente.cep,
+                complemento: cliente.complemento,
+                principal: true,
+              };
+            })
+            .filter((e) => e !== null);
+
+          if (enderecosData.length > 0) {
+            await supabase.from("pessoa_enderecos").insert(enderecosData);
+          }
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["pessoas", id] });
+      toast.success(`${clientes.length} cliente(s) importado(s) com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao importar clientes:", error);
+      throw error;
+    }
+  };
+
   if (isLoadingEmpresa) {
     return (
       <DashboardLayout>
@@ -828,10 +899,20 @@ export default function EmpresaDetalhes() {
             <Card className="shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Clientes (Pessoas)</CardTitle>
-                <Button size="sm" onClick={handleCreatePessoa}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Cliente
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleDownloadClientesTemplate}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Baixar Modelo
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setIsImportClientesDialogOpen(true)}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Importar Clientes
+                  </Button>
+                  <Button size="sm" onClick={handleCreatePessoa}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Cliente
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {isLoadingPessoas ? (
@@ -1131,6 +1212,12 @@ export default function EmpresaDetalhes() {
         pessoa={selectedPessoa}
         onSave={handleSavePessoa}
         isLoading={createPessoaMutation.isPending || updatePessoaMutation.isPending}
+      />
+
+      <ImportClientesDialog
+        open={isImportClientesDialogOpen}
+        onOpenChange={setIsImportClientesDialogOpen}
+        onImport={handleImportClientes}
       />
 
       <UsuarioDialog
