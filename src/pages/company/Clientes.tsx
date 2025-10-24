@@ -14,15 +14,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Mail, Phone, MapPin, Loader2 } from "lucide-react";
+import { Plus, Mail, Phone, MapPin, Loader2, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { PessoaDialog } from "@/components/company/PessoaDialog";
+import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
+import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClientes";
 
 export default function Clientes() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const { data: pessoas = [], isLoading } = useQuery({
     queryKey: ["pessoas", profile?.empresa_id],
@@ -102,6 +105,70 @@ export default function Clientes() {
     }
   };
 
+  const handleDownloadTemplate = () => {
+    downloadClientesTemplate();
+    toast.success("Template baixado com sucesso!");
+  };
+
+  const handleImportClientes = async (clientes: ClienteImportRow[]) => {
+    try {
+      const clientesData = clientes.map((cliente) => ({
+        nome: cliente.nome,
+        cnpjf: cliente.cnpjf,
+        email: cliente.email,
+        celular: cliente.celular,
+        empresa_id: profile?.empresa_id,
+      }));
+
+      const { error } = await supabase.from("pessoas").insert(clientesData);
+
+      if (error) throw error;
+
+      // Importar endereços se houver
+      const clientesComEndereco = clientes.filter(
+        (c) => c.endereco || c.bairro || c.cidade || c.cep
+      );
+
+      if (clientesComEndereco.length > 0) {
+        const { data: pessoasInseridas } = await supabase
+          .from("pessoas")
+          .select("id, nome")
+          .eq("empresa_id", profile?.empresa_id)
+          .order("created_at", { ascending: false })
+          .limit(clientesData.length);
+
+        if (pessoasInseridas) {
+          const enderecosData = clientesComEndereco
+            .map((cliente, index) => {
+              const pessoa = pessoasInseridas.find((p) => p.nome === cliente.nome);
+              if (!pessoa) return null;
+
+              return {
+                pessoa_id: pessoa.id,
+                endereco: cliente.endereco || "",
+                bairro: cliente.bairro,
+                cidade: cliente.cidade,
+                cep: cliente.cep,
+                complemento: cliente.complemento,
+                principal: true,
+              };
+            })
+            .filter((e) => e !== null);
+
+          if (enderecosData.length > 0) {
+            await supabase.from("pessoa_enderecos").insert(enderecosData);
+          }
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["pessoas"] });
+      toast.success(`${clientes.length} cliente(s) importado(s) com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao importar clientes:", error);
+      throw error;
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -112,10 +179,20 @@ export default function Clientes() {
               Gerencie seus clientes e informações de contato
             </p>
           </div>
-          <Button onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Cliente
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleDownloadTemplate}>
+              <Download className="mr-2 h-4 w-4" />
+              Baixar Modelo
+            </Button>
+            <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              Importar Clientes
+            </Button>
+            <Button onClick={handleCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Cliente
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -189,6 +266,12 @@ export default function Clientes() {
           onOpenChange={setIsDialogOpen}
           pessoa={selectedPessoa}
           onSave={(data) => handleSave(data)}
+        />
+
+        <ImportClientesDialog
+          open={isImportDialogOpen}
+          onOpenChange={setIsImportDialogOpen}
+          onImport={handleImportClientes}
         />
       </div>
     </DashboardLayout>
