@@ -232,9 +232,6 @@ export function AplicativoDialog({
                       value={field.value || ""}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Token permanente da API da Meta para uso no n8n
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
