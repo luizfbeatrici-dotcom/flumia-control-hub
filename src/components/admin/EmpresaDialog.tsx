@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -44,7 +45,7 @@ interface EmpresaDialogProps {
 export function EmpresaDialog({ open, onOpenChange, onSave, empresa }: EmpresaDialogProps) {
   const form = useForm<EmpresaFormData>({
     resolver: zodResolver(empresaSchema),
-    defaultValues: empresa || {
+    defaultValues: {
       razao_social: "",
       fantasia: "",
       cnpj: "",
@@ -56,6 +57,34 @@ export function EmpresaDialog({ open, onOpenChange, onSave, empresa }: EmpresaDi
       ativo: true,
     },
   });
+
+  useEffect(() => {
+    if (empresa) {
+      form.reset({
+        razao_social: empresa.razao_social || "",
+        fantasia: empresa.fantasia || "",
+        cnpj: empresa.cnpj || "",
+        endereco: empresa.endereco || "",
+        cidade: empresa.cidade || "",
+        celular: empresa.celular || "",
+        whatsapp: empresa.whatsapp || "",
+        dominio: empresa.dominio || "",
+        ativo: empresa.ativo ?? true,
+      });
+    } else {
+      form.reset({
+        razao_social: "",
+        fantasia: "",
+        cnpj: "",
+        endereco: "",
+        cidade: "",
+        celular: "",
+        whatsapp: "",
+        dominio: "",
+        ativo: true,
+      });
+    }
+  }, [empresa, form]);
 
   const handleSubmit = (data: EmpresaFormData) => {
     onSave(data);
