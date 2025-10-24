@@ -201,6 +201,28 @@ export default function EmpresaDetalhes() {
     },
   });
 
+  // Fetch total de vendas do mês atual
+  const { data: vendasMesAtual } = useQuery({
+    queryKey: ["vendas-mes-atual", id],
+    queryFn: async () => {
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+      const { data, error } = await supabase
+        .from("pedidos")
+        .select("total")
+        .eq("empresa_id", id)
+        .gte("created_at", firstDay.toISOString())
+        .lte("created_at", lastDay.toISOString());
+      
+      if (error) throw error;
+      
+      const totalVendas = data?.reduce((acc, pedido) => acc + (Number(pedido.total) || 0), 0) || 0;
+      return totalVendas;
+    },
+  });
+
   // Update empresa mutation
   const updateEmpresaMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
@@ -648,7 +670,7 @@ export default function EmpresaDetalhes() {
           </div>
         </div>
 
-        {/* Cards de Estatísticas */}
+        {/* Cards de Estatísticas - Primeira linha */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -711,6 +733,29 @@ export default function EmpresaDetalhes() {
               </div>
               <p className="text-xs text-muted-foreground">
                 Jornadas registradas
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Cards de Estatísticas - Segunda linha */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Vendas do Mês
+              </CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                }).format(vendasMesAtual || 0)}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Total de vendas no mês atual
               </p>
             </CardContent>
           </Card>
