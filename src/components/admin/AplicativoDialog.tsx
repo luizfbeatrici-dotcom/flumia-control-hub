@@ -29,6 +29,7 @@ const aplicativoSchema = z.object({
   meta_id: z.string().max(255).optional().nullable(),
   whatsapp_id: z.string().max(255).optional().nullable(),
   business_id: z.string().max(255).optional().nullable(),
+  token: z.string().max(500).optional().nullable(),
 });
 
 type AplicativoFormValues = z.infer<typeof aplicativoSchema>;
@@ -57,6 +58,7 @@ export function AplicativoDialog({
       meta_id: "",
       whatsapp_id: "",
       business_id: "",
+      token: "",
     },
   });
 
@@ -69,6 +71,7 @@ export function AplicativoDialog({
         meta_id: aplicativo.meta_id || "",
         whatsapp_id: aplicativo.whatsapp_id || "",
         business_id: aplicativo.business_id || "",
+        token: aplicativo.token || "",
       });
     } else {
       form.reset({
@@ -78,6 +81,7 @@ export function AplicativoDialog({
         meta_id: "",
         whatsapp_id: "",
         business_id: "",
+        token: "",
       });
     }
   }, [aplicativo, form]);
@@ -209,6 +213,28 @@ export function AplicativoDialog({
                       value={field.value || ""}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="token"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Token API Meta</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="EAASQH..."
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Token permanente da API da Meta para uso no n8n
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

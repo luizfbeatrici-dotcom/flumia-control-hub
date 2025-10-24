@@ -62,6 +62,7 @@ export type Database = {
           id: string
           meta_id: string | null
           nome: string
+          token: string | null
           updated_at: string | null
           whatsapp_id: string | null
         }
@@ -74,6 +75,7 @@ export type Database = {
           id?: string
           meta_id?: string | null
           nome: string
+          token?: string | null
           updated_at?: string | null
           whatsapp_id?: string | null
         }
@@ -86,6 +88,7 @@ export type Database = {
           id?: string
           meta_id?: string | null
           nome?: string
+          token?: string | null
           updated_at?: string | null
           whatsapp_id?: string | null
         }
