@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { EmpresaSelector } from "@/components/EmpresaSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "react-router-dom";
+import flumiaLogo from "@/assets/flumia-logo.png";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -29,7 +30,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <AppSidebar />
         <div className="flex flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-card px-6 shadow-soft">
-            <SidebarTrigger />
+            <div className="flex items-center gap-3">
+              <SidebarTrigger />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-purple p-1.5">
+                <img src={flumiaLogo} alt="Flumia Flow" className="h-full w-full object-contain" />
+              </div>
+            </div>
             {mostrarSeletor && <EmpresaSelector />}
           </header>
           <main className="flex-1 p-6">{children}</main>

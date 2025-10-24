@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import flumiaLogo from "@/assets/flumia-logo.png";
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -46,8 +47,8 @@ export function AppSidebar() {
     <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary">
-            <span className="text-lg font-bold text-sidebar-primary-foreground">F</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-purple p-2">
+            <img src={flumiaLogo} alt="Flumia Flow" className="h-full w-full object-contain" />
           </div>
           {!collapsed && (
             <div className="flex flex-col">

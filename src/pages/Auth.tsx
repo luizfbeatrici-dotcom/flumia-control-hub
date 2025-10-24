@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import flumiaLogo from "@/assets/flumia-logo.png";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -37,8 +38,8 @@ export default function Auth() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
       <Card className="w-full max-w-md shadow-medium">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-purple">
-            <span className="text-2xl font-bold text-white">F</span>
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-purple p-3">
+            <img src={flumiaLogo} alt="Flumia Flow Logo" className="h-full w-full object-contain" />
           </div>
           <CardTitle className="text-2xl">Flumia Flow</CardTitle>
           <CardDescription>Portal Administrativo de Automação</CardDescription>
