@@ -3,12 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -24,6 +25,7 @@ import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
 import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
 import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClientes";
 import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -37,6 +39,7 @@ export default function EmpresaDetalhes() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isAdminMaster } = useAuth();
   const [activeTab, setActiveTab] = useState("info");
   const [isEmpresaDialogOpen, setIsEmpresaDialogOpen] = useState(false);
   const [isProdutoDialogOpen, setIsProdutoDialogOpen] = useState(false);
@@ -242,6 +245,10 @@ export default function EmpresaDetalhes() {
       toast.error(error.message || "Erro ao atualizar empresa");
     },
   });
+
+  const updateEmpresa = (data: any) => {
+    updateEmpresaMutation.mutate({ id: id!, data });
+  };
 
   // Produto mutations
   const createProdutoMutation = useMutation({
@@ -773,6 +780,12 @@ export default function EmpresaDetalhes() {
               <Key className="h-4 w-4 mr-2" />
               API Tokens
             </TabsTrigger>
+            {isAdminMaster && (
+              <TabsTrigger value="parametros">
+                <Settings className="h-4 w-4 mr-2" />
+                Parâmetros
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Aba Informações */}
@@ -1542,6 +1555,79 @@ export default function EmpresaDetalhes() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
+
+      {/* Aba Parâmetros - Visível apenas para Admin Master */}
+      {isAdminMaster && (
+        <TabsContent value="parametros" className="space-y-4">
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle>Parâmetros Financeiros</CardTitle>
+              <CardDescription>
+                Configure os valores cobrados do cliente
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const taxaTransacao = formData.get("taxa_transacao");
+                  const valorMensal = formData.get("valor_mensal");
+
+                  updateEmpresa({
+                    taxa_transacao: taxaTransacao ? Number(taxaTransacao) : 0,
+                    valor_mensal: valorMensal ? Number(valorMensal) : 0,
+                  });
+                }}
+                className="space-y-4"
+              >
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label htmlFor="taxa_transacao" className="text-sm font-medium">
+                      Taxa de Transação (%)
+                    </label>
+                    <Input
+                      id="taxa_transacao"
+                      name="taxa_transacao"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      defaultValue={empresa?.taxa_transacao || 0}
+                      placeholder="0.00"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Percentual cobrado por transação
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="valor_mensal" className="text-sm font-medium">
+                      Valor Mensal (R$)
+                    </label>
+                    <Input
+                      id="valor_mensal"
+                      name="valor_mensal"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      defaultValue={empresa?.valor_mensal || 0}
+                      placeholder="0.00"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Valor fixo cobrado mensalmente
+                    </p>
+                  </div>
+                </div>
+
+                <Button type="submit" disabled={updateEmpresaMutation.isPending}>
+                  {updateEmpresaMutation.isPending ? "Salvando..." : "Salvar Parâmetros"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      )}
     </DashboardLayout>
   );
 }

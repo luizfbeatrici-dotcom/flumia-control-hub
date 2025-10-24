@@ -135,7 +135,9 @@ export type Database = {
           fantasia: string
           id: string
           razao_social: string
+          taxa_transacao: number | null
           updated_at: string | null
+          valor_mensal: number | null
           whatsapp: string | null
         }
         Insert: {
@@ -149,7 +151,9 @@ export type Database = {
           fantasia: string
           id?: string
           razao_social: string
+          taxa_transacao?: number | null
           updated_at?: string | null
+          valor_mensal?: number | null
           whatsapp?: string | null
         }
         Update: {
@@ -163,7 +167,9 @@ export type Database = {
           fantasia?: string
           id?: string
           razao_social?: string
+          taxa_transacao?: number | null
           updated_at?: string | null
+          valor_mensal?: number | null
           whatsapp?: string | null
         }
         Relationships: []
