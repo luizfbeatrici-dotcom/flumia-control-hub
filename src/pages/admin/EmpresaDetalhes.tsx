@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
@@ -16,6 +16,7 @@ import { PessoaDialog } from "@/components/company/PessoaDialog";
 import { UsuarioDialog } from "@/components/admin/UsuarioDialog";
 import { AplicativoDialog } from "@/components/admin/AplicativoDialog";
 import { ApiTokenDialog } from "@/components/admin/ApiTokenDialog";
+import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,6 +37,7 @@ export default function EmpresaDetalhes() {
   const [isUsuarioDialogOpen, setIsUsuarioDialogOpen] = useState(false);
   const [isAplicativoDialogOpen, setIsAplicativoDialogOpen] = useState(false);
   const [isApiTokenDialogOpen, setIsApiTokenDialogOpen] = useState(false);
+  const [isApiDocOpen, setIsApiDocOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
   const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
@@ -941,10 +943,16 @@ export default function EmpresaDetalhes() {
                     Gerencie tokens de acesso aos webhooks da empresa
                   </p>
                 </div>
-                <Button size="sm" onClick={() => setIsApiTokenDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Token
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setIsApiDocOpen(true)}>
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Ver Documentação
+                  </Button>
+                  <Button size="sm" onClick={() => setIsApiTokenDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Token
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {isLoadingApiTokens ? (
@@ -1086,6 +1094,12 @@ export default function EmpresaDetalhes() {
         open={isApiTokenDialogOpen}
         onOpenChange={setIsApiTokenDialogOpen}
         onSave={handleSaveApiToken}
+      />
+
+      <ApiDocumentation
+        open={isApiDocOpen}
+        onOpenChange={setIsApiDocOpen}
+        baseUrl={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1`}
       />
     </DashboardLayout>
   );
