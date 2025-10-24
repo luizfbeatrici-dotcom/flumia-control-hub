@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, Download, Upload } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,7 +17,9 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
+import { ImportProdutosDialog } from "@/components/company/ImportProdutosDialog";
 import { toast } from "@/hooks/use-toast";
+import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
 
 export default function Produtos() {
   const { profile, isAdminMaster } = useAuth();
@@ -25,6 +27,7 @@ export default function Produtos() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const empresaIdParaFiltrar = isAdminMaster ? selectedEmpresaId : profile?.empresa_id;
   const podeGerenciarProdutos = isAdminMaster ? selectedEmpresaId !== null : true;
@@ -130,6 +133,47 @@ export default function Produtos() {
     setIsDialogOpen(true);
   };
 
+  const handleDownloadTemplate = () => {
+    downloadProdutosTemplate();
+    toast({
+      title: "Download iniciado",
+      description: "O arquivo template foi baixado com sucesso!",
+    });
+  };
+
+  const handleImport = async (produtos: ProdutoImportRow[]) => {
+    if (!empresaIdParaFiltrar) {
+      throw new Error("Empresa não selecionada");
+    }
+
+    const chunkSize = 100;
+
+    for (let i = 0; i < produtos.length; i += chunkSize) {
+      const chunk = produtos.slice(i, i + chunkSize);
+      const dataToInsert = chunk.map(p => ({
+        empresa_id: empresaIdParaFiltrar,
+        descricao: p.descricao,
+        sku: p.sku || null,
+        complemento: p.complemento || null,
+        preco1: p.preco1,
+        preco2: p.preco2 || null,
+        unidade: p.unidade || null,
+        categoria: p.categoria || null,
+        departamento: p.departamento || null,
+        grupo: p.grupo || null,
+        subgrupo: p.subgrupo || null,
+        visibilidade: p.visibilidade || "visible",
+        ativo: p.ativo !== undefined ? p.ativo : true,
+      }));
+
+      const { error } = await supabase.from("produtos").insert(dataToInsert);
+      
+      if (error) throw error;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["produtos", empresaIdParaFiltrar] });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -138,14 +182,33 @@ export default function Produtos() {
             <h1 className="text-3xl font-bold">Produtos</h1>
             <p className="text-muted-foreground">Gerencie seu catálogo de produtos</p>
           </div>
-          <Button 
-            className="gap-2" 
-            onClick={handleCreate}
-            disabled={!podeGerenciarProdutos}
-          >
-            <Plus className="h-4 w-4" />
-            Novo Produto
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              className="gap-2" 
+              onClick={handleDownloadTemplate}
+            >
+              <Download className="h-4 w-4" />
+              Baixar Modelo
+            </Button>
+            <Button 
+              variant="outline"
+              className="gap-2" 
+              onClick={() => setIsImportDialogOpen(true)}
+              disabled={!podeGerenciarProdutos}
+            >
+              <Upload className="h-4 w-4" />
+              Importar Produtos
+            </Button>
+            <Button 
+              className="gap-2" 
+              onClick={handleCreate}
+              disabled={!podeGerenciarProdutos}
+            >
+              <Plus className="h-4 w-4" />
+              Novo Produto
+            </Button>
+          </div>
         </div>
 
         <Card className="shadow-soft">
@@ -211,6 +274,12 @@ export default function Produtos() {
         produto={selectedProduto}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ImportProdutosDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onImport={handleImport}
       />
     </DashboardLayout>
   );
