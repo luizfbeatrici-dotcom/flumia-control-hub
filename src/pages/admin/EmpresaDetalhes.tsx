@@ -24,6 +24,7 @@ import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
 import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
 import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClientes";
 import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
+import { createTestOrder } from "@/scripts/createTestOrder";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -985,8 +986,24 @@ export default function EmpresaDetalhes() {
           {/* Aba Pedidos */}
           <TabsContent value="pedidos">
             <Card className="shadow-soft">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Pedidos</CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    const result = await createTestOrder(id!);
+                    if (result.success) {
+                      toast.success(result.message);
+                      queryClient.invalidateQueries({ queryKey: ["pedidos", id] });
+                    } else {
+                      toast.error(result.message);
+                    }
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Criar Pedido Teste
+                </Button>
               </CardHeader>
               <CardContent>
                 {isLoadingPedidos ? (
