@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
@@ -47,6 +50,7 @@ export default function EmpresaDetalhes() {
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
   const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
+  const [selectedPedidoId, setSelectedPedidoId] = useState<string | null>(null);
 
   // Fetch empresa data
   const { data: empresa, isLoading: isLoadingEmpresa } = useQuery({
@@ -156,9 +160,28 @@ export default function EmpresaDetalhes() {
         .from("pedidos")
         .select(`
           *,
-          pessoas:pessoa_id(nome)
+          pessoas:pessoa_id(nome, cnpjf, celular, email),
+          pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep)
         `)
         .eq("empresa_id", id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch pedido items for selected pedido
+  const { data: pedidoItens } = useQuery({
+    queryKey: ["pedido-itens", selectedPedidoId],
+    enabled: !!selectedPedidoId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pedido_itens")
+        .select(`
+          *,
+          produtos:produto_id(descricao, sku, unidade)
+        `)
+        .eq("pedido_id", selectedPedidoId)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -975,28 +998,67 @@ export default function EmpresaDetalhes() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Cliente</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Total</TableHead>
                         <TableHead>Data</TableHead>
+                        <TableHead>Valor Total</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {pedidos.map((pedido) => (
-                        <TableRow key={pedido.id}>
-                          <TableCell className="font-medium">
-                            {(pedido.pessoas as any)?.nome || "-"}
-                          </TableCell>
-                          <TableCell>
-                            <Badge>{pedido.status}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(pedido.created_at).toLocaleDateString("pt-BR")}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {pedidos.map((pedido) => {
+                        const getStatusColor = (status: string) => {
+                          const statusMap: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+                            pending: "secondary",
+                            processing: "default",
+                            completed: "outline",
+                            cancelled: "destructive",
+                          };
+                          return statusMap[status] || "secondary";
+                        };
+
+                        const getStatusLabel = (status: string) => {
+                          const labelMap: Record<string, string> = {
+                            pending: "Pendente",
+                            processing: "Em Processamento",
+                            completed: "Concluído",
+                            cancelled: "Cancelado",
+                          };
+                          return labelMap[status] || status;
+                        };
+
+                        return (
+                          <TableRow key={pedido.id}>
+                            <TableCell className="font-medium">
+                              {(pedido.pessoas as any)?.nome || "-"}
+                            </TableCell>
+                            <TableCell>
+                              {new Date(pedido.created_at).toLocaleDateString("pt-BR", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              })}
+                            </TableCell>
+                            <TableCell>
+                              R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusColor(pedido.status)}>
+                                {getStatusLabel(pedido.status)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedPedidoId(pedido.id)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver Detalhes
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 ) : (
@@ -1245,6 +1307,196 @@ export default function EmpresaDetalhes() {
         onOpenChange={setIsApiDocOpen}
         baseUrl={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1`}
       />
+
+      {/* Dialog de Detalhes do Pedido */}
+      <Dialog open={!!selectedPedidoId} onOpenChange={() => setSelectedPedidoId(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Pedido</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
+            {selectedPedidoId && pedidos && (() => {
+              const pedido = pedidos.find((p) => p.id === selectedPedidoId);
+              if (!pedido) return null;
+
+              const getStatusLabel = (status: string) => {
+                const labelMap: Record<string, string> = {
+                  pending: "Pendente",
+                  processing: "Em Processamento",
+                  completed: "Concluído",
+                  cancelled: "Cancelado",
+                };
+                return labelMap[status] || status;
+              };
+
+              const getStatusColor = (status: string) => {
+                const statusMap: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+                  pending: "secondary",
+                  processing: "default",
+                  completed: "outline",
+                  cancelled: "destructive",
+                };
+                return statusMap[status] || "secondary";
+              };
+
+              return (
+                <div className="space-y-6">
+                  {/* Informações do Cliente */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Cliente</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Nome</p>
+                        <p className="font-medium">{(pedido.pessoas as any)?.nome || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">CPF/CNPJ</p>
+                        <p className="font-medium">{(pedido.pessoas as any)?.cnpjf || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Email</p>
+                        <p className="font-medium">{(pedido.pessoas as any)?.email || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Celular</p>
+                        <p className="font-medium">{(pedido.pessoas as any)?.celular || "-"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Informações do Pedido */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Pedido</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Data do Pedido</p>
+                        <p className="font-medium">
+                          {new Date(pedido.created_at).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Status</p>
+                        <Badge variant={getStatusColor(pedido.status)}>
+                          {getStatusLabel(pedido.status)}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Valor Total</p>
+                        <p className="text-xl font-bold text-primary">
+                          R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Endereço de Entrega */}
+                  {pedido.pessoa_enderecos && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Endereço de Entrega</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="col-span-2">
+                            <p className="text-sm text-muted-foreground">Endereço</p>
+                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.endereco || "-"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Complemento</p>
+                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.complemento || "-"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Bairro</p>
+                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.bairro || "-"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Cidade</p>
+                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.cidade || "-"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">CEP</p>
+                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.cep || "-"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Observações */}
+                  {pedido.observacoes && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Observações</h3>
+                        <p className="text-sm">{pedido.observacoes}</p>
+                      </div>
+                    </>
+                  )}
+
+                  <Separator />
+
+                  {/* Itens do Pedido */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Itens do Pedido</h3>
+                    {pedidoItens && pedidoItens.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Produto</TableHead>
+                            <TableHead>SKU</TableHead>
+                            <TableHead className="text-right">Qtd</TableHead>
+                            <TableHead className="text-right">Valor Unit.</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {pedidoItens.map((item) => (
+                            <TableRow key={item.id}>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">{(item.produtos as any)?.descricao || "-"}</p>
+                                  {(item.produtos as any)?.unidade && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Unidade: {(item.produtos as any).unidade}
+                                    </p>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {(item.produtos as any)?.sku || "-"}
+                              </TableCell>
+                              <TableCell className="text-right font-medium">
+                                {Number(item.quantidade).toLocaleString("pt-BR")}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                R$ {Number(item.valor_unitario || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </TableCell>
+                              <TableCell className="text-right font-semibold">
+                                R$ {Number(item.valor_total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Nenhum item encontrado para este pedido
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
