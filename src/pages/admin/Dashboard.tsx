@@ -3,16 +3,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, ShoppingCart, Activity } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 
 export default function AdminDashboard() {
+  const { selectedEmpresaId } = useEmpresaSelector();
+
   const { data: stats } = useQuery({
-    queryKey: ["admin-stats"],
+    queryKey: ["admin-stats", selectedEmpresaId],
     queryFn: async () => {
+      // Build queries with optional empresa filter
+      let empresasQuery = supabase.from("empresas").select("id", { count: "exact", head: true });
+      let profilesQuery = supabase.from("profiles").select("id", { count: "exact", head: true });
+      let pedidosQuery = supabase.from("pedidos").select("id", { count: "exact", head: true });
+      let jornadasQuery = supabase.from("jornadas").select("id", { count: "exact", head: true });
+
+      if (selectedEmpresaId) {
+        empresasQuery = empresasQuery.eq("id", selectedEmpresaId);
+        profilesQuery = profilesQuery.eq("empresa_id", selectedEmpresaId);
+        pedidosQuery = pedidosQuery.eq("empresa_id", selectedEmpresaId);
+        jornadasQuery = jornadasQuery.eq("empresa_id", selectedEmpresaId);
+      }
+
       const [empresas, profiles, pedidos, jornadas] = await Promise.all([
-        supabase.from("empresas").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("pedidos").select("id", { count: "exact", head: true }),
-        supabase.from("jornadas").select("id", { count: "exact", head: true }),
+        empresasQuery,
+        profilesQuery,
+        pedidosQuery,
+        jornadasQuery,
       ]);
 
       return {
