@@ -51,6 +51,9 @@ export default function AdminDashboard() {
         mensagens: jornadas.count || 0,
       };
     },
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const cards = [
