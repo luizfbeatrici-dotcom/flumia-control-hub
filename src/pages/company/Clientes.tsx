@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Mail, Phone, MapPin, Loader2, Download, Upload } from "lucide-react";
+import { Plus, Mail, Phone, MapPin, Loader2, Download, Upload, SquarePen } from "lucide-react";
 import { toast } from "sonner";
 import { PessoaDialog } from "@/components/company/PessoaDialog";
 import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
@@ -204,6 +204,7 @@ export default function Clientes() {
                 <TableHead>Contato</TableHead>
                 <TableHead>Endereço</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -215,17 +216,13 @@ export default function Clientes() {
                 </TableRow>
               ) : pessoas.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
                     Nenhum cliente encontrado
                   </TableCell>
                 </TableRow>
               ) : (
                 pessoas.map((pessoa) => (
-                  <TableRow
-                    key={pessoa.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleEdit(pessoa)}
-                  >
+                  <TableRow key={pessoa.id}>
                     <TableCell className="font-medium">{pessoa.nome}</TableCell>
                     <TableCell>
                       <Badge variant="outline">
@@ -253,6 +250,15 @@ export default function Clientes() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="default">Ativo</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(pessoa)}
+                      >
+                        Editar
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
