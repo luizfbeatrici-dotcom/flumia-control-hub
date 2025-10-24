@@ -12,10 +12,23 @@ export default function AdminDashboard() {
     queryKey: ["admin-stats", selectedEmpresaId],
     queryFn: async () => {
       // Build queries with optional empresa filter
-      let empresasQuery = supabase.from("empresas").select("id", { count: "exact", head: true });
-      let profilesQuery = supabase.from("profiles").select("id", { count: "exact", head: true });
-      let pedidosQuery = supabase.from("pedidos").select("id", { count: "exact", head: true });
-      let jornadasQuery = supabase.from("jornadas").select("id", { count: "exact", head: true });
+      let empresasQuery = supabase
+        .from("empresas")
+        .select("id", { count: "exact", head: true })
+        .eq("ativo", true);
+      
+      let profilesQuery = supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("ativo", true);
+      
+      let pedidosQuery = supabase
+        .from("pedidos")
+        .select("id", { count: "exact", head: true });
+      
+      let jornadasQuery = supabase
+        .from("jornadas")
+        .select("id", { count: "exact", head: true });
 
       if (selectedEmpresaId) {
         empresasQuery = empresasQuery.eq("id", selectedEmpresaId);
