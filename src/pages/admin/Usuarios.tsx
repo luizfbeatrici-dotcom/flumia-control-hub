@@ -95,24 +95,21 @@ export default function Usuarios() {
 
       if (profileError) throw profileError;
 
-      // Atualizar roles se necessário
-      if (data.is_admin_master !== undefined) {
-        // Remover todas as roles existentes
-        const { error: deleteError } = await supabase
-          .from("user_roles")
-          .delete()
-          .eq("user_id", data.id);
+      // Remover todas as roles existentes
+      const { error: deleteError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.id);
 
-        if (deleteError) throw deleteError;
+      if (deleteError) throw deleteError;
 
-        // Inserir nova role
-        const newRole = data.is_admin_master ? "admin_master" : "company_admin";
-        const { error: insertError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: data.id, role: newRole });
+      // Inserir nova role baseada no tipo de usuário
+      const newRole = data.is_admin_master ? "admin_master" : "company_admin";
+      const { error: insertError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: data.id, role: newRole });
 
-        if (insertError) throw insertError;
-      }
+      if (insertError) throw insertError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["usuarios-admin"] });
