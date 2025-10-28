@@ -123,6 +123,70 @@ export type Database = {
         }
         Relationships: []
       }
+      contatos: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          etapa_id: string
+          etapa_old_id: string | null
+          id: string
+          menu: number | null
+          name: string | null
+          pessoa_id: string | null
+          updated_at: string
+          wa_id: string
+          whatsapp_from: string
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          etapa_id: string
+          etapa_old_id?: string | null
+          id?: string
+          menu?: number | null
+          name?: string | null
+          pessoa_id?: string | null
+          updated_at?: string
+          wa_id: string
+          whatsapp_from: string
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          etapa_id?: string
+          etapa_old_id?: string | null
+          id?: string
+          menu?: number | null
+          name?: string | null
+          pessoa_id?: string | null
+          updated_at?: string
+          wa_id?: string
+          whatsapp_from?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contatos_etapa_fk"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contatos_etapa_old_fk"
+            columns: ["etapa_old_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contatos_pessoa_fk"
+            columns: ["pessoa_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           ativo: boolean | null
@@ -171,6 +235,39 @@ export type Database = {
           updated_at?: string | null
           valor_mensal?: number | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      etapas: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          empresa_id: string
+          id: string
+          nome: string
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          empresa_id: string
+          id?: string
+          nome: string
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          empresa_id?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          updated_at?: string
         }
         Relationships: []
       }
