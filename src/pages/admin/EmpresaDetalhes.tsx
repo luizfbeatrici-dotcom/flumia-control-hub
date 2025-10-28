@@ -1320,10 +1320,12 @@ export default function EmpresaDetalhes() {
                       const formData = new FormData(e.currentTarget);
                       const taxaTransacao = formData.get("taxa_transacao");
                       const valorMensal = formData.get("valor_mensal");
+                      const qtdSincronizacoesDia = formData.get("qtd_sincronizacoes_dia");
 
                       updateEmpresa({
                         taxa_transacao: taxaTransacao ? Number(taxaTransacao) : 0,
                         valor_mensal: valorMensal ? Number(valorMensal) : 0,
+                        qtd_sincronizacoes_dia: qtdSincronizacoesDia ? Number(qtdSincronizacoesDia) : 1,
                       });
                     }}
                     className="space-y-4"
@@ -1363,6 +1365,24 @@ export default function EmpresaDetalhes() {
                         />
                         <p className="text-xs text-muted-foreground">
                           Valor fixo cobrado mensalmente
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="qtd_sincronizacoes_dia" className="text-sm font-medium">
+                          Quantidade de Sincronizações por Dia
+                        </label>
+                        <Input
+                          id="qtd_sincronizacoes_dia"
+                          name="qtd_sincronizacoes_dia"
+                          type="number"
+                          step="1"
+                          min="1"
+                          defaultValue={empresa?.qtd_sincronizacoes_dia || 1}
+                          placeholder="1"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Número de sincronizações permitidas por dia
                         </p>
                       </div>
                     </div>

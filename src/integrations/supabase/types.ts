@@ -198,6 +198,7 @@ export type Database = {
           endereco: string | null
           fantasia: string
           id: string
+          qtd_sincronizacoes_dia: number | null
           razao_social: string
           taxa_transacao: number | null
           updated_at: string | null
@@ -214,6 +215,7 @@ export type Database = {
           endereco?: string | null
           fantasia: string
           id?: string
+          qtd_sincronizacoes_dia?: number | null
           razao_social: string
           taxa_transacao?: number | null
           updated_at?: string | null
@@ -230,6 +232,7 @@ export type Database = {
           endereco?: string | null
           fantasia?: string
           id?: string
+          qtd_sincronizacoes_dia?: number | null
           razao_social?: string
           taxa_transacao?: number | null
           updated_at?: string | null
