@@ -30,6 +30,7 @@ const aplicativoSchema = z.object({
   whatsapp_id: z.string().max(255).optional().nullable(),
   business_id: z.string().max(255).optional().nullable(),
   token: z.string().max(500).optional().nullable(),
+  versao_api: z.string().max(50).default("v22.0"),
 });
 
 type AplicativoFormValues = z.infer<typeof aplicativoSchema>;
@@ -59,6 +60,7 @@ export function AplicativoDialog({
       whatsapp_id: "",
       business_id: "",
       token: "",
+      versao_api: "v22.0",
     },
   });
 
@@ -72,6 +74,7 @@ export function AplicativoDialog({
         whatsapp_id: aplicativo.whatsapp_id || "",
         business_id: aplicativo.business_id || "",
         token: aplicativo.token || "",
+        versao_api: aplicativo.versao_api || "v22.0",
       });
     } else {
       form.reset({
@@ -82,6 +85,7 @@ export function AplicativoDialog({
         whatsapp_id: "",
         business_id: "",
         token: "",
+        versao_api: "v22.0",
       });
     }
   }, [aplicativo, form]);
@@ -232,6 +236,27 @@ export function AplicativoDialog({
                       value={field.value || ""}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="versao_api"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Versão API</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="v22.0"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Versão da API do Facebook Graph (ex: v22.0, v21.0)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
