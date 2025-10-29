@@ -125,6 +125,7 @@ export type Database = {
       }
       contatos: {
         Row: {
+          aplicativo_id: string | null
           created_at: string
           empresa_id: string
           etapa_id: string
@@ -138,6 +139,7 @@ export type Database = {
           whatsapp_from: string
         }
         Insert: {
+          aplicativo_id?: string | null
           created_at?: string
           empresa_id: string
           etapa_id: string
@@ -151,6 +153,7 @@ export type Database = {
           whatsapp_from: string
         }
         Update: {
+          aplicativo_id?: string | null
           created_at?: string
           empresa_id?: string
           etapa_id?: string
@@ -164,6 +167,13 @@ export type Database = {
           whatsapp_from?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contatos_aplicativo_id_fkey"
+            columns: ["aplicativo_id"]
+            isOneToOne: false
+            referencedRelation: "aplicativos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contatos_etapa_fk"
             columns: ["etapa_id"]
