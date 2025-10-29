@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -165,6 +165,23 @@ export default function EmpresaDetalhes() {
           *,
           pessoas:pessoa_id(nome, cnpjf, celular, email),
           pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep)
+        `)
+        .eq("empresa_id", id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch contatos
+  const { data: contatos, isLoading: isLoadingContatos } = useQuery({
+    queryKey: ["contatos", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contatos")
+        .select(`
+          *,
+          pessoas:pessoa_id(nome, cnpjf, celular, email)
         `)
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
@@ -775,6 +792,10 @@ export default function EmpresaDetalhes() {
             <TabsTrigger value="produtos">Produtos</TabsTrigger>
             <TabsTrigger value="clientes">Clientes</TabsTrigger>
             <TabsTrigger value="pedidos">Pedidos</TabsTrigger>
+            <TabsTrigger value="contatos">
+              <Phone className="h-4 w-4 mr-2" />
+              Contatos
+            </TabsTrigger>
             <TabsTrigger value="usuarios">Usuários</TabsTrigger>
             <TabsTrigger value="api-tokens">
               <Key className="h-4 w-4 mr-2" />
@@ -1303,6 +1324,56 @@ export default function EmpresaDetalhes() {
             </Card>
           </TabsContent>
 
+          {/* Aba Contatos */}
+          <TabsContent value="contatos">
+            <Card className="shadow-soft">
+              <CardHeader>
+                <CardTitle>Contatos da Empresa</CardTitle>
+                <CardDescription>
+                  Histórico de contatos registrados
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoadingContatos ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                  </div>
+                ) : contatos && contatos.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>WhatsApp</TableHead>
+                        <TableHead>WA ID</TableHead>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead>Criado em</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {contatos.map((contato) => (
+                        <TableRow key={contato.id}>
+                          <TableCell className="font-medium">{contato.name || "-"}</TableCell>
+                          <TableCell className="font-mono text-xs">{contato.whatsapp_from}</TableCell>
+                          <TableCell className="font-mono text-xs">{contato.wa_id}</TableCell>
+                          <TableCell>
+                            {contato.pessoas?.nome || "-"}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(contato.created_at).toLocaleString("pt-BR")}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    Nenhum contato registrado
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Aba Parâmetros - Visível apenas para Admin Master */}
           {isAdminMaster && (
             <TabsContent value="parametros" className="space-y-4">
@@ -1320,12 +1391,10 @@ export default function EmpresaDetalhes() {
                       const formData = new FormData(e.currentTarget);
                       const taxaTransacao = formData.get("taxa_transacao");
                       const valorMensal = formData.get("valor_mensal");
-                      const qtdSincronizacoesDia = formData.get("qtd_sincronizacoes_dia");
 
                       updateEmpresa({
                         taxa_transacao: taxaTransacao ? Number(taxaTransacao) : 0,
                         valor_mensal: valorMensal ? Number(valorMensal) : 0,
-                        qtd_sincronizacoes_dia: qtdSincronizacoesDia ? Number(qtdSincronizacoesDia) : 1,
                       });
                     }}
                     className="space-y-4"
@@ -1365,24 +1434,6 @@ export default function EmpresaDetalhes() {
                         />
                         <p className="text-xs text-muted-foreground">
                           Valor fixo cobrado mensalmente
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label htmlFor="qtd_sincronizacoes_dia" className="text-sm font-medium">
-                          Quantidade de Sincronizações por Dia
-                        </label>
-                        <Input
-                          id="qtd_sincronizacoes_dia"
-                          name="qtd_sincronizacoes_dia"
-                          type="number"
-                          step="1"
-                          min="1"
-                          defaultValue={empresa?.qtd_sincronizacoes_dia || 1}
-                          placeholder="1"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Número de sincronizações permitidas por dia
                         </p>
                       </div>
                     </div>
