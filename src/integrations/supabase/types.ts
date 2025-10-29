@@ -198,7 +198,6 @@ export type Database = {
           endereco: string | null
           fantasia: string
           id: string
-          qtd_sincronizacoes_dia: number | null
           razao_social: string
           taxa_transacao: number | null
           updated_at: string | null
@@ -215,7 +214,6 @@ export type Database = {
           endereco?: string | null
           fantasia: string
           id?: string
-          qtd_sincronizacoes_dia?: number | null
           razao_social: string
           taxa_transacao?: number | null
           updated_at?: string | null
@@ -232,7 +230,6 @@ export type Database = {
           endereco?: string | null
           fantasia?: string
           id?: string
-          qtd_sincronizacoes_dia?: number | null
           razao_social?: string
           taxa_transacao?: number | null
           updated_at?: string | null
@@ -356,39 +353,61 @@ export type Database = {
       }
       pedidos: {
         Row: {
+          contato_id: string | null
           created_at: string | null
           empresa_id: string
           endereco_id: string | null
+          finalizado_em: string | null
           id: string
           observacoes: string | null
           pessoa_id: string
           status: Database["public"]["Enums"]["order_status"] | null
+          tipo_entrega: string | null
           total: number | null
           updated_at: string | null
+          vlr_frete: number | null
+          whatsapp_from: string | null
         }
         Insert: {
+          contato_id?: string | null
           created_at?: string | null
           empresa_id: string
           endereco_id?: string | null
+          finalizado_em?: string | null
           id?: string
           observacoes?: string | null
           pessoa_id: string
           status?: Database["public"]["Enums"]["order_status"] | null
+          tipo_entrega?: string | null
           total?: number | null
           updated_at?: string | null
+          vlr_frete?: number | null
+          whatsapp_from?: string | null
         }
         Update: {
+          contato_id?: string | null
           created_at?: string | null
           empresa_id?: string
           endereco_id?: string | null
+          finalizado_em?: string | null
           id?: string
           observacoes?: string | null
           pessoa_id?: string
           status?: Database["public"]["Enums"]["order_status"] | null
+          tipo_entrega?: string | null
           total?: number | null
           updated_at?: string | null
+          vlr_frete?: number | null
+          whatsapp_from?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pedidos_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pedidos_empresa_id_fkey"
             columns: ["empresa_id"]
