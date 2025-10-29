@@ -64,6 +64,7 @@ export type Database = {
           nome: string
           token: string | null
           updated_at: string | null
+          versao_api: string
           whatsapp_id: string | null
         }
         Insert: {
@@ -77,6 +78,7 @@ export type Database = {
           nome: string
           token?: string | null
           updated_at?: string | null
+          versao_api?: string
           whatsapp_id?: string | null
         }
         Update: {
@@ -90,6 +92,7 @@ export type Database = {
           nome?: string
           token?: string | null
           updated_at?: string | null
+          versao_api?: string
           whatsapp_id?: string | null
         }
         Relationships: [
