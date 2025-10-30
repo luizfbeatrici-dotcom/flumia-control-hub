@@ -1375,6 +1375,8 @@ export default function EmpresaDetalhes() {
                         <TableHead>Cliente</TableHead>
                         <TableHead>Etapa</TableHead>
                         <TableHead>Etapa Anterior</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Criado em</TableHead>
                         <TableHead>Última Atualização</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1391,6 +1393,12 @@ export default function EmpresaDetalhes() {
                           </TableCell>
                           <TableCell>
                             {contato.etapa_anterior?.nome || "-"}
+                          </TableCell>
+                          <TableCell>
+                            {contato.status || "-"}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(contato.created_at).toLocaleString("pt-BR")}
                           </TableCell>
                           <TableCell>
                             {new Date(contato.updated_at).toLocaleString("pt-BR")}
