@@ -137,6 +137,7 @@ export type Database = {
           menu: number | null
           name: string | null
           pessoa_id: string | null
+          status: string | null
           updated_at: string
           wa_id: string
           whatsapp_from: string
@@ -151,6 +152,7 @@ export type Database = {
           menu?: number | null
           name?: string | null
           pessoa_id?: string | null
+          status?: string | null
           updated_at?: string
           wa_id: string
           whatsapp_from: string
@@ -165,6 +167,7 @@ export type Database = {
           menu?: number | null
           name?: string | null
           pessoa_id?: string | null
+          status?: string | null
           updated_at?: string
           wa_id?: string
           whatsapp_from?: string

@@ -173,20 +173,48 @@ export default function EmpresaDetalhes() {
     },
   });
 
-  // Fetch contatos
+  // Fetch contatos com etapas
   const { data: contatos, isLoading: isLoadingContatos } = useQuery({
     queryKey: ["contatos", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Buscar contatos
+      const { data: contatosData, error: contatosError } = await supabase
         .from("contatos")
-        .select(`
-          *,
-          pessoas:pessoa_id(nome, cnpjf, celular, email)
-        `)
+        .select("*")
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
+      
+      if (contatosError) throw contatosError;
+      if (!contatosData) return [];
+
+      // Buscar pessoas relacionadas
+      const pessoaIds = contatosData
+        .map(c => c.pessoa_id)
+        .filter(Boolean);
+      
+      const { data: pessoasData } = await supabase
+        .from("pessoas")
+        .select("id, nome, cnpjf, celular, email")
+        .in("id", pessoaIds);
+
+      // Buscar etapas relacionadas
+      const etapaIds = [
+        ...contatosData.map(c => c.etapa_id),
+        ...contatosData.map(c => c.etapa_old_id)
+      ].filter(Boolean);
+
+      const { data: etapasData } = await supabase
+        .from("etapas")
+        .select("id, nome")
+        .in("id", etapaIds);
+
+      // Combinar os dados
+      return contatosData.map(contato => ({
+        ...contato,
+        pessoas: pessoasData?.find(p => p.id === contato.pessoa_id),
+        etapa_atual: etapasData?.find(e => e.id === contato.etapa_id),
+        etapa_anterior: etapasData?.find(e => e.id === contato.etapa_old_id)
+      }));
     },
   });
 
@@ -1344,9 +1372,10 @@ export default function EmpresaDetalhes() {
                       <TableRow>
                         <TableHead>Nome</TableHead>
                         <TableHead>WhatsApp</TableHead>
-                        <TableHead>WA ID</TableHead>
                         <TableHead>Cliente</TableHead>
-                        <TableHead>Criado em</TableHead>
+                        <TableHead>Etapa</TableHead>
+                        <TableHead>Etapa Anterior</TableHead>
+                        <TableHead>Última Atualização</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1354,12 +1383,17 @@ export default function EmpresaDetalhes() {
                         <TableRow key={contato.id}>
                           <TableCell className="font-medium">{contato.name || "-"}</TableCell>
                           <TableCell className="font-mono text-xs">{contato.whatsapp_from}</TableCell>
-                          <TableCell className="font-mono text-xs">{contato.wa_id}</TableCell>
                           <TableCell>
                             {contato.pessoas?.nome || "-"}
                           </TableCell>
                           <TableCell>
-                            {new Date(contato.created_at).toLocaleString("pt-BR")}
+                            {contato.etapa_atual?.nome || "-"}
+                          </TableCell>
+                          <TableCell>
+                            {contato.etapa_anterior?.nome || "-"}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(contato.updated_at).toLocaleString("pt-BR")}
                           </TableCell>
                         </TableRow>
                       ))}
