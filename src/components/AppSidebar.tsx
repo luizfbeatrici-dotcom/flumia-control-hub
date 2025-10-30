@@ -28,6 +28,7 @@ export function AppSidebar() {
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     { title: "Empresas", url: "/admin/empresas", icon: Building2 },
     { title: "Usuários", url: "/admin/usuarios", icon: Users },
+    { title: "Bilhetagem", url: "/admin/bilhetagem", icon: Settings },
   ];
 
   const companyItems = [

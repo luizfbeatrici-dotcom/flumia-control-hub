@@ -254,6 +254,36 @@ export type Database = {
         }
         Relationships: []
       }
+      planos: {
+        Row: {
+          id: string
+          nome: string
+          valor_recorrente: number
+          qtd_pedidos: number
+          valor_pedido_adicional: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          nome: string
+          valor_recorrente?: number
+          qtd_pedidos?: number
+          valor_pedido_adicional?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          nome?: string
+          valor_recorrente?: number
+          qtd_pedidos?: number
+          valor_pedido_adicional?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       etapas: {
         Row: {
           ativo: boolean

@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import Empresas from "./pages/admin/Empresas";
 import EmpresaDetalhes from "./pages/admin/EmpresaDetalhes";
 import UsuariosAdmin from "./pages/admin/Usuarios";
+import Bilhetagem from "./pages/admin/Bilhetagem";
 import CompanyDashboard from "./pages/company/Dashboard";
 import Produtos from "./pages/company/Produtos";
 import Clientes from "./pages/company/Clientes";
@@ -63,6 +64,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdminMaster>
                     <UsuariosAdmin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/bilhetagem"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <Bilhetagem />
                   </ProtectedRoute>
                 }
               />
