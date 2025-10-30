@@ -366,6 +366,7 @@ export type Database = {
       }
       pedidos: {
         Row: {
+          aplicativo_id: string | null
           contato_id: string | null
           created_at: string | null
           empresa_id: string
@@ -382,6 +383,7 @@ export type Database = {
           whatsapp_from: string | null
         }
         Insert: {
+          aplicativo_id?: string | null
           contato_id?: string | null
           created_at?: string | null
           empresa_id: string
@@ -398,6 +400,7 @@ export type Database = {
           whatsapp_from?: string | null
         }
         Update: {
+          aplicativo_id?: string | null
           contato_id?: string | null
           created_at?: string | null
           empresa_id?: string
@@ -414,6 +417,13 @@ export type Database = {
           whatsapp_from?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pedidos_aplicativo_id_fkey"
+            columns: ["aplicativo_id"]
+            isOneToOne: false
+            referencedRelation: "aplicativos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pedidos_contato_id_fkey"
             columns: ["contato_id"]
