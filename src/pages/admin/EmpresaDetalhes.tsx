@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Sma
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
@@ -54,6 +55,12 @@ export default function EmpresaDetalhes() {
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
   const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
   const [selectedPedidoId, setSelectedPedidoId] = useState<string | null>(null);
+  
+  // Filtros para contatos
+  const [filterEtapa, setFilterEtapa] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterCriadoEm, setFilterCriadoEm] = useState<string>("");
+  const [filterUltimaAtualizacao, setFilterUltimaAtualizacao] = useState<string>("");
 
   // Fetch empresa data
   const { data: empresa, isLoading: isLoadingEmpresa } = useQuery({
@@ -217,6 +224,63 @@ export default function EmpresaDetalhes() {
       }));
     },
   });
+
+  // Fetch etapas para o filtro
+  const { data: etapas } = useQuery({
+    queryKey: ["etapas", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("etapas")
+        .select("*")
+        .eq("empresa_id", id)
+        .eq("ativo", true)
+        .order("ordem", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Filtrar contatos
+  const contatosFiltrados = useMemo(() => {
+    if (!contatos) return [];
+    
+    return contatos.filter((contato) => {
+      // Filtro por etapa
+      if (filterEtapa && contato.etapa_id !== filterEtapa) {
+        return false;
+      }
+      
+      // Filtro por status
+      if (filterStatus && contato.status !== filterStatus) {
+        return false;
+      }
+      
+      // Filtro por data de criação
+      if (filterCriadoEm) {
+        const contatoDate = new Date(contato.created_at).toISOString().split('T')[0];
+        if (contatoDate !== filterCriadoEm) {
+          return false;
+        }
+      }
+      
+      // Filtro por última atualização
+      if (filterUltimaAtualizacao) {
+        const contatoDate = new Date(contato.updated_at).toISOString().split('T')[0];
+        if (contatoDate !== filterUltimaAtualizacao) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  }, [contatos, filterEtapa, filterStatus, filterCriadoEm, filterUltimaAtualizacao]);
+
+  // Obter lista única de status
+  const statusList = useMemo(() => {
+    if (!contatos) return [];
+    const statusSet = new Set(contatos.map(c => c.status).filter(Boolean));
+    return Array.from(statusSet).sort();
+  }, [contatos]);
 
   // Fetch pedido items for selected pedido
   const { data: pedidoItens } = useQuery({
@@ -1362,11 +1426,66 @@ export default function EmpresaDetalhes() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Filtros */}
+                <div className="mb-6 grid gap-4 md:grid-cols-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Etapa</label>
+                    <Select value={filterEtapa} onValueChange={setFilterEtapa}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Todas</SelectItem>
+                        {etapas?.map((etapa) => (
+                          <SelectItem key={etapa.id} value={etapa.id}>
+                            {etapa.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Status</label>
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Todos</SelectItem>
+                        {statusList.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Criado em</label>
+                    <Input
+                      type="date"
+                      value={filterCriadoEm}
+                      onChange={(e) => setFilterCriadoEm(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Última Atualização</label>
+                    <Input
+                      type="date"
+                      value={filterUltimaAtualizacao}
+                      onChange={(e) => setFilterUltimaAtualizacao(e.target.value)}
+                    />
+                  </div>
+                </div>
+
                 {isLoadingContatos ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                   </div>
-                ) : contatos && contatos.length > 0 ? (
+                ) : contatosFiltrados && contatosFiltrados.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1381,7 +1500,7 @@ export default function EmpresaDetalhes() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {contatos.map((contato) => (
+                      {contatosFiltrados.map((contato) => (
                         <TableRow key={contato.id}>
                           <TableCell className="font-medium">{contato.name || "-"}</TableCell>
                           <TableCell className="font-mono text-xs">{contato.whatsapp_from}</TableCell>
