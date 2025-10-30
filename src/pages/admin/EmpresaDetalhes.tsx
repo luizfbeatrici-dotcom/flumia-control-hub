@@ -300,16 +300,17 @@ export default function EmpresaDetalhes() {
     },
   });
 
-  // Fetch conversas ativas (jornadas)
-  const { data: jornadas } = useQuery({
-    queryKey: ["jornadas", id],
+  // Fetch conversas ativas (contatos com status ativo)
+  const { data: conversasAtivasCount } = useQuery({
+    queryKey: ["conversas-ativas", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("jornadas")
-        .select("id")
-        .eq("empresa_id", id);
+      const { count, error } = await supabase
+        .from("contatos")
+        .select("*", { count: "exact", head: true })
+        .eq("empresa_id", id)
+        .eq("status", "ativo");
       if (error) throw error;
-      return data;
+      return count;
     },
   });
 
@@ -845,10 +846,10 @@ export default function EmpresaDetalhes() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {jornadas?.length || 0}
+                {conversasAtivasCount || 0}
               </div>
               <p className="text-xs text-muted-foreground">
-                Jornadas registradas
+                Contatos com status ativo
               </p>
             </CardContent>
           </Card>
