@@ -57,8 +57,8 @@ export default function EmpresaDetalhes() {
   const [selectedPedidoId, setSelectedPedidoId] = useState<string | null>(null);
   
   // Filtros para contatos
-  const [filterEtapa, setFilterEtapa] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterEtapa, setFilterEtapa] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCriadoEm, setFilterCriadoEm] = useState<string>("");
   const [filterUltimaAtualizacao, setFilterUltimaAtualizacao] = useState<string>("");
 
@@ -246,12 +246,12 @@ export default function EmpresaDetalhes() {
     
     return contatos.filter((contato) => {
       // Filtro por etapa
-      if (filterEtapa && contato.etapa_id !== filterEtapa) {
+      if (filterEtapa && filterEtapa !== "all" && contato.etapa_id !== filterEtapa) {
         return false;
       }
       
       // Filtro por status
-      if (filterStatus && contato.status !== filterStatus) {
+      if (filterStatus && filterStatus !== "all" && contato.status !== filterStatus) {
         return false;
       }
       
@@ -1435,7 +1435,7 @@ export default function EmpresaDetalhes() {
                         <SelectValue placeholder="Todas" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todas</SelectItem>
+                        <SelectItem value="all">Todas</SelectItem>
                         {etapas?.map((etapa) => (
                           <SelectItem key={etapa.id} value={etapa.id}>
                             {etapa.nome}
@@ -1452,7 +1452,7 @@ export default function EmpresaDetalhes() {
                         <SelectValue placeholder="Todos" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos</SelectItem>
+                        <SelectItem value="all">Todos</SelectItem>
                         {statusList.map((status) => (
                           <SelectItem key={status} value={status}>
                             {status}
