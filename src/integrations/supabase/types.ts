@@ -626,6 +626,7 @@ export type Database = {
           created_at: string | null
           departamento: string | null
           descricao: string
+          embedding: string | null
           empresa_id: string
           grupo: string | null
           id: string
@@ -644,6 +645,7 @@ export type Database = {
           created_at?: string | null
           departamento?: string | null
           descricao: string
+          embedding?: string | null
           empresa_id: string
           grupo?: string | null
           id?: string
@@ -664,6 +666,7 @@ export type Database = {
           created_at?: string | null
           departamento?: string | null
           descricao?: string
+          embedding?: string | null
           empresa_id?: string
           grupo?: string | null
           id?: string
