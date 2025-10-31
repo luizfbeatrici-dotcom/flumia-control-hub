@@ -758,6 +758,26 @@ export type Database = {
         }
         Returns: boolean
       }
+      search_produtos_by_embedding: {
+        Args: {
+          empresa_id_param?: string
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          categoria: string
+          complemento: string
+          departamento: string
+          descricao: string
+          grupo: string
+          id: string
+          preco1: number
+          preco2: number
+          similarity: number
+          subgrupo: string
+        }[]
+      }
       user_empresa_id: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
