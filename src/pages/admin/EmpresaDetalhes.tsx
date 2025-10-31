@@ -1590,11 +1590,13 @@ export default function EmpresaDetalhes() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">Nenhum plano</SelectItem>
-                          {planos?.map((plano: any) => (
-                            <SelectItem key={plano.id} value={plano.id}>
-                              {plano.nome} - R$ {Number(plano.valor_recorrente || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({plano.qtd_pedidos} pedidos)
-                            </SelectItem>
-                          ))}
+                          {planos && planos.length > 0 ? (
+                            planos.map((plano: any) => (
+                              <SelectItem key={plano.id} value={plano.id}>
+                                {plano.nome} - R$ {Number(plano.valor_recorrente || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({plano.qtd_pedidos} pedidos)
+                              </SelectItem>
+                            ))
+                          ) : null}
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground">
