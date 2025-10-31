@@ -214,6 +214,7 @@ export type Database = {
           endereco: string | null
           fantasia: string
           id: string
+          plano_id: string | null
           razao_social: string
           taxa_transacao: number | null
           updated_at: string | null
@@ -230,6 +231,7 @@ export type Database = {
           endereco?: string | null
           fantasia: string
           id?: string
+          plano_id?: string | null
           razao_social: string
           taxa_transacao?: number | null
           updated_at?: string | null
@@ -246,43 +248,22 @@ export type Database = {
           endereco?: string | null
           fantasia?: string
           id?: string
+          plano_id?: string | null
           razao_social?: string
           taxa_transacao?: number | null
           updated_at?: string | null
           valor_mensal?: number | null
           whatsapp?: string | null
         }
-        Relationships: []
-      }
-      planos: {
-        Row: {
-          id: string
-          nome: string
-          valor_recorrente: number
-          qtd_pedidos: number
-          valor_pedido_adicional: number
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          nome: string
-          valor_recorrente?: number
-          qtd_pedidos?: number
-          valor_pedido_adicional?: number
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          nome?: string
-          valor_recorrente?: number
-          qtd_pedidos?: number
-          valor_pedido_adicional?: number
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "empresas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       etapas: {
         Row: {
@@ -574,6 +555,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      planos: {
+        Row: {
+          created_at: string | null
+          id: string
+          nome: string
+          qtd_pedidos: number
+          updated_at: string | null
+          valor_pedido_adicional: number
+          valor_recorrente: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          nome: string
+          qtd_pedidos?: number
+          updated_at?: string | null
+          valor_pedido_adicional?: number
+          valor_recorrente?: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nome?: string
+          qtd_pedidos?: number
+          updated_at?: string | null
+          valor_pedido_adicional?: number
+          valor_recorrente?: number
+        }
+        Relationships: []
       }
       produto_imagens: {
         Row: {

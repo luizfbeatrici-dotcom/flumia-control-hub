@@ -314,6 +314,19 @@ export default function EmpresaDetalhes() {
     },
   });
 
+  // Fetch planos
+  const { data: planos } = useQuery({
+    queryKey: ["planos"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("planos")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Fetch total de vendas do mês atual
   const { data: vendasMesAtual } = useQuery({
     queryKey: ["vendas-mes-atual", id],
@@ -1541,9 +1554,9 @@ export default function EmpresaDetalhes() {
             <TabsContent value="parametros" className="space-y-4">
               <Card className="shadow-soft">
                 <CardHeader>
-                  <CardTitle>Parâmetros Financeiros</CardTitle>
+                  <CardTitle>Parâmetros</CardTitle>
                   <CardDescription>
-                    Configure os valores cobrados do cliente
+                    Configure o plano da empresa
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -1551,53 +1564,42 @@ export default function EmpresaDetalhes() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       const formData = new FormData(e.currentTarget);
-                      const taxaTransacao = formData.get("taxa_transacao");
-                      const valorMensal = formData.get("valor_mensal");
+                      const planoId = formData.get("plano_id");
 
                       updateEmpresa({
-                        taxa_transacao: taxaTransacao ? Number(taxaTransacao) : 0,
-                        valor_mensal: valorMensal ? Number(valorMensal) : 0,
+                        plano_id: planoId || null,
                       });
                     }}
                     className="space-y-4"
                   >
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <label htmlFor="taxa_transacao" className="text-sm font-medium">
-                          Taxa de Transação (%)
-                        </label>
-                        <Input
-                          id="taxa_transacao"
-                          name="taxa_transacao"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          defaultValue={empresa?.taxa_transacao || 0}
-                          placeholder="0.00"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Percentual cobrado por transação
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label htmlFor="valor_mensal" className="text-sm font-medium">
-                          Valor Mensal (R$)
-                        </label>
-                        <Input
-                          id="valor_mensal"
-                          name="valor_mensal"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          defaultValue={empresa?.valor_mensal || 0}
-                          placeholder="0.00"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Valor fixo cobrado mensalmente
-                        </p>
-                      </div>
+                    <div className="space-y-2">
+                      <label htmlFor="plano_id" className="text-sm font-medium">
+                        Plano de Assinatura
+                      </label>
+                      <Select
+                        name="plano_id"
+                        defaultValue={empresa?.plano_id || ""}
+                        onValueChange={(value) => {
+                          updateEmpresa({
+                            plano_id: value || null,
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Nenhum plano</SelectItem>
+                          {planos?.map((plano: any) => (
+                            <SelectItem key={plano.id} value={plano.id}>
+                              {plano.nome} - R$ {Number(plano.valor_recorrente || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({plano.qtd_pedidos} pedidos)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        Selecione o plano de assinatura da empresa
+                      </p>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4">
