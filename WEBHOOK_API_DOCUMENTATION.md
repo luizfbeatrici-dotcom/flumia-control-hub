@@ -1,8 +1,8 @@
-# Documentação da API de Webhooks
+# Documentação da API REST
 
 ## Visão Geral
 
-A API de Webhooks permite que você envie dados de **Produtos** e **Pessoas (Clientes)** para o sistema através de requisições HTTP autenticadas com tokens de API.
+A API REST permite que você gerencie **Produtos** e **Pessoas (Clientes)** através de requisições HTTP autenticadas com tokens de API.
 
 ## Autenticação
 
@@ -23,19 +23,101 @@ Authorization: Bearer SEU_TOKEN_AQUI
 
 **IMPORTANTE**: Guarde o token em local seguro. Ele não poderá ser visualizado novamente.
 
-## Endpoints Disponíveis
-
-### Base URL
+## Base URL
 
 ```
-https://hybuoksgodflxjhjoufv.supabase.co/functions/v1
+https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1
+```
+
+> **Nota**: As URLs legadas `/webhook-produtos` e `/webhook-pessoas` continuam funcionando para compatibilidade.
+
+---
+
+## 1. API de Produtos
+
+### GET /produtos
+
+Lista produtos com suporte a filtros e paginação.
+
+#### Headers
+
+```
+Authorization: Bearer SEU_TOKEN
+```
+
+#### Parâmetros de Query (opcionais)
+
+| Parâmetro | Tipo | Descrição |
+|-----------|------|-----------|
+| id | string | Buscar produto por ID específico |
+| sku | string | Filtrar por SKU |
+| limit | number | Limite de resultados (padrão: 100) |
+| offset | number | Offset para paginação (padrão: 0) |
+
+#### Exemplos de Requisição
+
+**Listar produtos com paginação:**
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos?limit=10&offset=0' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
+**Buscar produto por SKU:**
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos?sku=MART001' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
+**Buscar produto por ID:**
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos?id=uuid-do-produto' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
+#### Resposta de Sucesso (Lista)
+
+```json
+{
+  "success": true,
+  "total": 2,
+  "limit": 100,
+  "offset": 0,
+  "produtos": [
+    {
+      "id": "uuid-do-produto",
+      "empresa_id": "uuid-da-empresa",
+      "descricao": "Martelo",
+      "sku": "MART001",
+      "preco1": 29.90,
+      "ativo": true,
+      "created_at": "2025-10-24T00:00:00Z"
+    }
+  ]
+}
+```
+
+#### Resposta de Sucesso (Produto Único)
+
+Quando buscar por ID, retorna o produto diretamente:
+
+```json
+{
+  "id": "uuid-do-produto",
+  "empresa_id": "uuid-da-empresa",
+  "descricao": "Martelo",
+  "sku": "MART001",
+  "preco1": 29.90,
+  "ativo": true,
+  "created_at": "2025-10-24T00:00:00Z"
+}
 ```
 
 ---
 
-## 1. Webhook de Produtos
-
-### POST /webhook-produtos
+### POST /produtos
 
 Cria um ou mais produtos.
 
@@ -64,7 +146,8 @@ Você pode enviar um único produto ou um array de produtos:
   "grupo": "Manuais",
   "subgrupo": "Básicas",
   "visibilidade": "visible",
-  "ativo": true
+  "ativo": true,
+  "limite_venda": 10
 }
 ```
 
@@ -100,6 +183,7 @@ Você pode enviar um único produto ou um array de produtos:
 | subgrupo | string | ❌ Não | Subgrupo |
 | visibilidade | string | ❌ Não | `visible`, `hidden`, `catalog_only` |
 | ativo | boolean | ❌ Não | Status do produto (padrão: true) |
+| limite_venda | number | ❌ Não | Quantidade máxima por venda |
 
 #### Resposta de Sucesso
 
@@ -111,11 +195,15 @@ Você pode enviar um único produto ou um array de produtos:
   "erros": 0,
   "resultados": [
     {
-      "id": "uuid-do-produto",
-      "empresa_id": "uuid-da-empresa",
-      "descricao": "Martelo",
+      "id": "uuid-do-produto-1",
       "sku": "MART001",
-      "preco1": 29.90,
+      "descricao": "Martelo",
+      "created_at": "2025-10-24T00:00:00Z"
+    },
+    {
+      "id": "uuid-do-produto-2",
+      "sku": "CHAV001",
+      "descricao": "Chave de Fenda",
       "created_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -124,7 +212,7 @@ Você pode enviar um único produto ou um array de produtos:
 
 ---
 
-### PUT /webhook-produtos
+### PUT /produtos
 
 Atualiza um ou mais produtos existentes.
 
@@ -159,8 +247,8 @@ Content-Type: application/json
   "resultados": [
     {
       "id": "uuid-do-produto",
+      "sku": "MART001",
       "descricao": "Martelo Premium",
-      "preco1": 35.90,
       "updated_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -169,9 +257,90 @@ Content-Type: application/json
 
 ---
 
-## 2. Webhook de Pessoas (Clientes)
+## 2. API de Pessoas (Clientes)
 
-### POST /webhook-pessoas
+### GET /pessoas
+
+Lista pessoas com suporte a filtros e paginação.
+
+#### Headers
+
+```
+Authorization: Bearer SEU_TOKEN
+```
+
+#### Parâmetros de Query (opcionais)
+
+| Parâmetro | Tipo | Descrição |
+|-----------|------|-----------|
+| id | string | Buscar pessoa por ID específico |
+| cnpjf | string | Filtrar por CPF/CNPJ |
+| email | string | Filtrar por email |
+| limit | number | Limite de resultados (padrão: 100) |
+| offset | number | Offset para paginação (padrão: 0) |
+
+#### Exemplos de Requisição
+
+**Listar pessoas com paginação:**
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas?limit=10&offset=0' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
+**Buscar pessoa por CNPJ:**
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas?cnpjf=12345678901' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
+**Buscar pessoa por ID:**
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas?id=uuid-da-pessoa' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
+#### Resposta de Sucesso (Lista)
+
+```json
+{
+  "success": true,
+  "total": 1,
+  "limit": 100,
+  "offset": 0,
+  "pessoas": [
+    {
+      "id": "uuid-da-pessoa",
+      "empresa_id": "uuid-da-empresa",
+      "nome": "João Silva",
+      "cnpjf": "12345678901",
+      "email": "joao@example.com",
+      "created_at": "2025-10-24T00:00:00Z"
+    }
+  ]
+}
+```
+
+#### Resposta de Sucesso (Pessoa Única)
+
+Quando buscar por ID, retorna a pessoa diretamente:
+
+```json
+{
+  "id": "uuid-da-pessoa",
+  "empresa_id": "uuid-da-empresa",
+  "nome": "João Silva",
+  "cnpjf": "12345678901",
+  "email": "joao@example.com",
+  "created_at": "2025-10-24T00:00:00Z"
+}
+```
+
+---
+
+### POST /pessoas
 
 Cria uma ou mais pessoas/clientes.
 
@@ -230,7 +399,6 @@ Content-Type: application/json
   "resultados": [
     {
       "id": "uuid-da-pessoa",
-      "empresa_id": "uuid-da-empresa",
       "nome": "João Silva",
       "cnpjf": "12345678901",
       "email": "joao@example.com",
@@ -242,7 +410,7 @@ Content-Type: application/json
 
 ---
 
-### PUT /webhook-pessoas
+### PUT /pessoas
 
 Atualiza uma ou mais pessoas existentes.
 
@@ -270,6 +438,26 @@ Content-Type: application/json
 
 O sistema busca a pessoa por esses identificadores e atualiza os dados fornecidos.
 
+#### Resposta de Sucesso
+
+```json
+{
+  "success": true,
+  "total": 1,
+  "processados": 1,
+  "erros": 0,
+  "resultados": [
+    {
+      "id": "uuid-da-pessoa",
+      "nome": "João Silva Júnior",
+      "cnpjf": "12345678901",
+      "email": "joao.jr@example.com",
+      "updated_at": "2025-10-24T00:00:00Z"
+    }
+  ]
+}
+```
+
 ---
 
 ## Códigos de Resposta HTTP
@@ -279,18 +467,27 @@ O sistema busca a pessoa por esses identificadores e atualiza os dados fornecido
 | 200 | Sucesso - Dados processados |
 | 400 | Erro - Dados inválidos ou falha no processamento |
 | 401 | Não autorizado - Token inválido ou ausente |
-| 405 | Método não permitido - Use POST ou PUT |
+| 404 | Não encontrado - Recurso não existe |
+| 405 | Método não permitido - Use GET, POST ou PUT |
 | 500 | Erro interno do servidor |
 
 ---
 
 ## Exemplos de Uso
 
+### cURL - Listar Produtos
+
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos?limit=10' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
 ### cURL - Criar Produto
 
 ```bash
 curl -X POST \
-  https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-produtos \
+  https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos \
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -305,7 +502,7 @@ curl -X POST \
 
 ```bash
 curl -X PUT \
-  https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-produtos \
+  https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos \
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -314,11 +511,19 @@ curl -X PUT \
   }'
 ```
 
+### cURL - Listar Clientes
+
+```bash
+curl -X GET \
+  'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas?limit=10' \
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'
+```
+
 ### cURL - Criar Cliente
 
 ```bash
 curl -X POST \
-  https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-pessoas \
+  https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas \
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -336,13 +541,21 @@ import requests
 import json
 
 # Configuração
-API_BASE = "https://hybuoksgodflxjhjoufv.supabase.co/functions/v1"
+API_BASE = "https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1"
 TOKEN = "SEU_TOKEN_AQUI"
 
 headers = {
     "Authorization": f"Bearer {TOKEN}",
     "Content-Type": "application/json"
 }
+
+# Listar produtos
+response = requests.get(
+    f"{API_BASE}/produtos",
+    headers=headers,
+    params={"limit": 10, "offset": 0}
+)
+print("Produtos:", response.json())
 
 # Criar múltiplos produtos
 produtos = [
@@ -359,12 +572,20 @@ produtos = [
 ]
 
 response = requests.post(
-    f"{API_BASE}/webhook-produtos",
+    f"{API_BASE}/produtos",
     headers=headers,
     json=produtos
 )
 
-print(response.json())
+print("Criados:", response.json())
+
+# Buscar produto por SKU
+response = requests.get(
+    f"{API_BASE}/produtos",
+    headers=headers,
+    params={"sku": "PROD001"}
+)
+print("Produto encontrado:", response.json())
 ```
 
 ### JavaScript/Node.js - Exemplo
@@ -372,7 +593,7 @@ print(response.json())
 ```javascript
 const axios = require('axios');
 
-const API_BASE = 'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1';
+const API_BASE = 'https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1';
 const TOKEN = 'SEU_TOKEN_AQUI';
 
 const headers = {
@@ -380,11 +601,27 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
+// Listar clientes
+async function listarClientes() {
+  try {
+    const response = await axios.get(
+      `${API_BASE}/pessoas`,
+      { 
+        headers,
+        params: { limit: 10, offset: 0 }
+      }
+    );
+    console.log('Clientes:', response.data);
+  } catch (error) {
+    console.error('Erro:', error.response.data);
+  }
+}
+
 // Criar cliente
 async function criarCliente() {
   try {
     const response = await axios.post(
-      `${API_BASE}/webhook-pessoas`,
+      `${API_BASE}/pessoas`,
       {
         nome: 'João Silva',
         cnpjf: '12345678901',
@@ -394,12 +631,31 @@ async function criarCliente() {
     );
     
     console.log('Cliente criado:', response.data);
+    // response.data.resultados[0].id contém o ID do cliente criado
   } catch (error) {
     console.error('Erro:', error.response.data);
   }
 }
 
+// Buscar cliente por CNPJ
+async function buscarPorCNPJ(cnpjf) {
+  try {
+    const response = await axios.get(
+      `${API_BASE}/pessoas`,
+      { 
+        headers,
+        params: { cnpjf }
+      }
+    );
+    console.log('Cliente encontrado:', response.data);
+  } catch (error) {
+    console.error('Erro:', error.response.data);
+  }
+}
+
+listarClientes();
 criarCliente();
+buscarPorCNPJ('12345678901');
 ```
 
 ---
@@ -417,6 +673,7 @@ Quando há erros no processamento, a resposta incluirá um array `falhas` com de
   "resultados": [
     {
       "id": "uuid-do-produto",
+      "sku": "PROD001",
       "descricao": "Produto 1"
     }
   ],
@@ -431,6 +688,23 @@ Quando há erros no processamento, a resposta incluirá um array `falhas` com de
 
 ---
 
+## Paginação
+
+Para listar grandes volumes de dados, use os parâmetros `limit` e `offset`:
+
+```bash
+# Primeira página (10 registros)
+GET /produtos?limit=10&offset=0
+
+# Segunda página (10 registros)
+GET /produtos?limit=10&offset=10
+
+# Terceira página (10 registros)
+GET /produtos?limit=10&offset=20
+```
+
+---
+
 ## Boas Práticas
 
 1. **Segurança**: Nunca exponha seu token em repositórios públicos ou logs
@@ -439,6 +713,8 @@ Quando há erros no processamento, a resposta incluirá um array `falhas` com de
 4. **Logs**: Mantenha logs das requisições para debugging
 5. **Retry**: Implemente retry logic para falhas temporárias de rede
 6. **Batch**: Para grandes volumes, envie dados em lotes de 50-100 registros
+7. **IDs**: Sempre armazene os IDs retornados nas operações de criação para futuras referências
+8. **Paginação**: Use paginação adequada ao listar grandes volumes de dados
 
 ---
 
