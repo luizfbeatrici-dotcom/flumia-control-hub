@@ -833,6 +833,7 @@ export type Database = {
           disponivel: boolean
           limite_venda: number
           mensagem: string
+          quantidade_solicitada: number
           saldo_atual: number
         }[]
       }
