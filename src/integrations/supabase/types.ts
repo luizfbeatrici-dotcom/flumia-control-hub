@@ -433,6 +433,82 @@ export type Database = {
           },
         ]
       }
+      pagamentos: {
+        Row: {
+          created_at: string | null
+          date_approved: string | null
+          date_created: string | null
+          date_last_updated: string | null
+          date_of_expiration: string | null
+          empresa_id: string
+          id: string
+          id_transacao: string
+          mercadopago_config_id: string | null
+          pedido_id: string
+          pix_base64: string
+          pix_url: string
+          status: string | null
+          ticket_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date_approved?: string | null
+          date_created?: string | null
+          date_last_updated?: string | null
+          date_of_expiration?: string | null
+          empresa_id: string
+          id?: string
+          id_transacao: string
+          mercadopago_config_id?: string | null
+          pedido_id: string
+          pix_base64: string
+          pix_url: string
+          status?: string | null
+          ticket_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date_approved?: string | null
+          date_created?: string | null
+          date_last_updated?: string | null
+          date_of_expiration?: string | null
+          empresa_id?: string
+          id?: string
+          id_transacao?: string
+          mercadopago_config_id?: string | null
+          pedido_id?: string
+          pix_base64?: string
+          pix_url?: string
+          status?: string | null
+          ticket_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_mercadopago_config_id_fkey"
+            columns: ["mercadopago_config_id"]
+            isOneToOne: false
+            referencedRelation: "mercadopago_config"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedido_itens: {
         Row: {
           created_at: string | null
