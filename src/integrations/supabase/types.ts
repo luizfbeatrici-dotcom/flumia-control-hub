@@ -374,6 +374,65 @@ export type Database = {
           },
         ]
       }
+      mercadopago_config: {
+        Row: {
+          access_token: string
+          client_id: string | null
+          client_secret: string | null
+          created_at: string
+          empresa_id: string
+          expires_in: number | null
+          id: string
+          notification_url: string | null
+          public_key: string
+          refresh_token: string | null
+          tipo: string
+          token_type: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          access_token: string
+          client_id?: string | null
+          client_secret?: string | null
+          created_at?: string
+          empresa_id: string
+          expires_in?: number | null
+          id?: string
+          notification_url?: string | null
+          public_key: string
+          refresh_token?: string | null
+          tipo?: string
+          token_type?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          access_token?: string
+          client_id?: string | null
+          client_secret?: string | null
+          created_at?: string
+          empresa_id?: string
+          expires_in?: number | null
+          id?: string
+          notification_url?: string | null
+          public_key?: string
+          refresh_token?: string | null
+          tipo?: string
+          token_type?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mercadopago_config_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedido_itens: {
         Row: {
           created_at: string | null
@@ -381,6 +440,7 @@ export type Database = {
           pedido_id: string
           produto_id: string
           quantidade: number
+          updated_at: string | null
           valor_total: number
           valor_unitario: number
         }
@@ -390,6 +450,7 @@ export type Database = {
           pedido_id: string
           produto_id: string
           quantidade: number
+          updated_at?: string | null
           valor_total: number
           valor_unitario: number
         }
@@ -399,6 +460,7 @@ export type Database = {
           pedido_id?: string
           produto_id?: string
           quantidade?: number
+          updated_at?: string | null
           valor_total?: number
           valor_unitario?: number
         }

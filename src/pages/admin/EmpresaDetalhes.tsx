@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings, Phone } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings, Phone, CreditCard } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -26,6 +26,7 @@ import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
 import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
 import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClientes";
 import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
+import { MercadoPagoDialog } from "@/components/admin/MercadoPagoDialog";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Breadcrumb,
@@ -51,10 +52,12 @@ export default function EmpresaDetalhes() {
   const [isAplicativoDialogOpen, setIsAplicativoDialogOpen] = useState(false);
   const [isApiTokenDialogOpen, setIsApiTokenDialogOpen] = useState(false);
   const [isApiDocOpen, setIsApiDocOpen] = useState(false);
+  const [isMercadoPagoDialogOpen, setIsMercadoPagoDialogOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
   const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
   const [selectedPedidoId, setSelectedPedidoId] = useState<string | null>(null);
+  const [selectedMercadoPagoTipo, setSelectedMercadoPagoTipo] = useState<"test" | "prod">("test");
   
   // Filtros para contatos
   const [filterEtapa, setFilterEtapa] = useState<string>("all");
@@ -127,6 +130,20 @@ export default function EmpresaDetalhes() {
         .select("*")
         .eq("empresa_id", id)
         .order("created_at", { ascending: false});
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch Mercado Pago configs
+  const { data: mercadoPagoConfigs, isLoading: isLoadingMercadoPagoConfigs } = useQuery({
+    queryKey: ["mercadopago-configs", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("mercadopago_config")
+        .select("*")
+        .eq("empresa_id", id)
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -598,6 +615,64 @@ export default function EmpresaDetalhes() {
     toggleApiTokenMutation.mutate({ tokenId, ativo: !currentStatus });
   };
 
+  // Mercado Pago mutations
+  const createMercadoPagoConfigMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const { error } = await supabase.from("mercadopago_config").insert({
+        ...data,
+        empresa_id: id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mercadopago-configs", id] });
+      toast.success("Configuração do Mercado Pago criada com sucesso!");
+      setIsMercadoPagoDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao criar configuração");
+    },
+  });
+
+  const updateMercadoPagoConfigMutation = useMutation({
+    mutationFn: async ({ configId, data }: { configId: string; data: any }) => {
+      const { error } = await supabase
+        .from("mercadopago_config")
+        .update(data)
+        .eq("id", configId)
+        .eq("empresa_id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mercadopago-configs", id] });
+      toast.success("Configuração do Mercado Pago atualizada com sucesso!");
+      setIsMercadoPagoDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar configuração");
+    },
+  });
+
+  const handleSaveMercadoPagoConfig = async (data: any) => {
+    const existingConfig = mercadoPagoConfigs?.find(
+      (c: any) => c.tipo === selectedMercadoPagoTipo
+    );
+    
+    if (existingConfig) {
+      await updateMercadoPagoConfigMutation.mutateAsync({ 
+        configId: existingConfig.id, 
+        data 
+      });
+    } else {
+      await createMercadoPagoConfigMutation.mutateAsync(data);
+    }
+  };
+
+  const handleEditMercadoPagoConfig = (tipo: "test" | "prod") => {
+    setSelectedMercadoPagoTipo(tipo);
+    setIsMercadoPagoDialogOpen(true);
+  };
+
   const handleSaveProduto = async (data: any) => {
     if (selectedProduto) {
       await updateProdutoMutation.mutateAsync({ produtoId: selectedProduto.id, data });
@@ -906,6 +981,10 @@ export default function EmpresaDetalhes() {
             <TabsTrigger value="api-tokens">
               <Key className="h-4 w-4 mr-2" />
               API Tokens
+            </TabsTrigger>
+            <TabsTrigger value="mercadopago">
+              <CreditCard className="h-4 w-4 mr-2" />
+              Mercado Pago
             </TabsTrigger>
             {isAdminMaster && (
               <TabsTrigger value="parametros">
@@ -1569,6 +1648,125 @@ export default function EmpresaDetalhes() {
             </Card>
           </TabsContent>
 
+          {/* Aba Mercado Pago */}
+          <TabsContent value="mercadopago" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Configuração de Teste */}
+              <Card className="shadow-soft">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Ambiente de Teste</CardTitle>
+                    <CardDescription>
+                      Configurações para testes do Mercado Pago
+                    </CardDescription>
+                  </div>
+                  <Badge variant="secondary">Test</Badge>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingMercadoPagoConfigs ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                    </div>
+                  ) : mercadoPagoConfigs?.find((c: any) => c.tipo === "test") ? (
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Public Key</p>
+                        <p className="text-sm font-mono truncate">
+                          {mercadoPagoConfigs.find((c: any) => c.tipo === "test")?.public_key}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">URL da API</p>
+                        <p className="text-sm truncate">
+                          {mercadoPagoConfigs.find((c: any) => c.tipo === "test")?.url}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleEditMercadoPagoConfig("test")}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar Configuração
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Nenhuma configuração de teste cadastrada
+                      </p>
+                      <Button
+                        size="sm"
+                        onClick={() => handleEditMercadoPagoConfig("test")}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Configurar
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Configuração de Produção */}
+              <Card className="shadow-soft">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Ambiente de Produção</CardTitle>
+                    <CardDescription>
+                      Configurações para produção do Mercado Pago
+                    </CardDescription>
+                  </div>
+                  <Badge>Prod</Badge>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingMercadoPagoConfigs ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                    </div>
+                  ) : mercadoPagoConfigs?.find((c: any) => c.tipo === "prod") ? (
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Public Key</p>
+                        <p className="text-sm font-mono truncate">
+                          {mercadoPagoConfigs.find((c: any) => c.tipo === "prod")?.public_key}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">URL da API</p>
+                        <p className="text-sm truncate">
+                          {mercadoPagoConfigs.find((c: any) => c.tipo === "prod")?.url}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleEditMercadoPagoConfig("prod")}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar Configuração
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Nenhuma configuração de produção cadastrada
+                      </p>
+                      <Button
+                        size="sm"
+                        onClick={() => handleEditMercadoPagoConfig("prod")}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Configurar
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           {/* Aba Parâmetros - Visível apenas para Admin Master */}
           {isAdminMaster && (
             <TabsContent value="parametros" className="space-y-4">
@@ -1898,6 +2096,14 @@ export default function EmpresaDetalhes() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
+
+      <MercadoPagoDialog
+        open={isMercadoPagoDialogOpen}
+        onOpenChange={setIsMercadoPagoDialogOpen}
+        config={mercadoPagoConfigs?.find((c: any) => c.tipo === selectedMercadoPagoTipo)}
+        onSave={handleSaveMercadoPagoConfig}
+        isLoading={createMercadoPagoConfigMutation.isPending || updateMercadoPagoConfigMutation.isPending}
+      />
     </DashboardLayout>
   );
 }
