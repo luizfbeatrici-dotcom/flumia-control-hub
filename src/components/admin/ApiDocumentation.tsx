@@ -55,8 +55,11 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
             </CardHeader>
             <CardContent>
               <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-                <code>{baseUrl}</code>
+                <code>{baseUrl}/api/v1</code>
               </pre>
+              <p className="text-xs text-muted-foreground mt-2">
+                ℹ️ URLs legadas (/webhook-produtos, /webhook-pessoas) continuam funcionando
+              </p>
             </CardContent>
           </Card>
 
@@ -72,7 +75,76 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>POST /webhook-produtos</CardTitle>
+                    <CardTitle>GET /produtos</CardTitle>
+                    <Badge>Listar</Badge>
+                  </div>
+                  <CardDescription>Listar produtos ou buscar por SKU/ID</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Parâmetros de Query (opcionais)</h4>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Parâmetro</TableHead>
+                          <TableHead>Tipo</TableHead>
+                          <TableHead>Descrição</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">id</TableCell>
+                          <TableCell><Badge variant="outline">string</Badge></TableCell>
+                          <TableCell>Buscar por ID específico</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">sku</TableCell>
+                          <TableCell><Badge variant="outline">string</Badge></TableCell>
+                          <TableCell>Filtrar por SKU</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">limit</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell>Limite de resultados (padrão: 100)</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">offset</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell>Offset para paginação (padrão: 0)</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-2">Exemplo de Resposta (Lista)</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`{
+  "success": true,
+  "total": 2,
+  "limit": 100,
+  "offset": 0,
+  "produtos": [
+    {
+      "id": "uuid-do-produto",
+      "empresa_id": "uuid-da-empresa",
+      "descricao": "Martelo",
+      "sku": "MART001",
+      "preco1": 29.90,
+      "ativo": true,
+      "created_at": "2025-10-24T00:00:00Z"
+    }
+  ]
+}`}
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>POST /produtos</CardTitle>
                     <Badge variant="default">Criar</Badge>
                   </div>
                   <CardDescription>Criar um ou mais produtos</CardDescription>
@@ -162,6 +234,12 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                           <TableCell><Badge variant="secondary">Não</Badge></TableCell>
                           <TableCell>Status do produto (padrão: true)</TableCell>
                         </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">limite_venda</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell><Badge variant="secondary">Não</Badge></TableCell>
+                          <TableCell>Limite máximo por venda</TableCell>
+                        </TableRow>
                       </TableBody>
                     </Table>
                   </div>
@@ -199,10 +277,8 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
   "resultados": [
     {
       "id": "uuid-do-produto",
-      "empresa_id": "uuid-da-empresa",
-      "descricao": "Martelo",
       "sku": "MART001",
-      "preco1": 29.90,
+      "descricao": "Martelo",
       "created_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -215,7 +291,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>PUT /webhook-produtos</CardTitle>
+                    <CardTitle>PUT /produtos</CardTitle>
                     <Badge variant="secondary">Atualizar</Badge>
                   </div>
                   <CardDescription>Atualizar um ou mais produtos existentes</CardDescription>
@@ -245,10 +321,20 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                 <CardHeader>
                   <CardTitle>Exemplo cURL</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">GET - Listar produtos</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`curl -X GET \\
+  "${baseUrl}/api/v1/produtos?limit=10&offset=0" \\
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
+                    </pre>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">POST - Criar produto</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X POST \\
-  ${baseUrl}/webhook-produtos \\
+  ${baseUrl}/api/v1/produtos \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \\
   -H 'Content-Type: application/json' \\
   -d '{
@@ -257,7 +343,8 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
     "preco1": 0.50,
     "unidade": "UN"
   }'`}
-                  </pre>
+                    </pre>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -267,7 +354,80 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>POST /webhook-pessoas</CardTitle>
+                    <CardTitle>GET /pessoas</CardTitle>
+                    <Badge>Listar</Badge>
+                  </div>
+                  <CardDescription>Listar pessoas ou buscar por CNPJ/Email/ID</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Parâmetros de Query (opcionais)</h4>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Parâmetro</TableHead>
+                          <TableHead>Tipo</TableHead>
+                          <TableHead>Descrição</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">id</TableCell>
+                          <TableCell><Badge variant="outline">string</Badge></TableCell>
+                          <TableCell>Buscar por ID específico</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">cnpjf</TableCell>
+                          <TableCell><Badge variant="outline">string</Badge></TableCell>
+                          <TableCell>Filtrar por CPF/CNPJ</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">email</TableCell>
+                          <TableCell><Badge variant="outline">string</Badge></TableCell>
+                          <TableCell>Filtrar por email</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">limit</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell>Limite de resultados (padrão: 100)</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">offset</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell>Offset para paginação (padrão: 0)</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-2">Exemplo de Resposta (Lista)</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`{
+  "success": true,
+  "total": 1,
+  "limit": 100,
+  "offset": 0,
+  "pessoas": [
+    {
+      "id": "uuid-da-pessoa",
+      "empresa_id": "uuid-da-empresa",
+      "nome": "João Silva",
+      "cnpjf": "12345678901",
+      "email": "joao@example.com",
+      "created_at": "2025-10-24T00:00:00Z"
+    }
+  ]
+}`}
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>POST /pessoas</CardTitle>
                     <Badge variant="default">Criar</Badge>
                   </div>
                   <CardDescription>Criar uma ou mais pessoas/clientes</CardDescription>
@@ -338,7 +498,6 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
   "resultados": [
     {
       "id": "uuid-da-pessoa",
-      "empresa_id": "uuid-da-empresa",
       "nome": "João Silva",
       "cnpjf": "12345678901",
       "email": "joao@example.com",
@@ -354,7 +513,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>PUT /webhook-pessoas</CardTitle>
+                    <CardTitle>PUT /pessoas</CardTitle>
                     <Badge variant="secondary">Atualizar</Badge>
                   </div>
                   <CardDescription>Atualizar uma ou mais pessoas existentes</CardDescription>
@@ -384,10 +543,20 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                 <CardHeader>
                   <CardTitle>Exemplo cURL</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">GET - Listar pessoas</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`curl -X GET \\
+  "${baseUrl}/api/v1/pessoas?limit=10&offset=0" \\
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
+                    </pre>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">POST - Criar pessoa</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X POST \\
-  ${baseUrl}/webhook-pessoas \\
+  ${baseUrl}/api/v1/pessoas \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \\
   -H 'Content-Type: application/json' \\
   -d '{
@@ -396,7 +565,8 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
     "email": "maria@example.com",
     "celular": "11988887777"
   }'`}
-                  </pre>
+                    </pre>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
