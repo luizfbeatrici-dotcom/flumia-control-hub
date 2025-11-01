@@ -1340,24 +1340,44 @@ export default function EmpresaDetalhes() {
                   </div>
                 ) : apiTokens && apiTokens.length > 0 ? (
                   <div className="space-y-4">
-                    <div className="bg-muted/50 border border-muted rounded-lg p-4 space-y-2">
+                    <div className="bg-muted/50 border border-muted rounded-lg p-4 space-y-3">
                       <h4 className="font-semibold text-sm">Endpoints Disponíveis:</h4>
-                      <div className="space-y-1 text-sm font-mono">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
-                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-produtos</code>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-2">Produtos:</p>
+                          <div className="space-y-1 text-sm font-mono pl-2">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
+                              <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos</code>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
+                              <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos</code>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
+                              <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/produtos</code>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
-                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-produtos</code>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
-                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-pessoas</code>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
-                          <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/webhook-pessoas</code>
+
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-2">Pessoas:</p>
+                          <div className="space-y-1 text-sm font-mono pl-2">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
+                              <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas</code>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
+                              <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas</code>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
+                              <code className="text-xs">https://hybuoksgodflxjhjoufv.supabase.co/functions/v1/api/v1/pessoas</code>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
