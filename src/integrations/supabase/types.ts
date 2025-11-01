@@ -265,6 +265,47 @@ export type Database = {
           },
         ]
       }
+      estoque: {
+        Row: {
+          created_at: string | null
+          empresa_id: string
+          id: string
+          produto_id: string
+          saldo: number
+          saldo_maximo: number | null
+          saldo_minimo: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          produto_id: string
+          saldo?: number
+          saldo_maximo?: number | null
+          saldo_minimo?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          produto_id?: string
+          saldo?: number
+          saldo_maximo?: number | null
+          saldo_minimo?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_estoque_produto"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       etapas: {
         Row: {
           ativo: boolean
@@ -630,6 +671,7 @@ export type Database = {
           empresa_id: string
           grupo: string | null
           id: string
+          limite_venda: number | null
           preco1: number | null
           preco2: number | null
           sku: string | null
@@ -649,6 +691,7 @@ export type Database = {
           empresa_id: string
           grupo?: string | null
           id?: string
+          limite_venda?: number | null
           preco1?: number | null
           preco2?: number | null
           sku?: string | null
@@ -670,6 +713,7 @@ export type Database = {
           empresa_id?: string
           grupo?: string | null
           id?: string
+          limite_venda?: number | null
           preco1?: number | null
           preco2?: number | null
           sku?: string | null
@@ -779,6 +823,19 @@ export type Database = {
         }[]
       }
       user_empresa_id: { Args: { _user_id: string }; Returns: string }
+      verificar_disponibilidade_produto: {
+        Args: {
+          p_empresa_id: string
+          p_produto_id: string
+          p_quantidade: number
+        }
+        Returns: {
+          disponivel: boolean
+          limite_venda: number
+          mensagem: string
+          saldo_atual: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin_master" | "company_admin" | "company_user"
