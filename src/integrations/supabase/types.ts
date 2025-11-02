@@ -614,13 +614,13 @@ export type Database = {
           contato_id: string | null
           created_at: string | null
           empresa_id: string
+          empresa_tipo_entrega_id: string | null
           endereco_id: string | null
           finalizado_em: string | null
           id: string
           observacoes: string | null
           pessoa_id: string
           status: Database["public"]["Enums"]["order_status"] | null
-          tipo_entrega: string | null
           total: number | null
           updated_at: string | null
           vlr_frete: number | null
@@ -631,13 +631,13 @@ export type Database = {
           contato_id?: string | null
           created_at?: string | null
           empresa_id: string
+          empresa_tipo_entrega_id?: string | null
           endereco_id?: string | null
           finalizado_em?: string | null
           id?: string
           observacoes?: string | null
           pessoa_id: string
           status?: Database["public"]["Enums"]["order_status"] | null
-          tipo_entrega?: string | null
           total?: number | null
           updated_at?: string | null
           vlr_frete?: number | null
@@ -648,13 +648,13 @@ export type Database = {
           contato_id?: string | null
           created_at?: string | null
           empresa_id?: string
+          empresa_tipo_entrega_id?: string | null
           endereco_id?: string | null
           finalizado_em?: string | null
           id?: string
           observacoes?: string | null
           pessoa_id?: string
           status?: Database["public"]["Enums"]["order_status"] | null
-          tipo_entrega?: string | null
           total?: number | null
           updated_at?: string | null
           vlr_frete?: number | null
@@ -680,6 +680,13 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_empresa_tipo_entrega_id_fkey"
+            columns: ["empresa_tipo_entrega_id"]
+            isOneToOne: false
+            referencedRelation: "empresa_tipos_entrega"
             referencedColumns: ["id"]
           },
           {
