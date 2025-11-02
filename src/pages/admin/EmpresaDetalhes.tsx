@@ -1265,6 +1265,7 @@ export default function EmpresaDetalhes() {
                         <TableHead>Data</TableHead>
                         <TableHead>Valor Total</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Finalizado em</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1309,6 +1310,11 @@ export default function EmpresaDetalhes() {
                               <Badge variant={getStatusColor(pedido.status)}>
                                 {getStatusLabel(pedido.status)}
                               </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {pedido.finalizado_em
+                                ? `${new Date(pedido.finalizado_em).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(pedido.finalizado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                                : "-"}
                             </TableCell>
                             <TableCell className="text-right">
                               <Button
