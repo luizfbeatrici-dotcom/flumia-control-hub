@@ -203,6 +203,57 @@ export type Database = {
           },
         ]
       }
+      empresa_tipos_entrega: {
+        Row: {
+          ativo: boolean
+          created_at: string | null
+          empresa_id: string
+          id: string
+          observacao: string | null
+          prazo_estimado: string | null
+          tipo_entrega_id: string
+          updated_at: string | null
+          valor_frete: number
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          observacao?: string | null
+          prazo_estimado?: string | null
+          tipo_entrega_id: string
+          updated_at?: string | null
+          valor_frete?: number
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          observacao?: string | null
+          prazo_estimado?: string | null
+          tipo_entrega_id?: string
+          updated_at?: string | null
+          valor_frete?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresa_tipos_entrega_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "empresa_tipos_entrega_tipo_entrega_id_fkey"
+            columns: ["tipo_entrega_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_entrega"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           ativo: boolean | null
@@ -909,6 +960,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tipos_entrega: {
+        Row: {
+          ativo: boolean
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
