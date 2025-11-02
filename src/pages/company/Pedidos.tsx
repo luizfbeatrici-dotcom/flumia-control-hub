@@ -158,12 +158,16 @@ export default function Pedidos() {
                         {getStatusLabel(pedido.status)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      {pedido.finalizado_em
-                        ? format(new Date(pedido.finalizado_em), "dd/MM/yyyy HH:mm", {
+                    <TableCell className="font-medium">
+                      {pedido.finalizado_em ? (
+                        <span className="text-foreground">
+                          {format(new Date(pedido.finalizado_em), "dd/MM/yyyy HH:mm", {
                             locale: ptBR,
-                          })
-                        : "-"}
+                          })}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <Dialog>
