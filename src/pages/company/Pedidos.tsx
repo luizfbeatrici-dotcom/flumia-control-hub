@@ -121,19 +121,20 @@ export default function Pedidos() {
                 <TableHead>Data</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Finalizado em</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
+                  <TableCell colSpan={7} className="text-center">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : pedidos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">
                     Nenhum pedido encontrado
                   </TableCell>
                 </TableRow>
@@ -156,6 +157,13 @@ export default function Pedidos() {
                       <Badge variant={getStatusColor(pedido.status)}>
                         {getStatusLabel(pedido.status)}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {pedido.finalizado_em
+                        ? format(new Date(pedido.finalizado_em), "dd/MM/yyyy HH:mm", {
+                            locale: ptBR,
+                          })
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <Dialog>
