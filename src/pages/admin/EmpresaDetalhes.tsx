@@ -2051,45 +2051,70 @@ export default function EmpresaDetalhes() {
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Itens do Pedido</h3>
                     {pedidoItens && pedidoItens.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Produto</TableHead>
-                            <TableHead>SKU</TableHead>
-                            <TableHead className="text-right">Qtd</TableHead>
-                            <TableHead className="text-right">Valor Unit.</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {pedidoItens.map((item) => (
-                            <TableRow key={item.id}>
-                              <TableCell>
-                                <div>
-                                  <p className="font-medium">{(item.produtos as any)?.descricao || "-"}</p>
-                                  {(item.produtos as any)?.unidade && (
-                                    <p className="text-xs text-muted-foreground">
-                                      Unidade: {(item.produtos as any).unidade}
-                                    </p>
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                {(item.produtos as any)?.sku || "-"}
-                              </TableCell>
-                              <TableCell className="text-right font-medium">
-                                {Number(item.quantidade).toLocaleString("pt-BR")}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                R$ {Number(item.valor_unitario || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                              </TableCell>
-                              <TableCell className="text-right font-semibold">
-                                R$ {Number(item.valor_total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                              </TableCell>
+                      <div className="space-y-4">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Produto</TableHead>
+                              <TableHead>SKU</TableHead>
+                              <TableHead className="text-right">Qtd</TableHead>
+                              <TableHead className="text-right">Valor Unit.</TableHead>
+                              <TableHead className="text-right">Total</TableHead>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                          </TableHeader>
+                          <TableBody>
+                            {pedidoItens.map((item) => (
+                              <TableRow key={item.id}>
+                                <TableCell>
+                                  <div>
+                                    <p className="font-medium">{(item.produtos as any)?.descricao || "-"}</p>
+                                    {(item.produtos as any)?.unidade && (
+                                      <p className="text-xs text-muted-foreground">
+                                        Unidade: {(item.produtos as any).unidade}
+                                      </p>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {(item.produtos as any)?.sku || "-"}
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                  {Number(item.quantidade).toLocaleString("pt-BR")}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  R$ {Number(item.valor_unitario || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </TableCell>
+                                <TableCell className="text-right font-semibold">
+                                  R$ {Number(item.valor_total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                        
+                        {/* Resumo Financeiro */}
+                        <div className="space-y-3 rounded-lg border p-4 bg-muted/30">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Subtotal (Produtos):</span>
+                            <span className="font-medium">
+                              R$ {pedidoItens.reduce((sum, item) => sum + Number(item.valor_total || 0), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Frete:</span>
+                            <span className="font-medium">
+                              R$ {Number(pedido.vlr_frete || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <Separator />
+                          <div className="flex justify-between text-lg font-bold">
+                            <span>Total:</span>
+                            <span className="text-primary">
+                              R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     ) : (
                       <p className="text-sm text-muted-foreground text-center py-4">
                         Nenhum item encontrado para este pedido
