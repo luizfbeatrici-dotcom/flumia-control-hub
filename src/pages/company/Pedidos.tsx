@@ -373,9 +373,26 @@ export default function Pedidos() {
                                         </div>
                                       </div>
                                     ))}
-                                    <div className="flex justify-between border-t pt-3 text-lg font-bold">
-                                      <span>Total:</span>
-                                      <span>{formatCurrency(pedido.total)}</span>
+                                    
+                                    {/* Resumo Financeiro */}
+                                    <div className="space-y-2 border-t pt-3">
+                                      <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Subtotal (Produtos):</span>
+                                        <span className="font-medium">
+                                          {formatCurrency(pedidoDetalhes.reduce((sum, item) => sum + Number(item.valor_total), 0))}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Frete:</span>
+                                        <span className="font-medium">
+                                          {formatCurrency(pedido.vlr_frete || 0)}
+                                        </span>
+                                      </div>
+                                      <Separator />
+                                      <div className="flex justify-between text-lg font-bold">
+                                        <span>Total:</span>
+                                        <span>{formatCurrency(pedido.total)}</span>
+                                      </div>
                                     </div>
                                   </div>
                                 ) : (
