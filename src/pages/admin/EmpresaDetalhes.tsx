@@ -23,6 +23,7 @@ import { UsuarioDialog } from "@/components/admin/UsuarioDialog";
 import { AplicativoDialog } from "@/components/admin/AplicativoDialog";
 import { ApiTokenDialog } from "@/components/admin/ApiTokenDialog";
 import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
+import { EmpresaTiposEntregaTab } from "@/components/admin/EmpresaTiposEntregaTab";
 import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
 import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClientes";
 import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
@@ -986,6 +987,7 @@ export default function EmpresaDetalhes() {
               <CreditCard className="h-4 w-4 mr-2" />
               Mercado Pago
             </TabsTrigger>
+            <TabsTrigger value="entregas">Tipos de Entrega</TabsTrigger>
             {isAdminMaster && (
               <TabsTrigger value="parametros">
                 <Settings className="h-4 w-4 mr-2" />
@@ -1771,6 +1773,11 @@ export default function EmpresaDetalhes() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Aba Tipos de Entrega */}
+          <TabsContent value="entregas" className="space-y-4">
+            <EmpresaTiposEntregaTab empresaId={id!} />
           </TabsContent>
 
           {/* Aba Parâmetros - Visível apenas para Admin Master */}
