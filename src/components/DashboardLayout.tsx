@@ -29,7 +29,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-50 flex h-14 items-center justify-between gap-4 border-b bg-card px-6 shadow-soft">
+          <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b bg-card px-6 shadow-soft">
             <div className="flex items-center gap-3">
               <SidebarTrigger />
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-purple p-1.5">
