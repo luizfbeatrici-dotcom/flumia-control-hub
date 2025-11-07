@@ -189,7 +189,8 @@ export default function EmpresaDetalhes() {
         .select(`
           *,
           pessoas:pessoa_id(nome, cnpjf, celular, email),
-          pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep)
+          pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep),
+          pagamentos (status, date_approved, date_last_updated, date_created)
         `)
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
@@ -2036,6 +2037,75 @@ export default function EmpresaDetalhes() {
                             <p className="text-sm text-muted-foreground">CEP</p>
                             <p className="font-medium">{(pedido.pessoa_enderecos as any)?.cep || "-"}</p>
                           </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Informações de Pagamento */}
+                  {pedido.pagamentos && pedido.pagamentos.length > 0 && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Pagamento</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Status</p>
+                            <Badge variant={
+                              (pedido.pagamentos[0] as any).status === 'approved' ? 'default' :
+                              (pedido.pagamentos[0] as any).status === 'cancelled' ? 'destructive' :
+                              (pedido.pagamentos[0] as any).status === 'rejected' ? 'destructive' :
+                              'secondary'
+                            }>
+                              {(pedido.pagamentos[0] as any).status === 'pending' ? 'Pendente' :
+                               (pedido.pagamentos[0] as any).status === 'approved' ? 'Aprovado' :
+                               (pedido.pagamentos[0] as any).status === 'cancelled' ? 'Cancelado' :
+                               (pedido.pagamentos[0] as any).status === 'rejected' ? 'Rejeitado' :
+                               (pedido.pagamentos[0] as any).status}
+                            </Badge>
+                          </div>
+                          {(pedido.pagamentos[0] as any).date_created && (
+                            <div>
+                              <p className="text-sm text-muted-foreground">Data de Criação</p>
+                              <p className="font-medium">
+                                {new Date((pedido.pagamentos[0] as any).date_created).toLocaleDateString("pt-BR", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            </div>
+                          )}
+                          {(pedido.pagamentos[0] as any).date_approved && (
+                            <div>
+                              <p className="text-sm text-muted-foreground">Data de Aprovação</p>
+                              <p className="font-medium">
+                                {new Date((pedido.pagamentos[0] as any).date_approved).toLocaleDateString("pt-BR", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            </div>
+                          )}
+                          {(pedido.pagamentos[0] as any).date_last_updated && (
+                            <div>
+                              <p className="text-sm text-muted-foreground">Última Atualização</p>
+                              <p className="font-medium">
+                                {new Date((pedido.pagamentos[0] as any).date_last_updated).toLocaleDateString("pt-BR", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </>
