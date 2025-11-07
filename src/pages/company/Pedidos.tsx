@@ -42,7 +42,8 @@ export default function Pedidos() {
         .select(`
           *,
           pessoas (nome, cnpjf, celular, email),
-          pessoa_enderecos (endereco, bairro, cidade, cep, complemento)
+          pessoa_enderecos (endereco, bairro, cidade, cep, complemento),
+          pagamentos (status, date_approved, date_last_updated, date_created)
         `)
         .eq("empresa_id", profile.empresa_id)
         .order("created_at", { ascending: false });
@@ -96,6 +97,26 @@ export default function Pedidos() {
       processing: "Processando",
       completed: "Concluído",
       cancelled: "Cancelado",
+    };
+    return labels[status] || status;
+  };
+
+  const getPaymentStatusColor = (status: string) => {
+    const colors: Record<string, "default" | "secondary" | "destructive"> = {
+      pending: "secondary",
+      approved: "default",
+      cancelled: "destructive",
+      rejected: "destructive",
+    };
+    return colors[status] || "secondary";
+  };
+
+  const getPaymentStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      pending: "Pendente",
+      approved: "Aprovado",
+      cancelled: "Cancelado",
+      rejected: "Rejeitado",
     };
     return labels[status] || status;
   };
@@ -313,6 +334,60 @@ export default function Pedidos() {
                                           </span>
                                           <span className="font-medium">
                                             {pedido.pessoa_enderecos.complemento}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+
+                              {/* Informações de Pagamento */}
+                              {pedido.pagamentos && pedido.pagamentos.length > 0 && (
+                                <>
+                                  <Separator />
+                                  <div>
+                                    <h3 className="mb-3 font-semibold">Pagamento</h3>
+                                    <div className="grid gap-2 text-sm">
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Status:</span>
+                                        <Badge variant={getPaymentStatusColor(pedido.pagamentos[0].status)}>
+                                          {getPaymentStatusLabel(pedido.pagamentos[0].status)}
+                                        </Badge>
+                                      </div>
+                                      {pedido.pagamentos[0].date_created && (
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">Data de Criação:</span>
+                                          <span className="font-medium">
+                                            {format(
+                                              new Date(pedido.pagamentos[0].date_created),
+                                              "dd/MM/yyyy 'às' HH:mm",
+                                              { locale: ptBR }
+                                            )}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {pedido.pagamentos[0].date_approved && (
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">Data de Aprovação:</span>
+                                          <span className="font-medium">
+                                            {format(
+                                              new Date(pedido.pagamentos[0].date_approved),
+                                              "dd/MM/yyyy 'às' HH:mm",
+                                              { locale: ptBR }
+                                            )}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {pedido.pagamentos[0].date_last_updated && (
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">Última Atualização:</span>
+                                          <span className="font-medium">
+                                            {format(
+                                              new Date(pedido.pagamentos[0].date_last_updated),
+                                              "dd/MM/yyyy 'às' HH:mm",
+                                              { locale: ptBR }
+                                            )}
                                           </span>
                                         </div>
                                       )}
