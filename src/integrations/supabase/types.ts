@@ -618,6 +618,7 @@ export type Database = {
           endereco_id: string | null
           finalizado_em: string | null
           id: string
+          numero: number
           observacoes: string | null
           pessoa_id: string
           status: Database["public"]["Enums"]["order_status"] | null
@@ -635,6 +636,7 @@ export type Database = {
           endereco_id?: string | null
           finalizado_em?: string | null
           id?: string
+          numero?: number
           observacoes?: string | null
           pessoa_id: string
           status?: Database["public"]["Enums"]["order_status"] | null
@@ -652,6 +654,7 @@ export type Database = {
           endereco_id?: string | null
           finalizado_em?: string | null
           id?: string
+          numero?: number
           observacoes?: string | null
           pessoa_id?: string
           status?: Database["public"]["Enums"]["order_status"] | null

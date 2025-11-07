@@ -46,7 +46,7 @@ export default function Pedidos() {
           pagamentos (status, date_approved, date_last_updated, date_created)
         `)
         .eq("empresa_id", profile.empresa_id)
-        .order("created_at", { ascending: false });
+        .order("numero", { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -163,7 +163,7 @@ export default function Pedidos() {
                 pedidos.map((pedido) => (
                   <TableRow key={pedido.id}>
                     <TableCell className="font-medium">
-                      #{pedido.id.slice(0, 8)}
+                      #{pedido.numero}
                     </TableCell>
                     <TableCell>{pedido.pessoas?.nome || "N/A"}</TableCell>
                     <TableCell>
@@ -204,7 +204,7 @@ export default function Pedidos() {
                         <DialogContent className="max-w-3xl">
                           <DialogHeader>
                             <DialogTitle>
-                              Detalhes do Pedido #{pedido.id.slice(0, 8)}
+                              Detalhes do Pedido #{pedido.numero}
                             </DialogTitle>
                             <DialogDescription>
                               Informações completas do pedido

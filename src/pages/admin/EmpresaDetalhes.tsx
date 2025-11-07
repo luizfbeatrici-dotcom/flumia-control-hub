@@ -193,7 +193,7 @@ export default function EmpresaDetalhes() {
           pagamentos (status, date_approved, date_last_updated, date_created)
         `)
         .eq("empresa_id", id)
-        .order("created_at", { ascending: false });
+        .order("numero", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -1264,6 +1264,7 @@ export default function EmpresaDetalhes() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Nº Pedido</TableHead>
                         <TableHead>Cliente</TableHead>
                         <TableHead>Data</TableHead>
                         <TableHead>Valor Total</TableHead>
@@ -1296,6 +1297,9 @@ export default function EmpresaDetalhes() {
 
                         return (
                           <TableRow key={pedido.id}>
+                            <TableCell className="font-medium">
+                              #{pedido.numero}
+                            </TableCell>
                             <TableCell className="font-medium">
                               {(pedido.pessoas as any)?.nome || "-"}
                             </TableCell>
@@ -1925,7 +1929,7 @@ export default function EmpresaDetalhes() {
       <Dialog open={!!selectedPedidoId} onOpenChange={() => setSelectedPedidoId(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Detalhes do Pedido</DialogTitle>
+            <DialogTitle>Detalhes do Pedido #{pedidos?.find((p) => p.id === selectedPedidoId)?.numero}</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
             {selectedPedidoId && pedidos && (() => {
