@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
@@ -20,13 +21,7 @@ import {
   MessageSquare,
   Quote
 } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import flumiaLogo from "@/assets/flumia-logo.png";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -73,6 +68,21 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("depoimentos")
+        .select("*")
+        .eq("ativo", true)
+        .order("ordem", { ascending: true });
+
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+
+  // Fetch FAQs
+  const { data: faqs = [] } = useQuery({
+    queryKey: ["faqs-landing"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("faqs")
         .select("*")
         .eq("ativo", true)
         .order("ordem", { ascending: true });
@@ -449,6 +459,34 @@ const Index = () => {
           </div>
         </section>
       )}
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container">
+          <div className="mx-auto max-w-3xl text-center mb-12">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+              Perguntas Frequentes
+            </h2>
+            <p className="text-muted-foreground">
+              Tire suas dúvidas sobre o Flumia Flow
+            </p>
+          </div>
+          <div className="max-w-3xl mx-auto">
+            <Accordion type="single" collapsible className="w-full">
+              {faqs?.map((faq: any, index: number) => (
+                <AccordionItem key={faq.id} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left font-semibold">
+                    {faq.pergunta}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.resposta}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
 
       {/* Contato */}
       <section id="contato" className="py-20">

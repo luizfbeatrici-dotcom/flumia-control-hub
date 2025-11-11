@@ -31,6 +31,7 @@ export function AppSidebar() {
     { title: "Bilhetagem", url: "/admin/bilhetagem", icon: Package },
     { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
     { title: "Depoimentos", url: "/admin/depoimentos", icon: MessageSquare },
+    { title: "FAQ", url: "/admin/faq", icon: MessageSquare },
   ];
 
   const companyItems = [

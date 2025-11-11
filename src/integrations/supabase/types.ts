@@ -423,6 +423,36 @@ export type Database = {
         }
         Relationships: []
       }
+      faqs: {
+        Row: {
+          ativo: boolean
+          created_at: string | null
+          id: string
+          ordem: number
+          pergunta: string
+          resposta: string
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string | null
+          id?: string
+          ordem?: number
+          pergunta: string
+          resposta: string
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string | null
+          id?: string
+          ordem?: number
+          pergunta?: string
+          resposta?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       jornadas: {
         Row: {
           acao: string
