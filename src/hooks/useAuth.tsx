@@ -143,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null);
     setProfile(null);
     setRoles([]);
-    navigate("/auth");
+    navigate("/");
     toast.success("Logout realizado com sucesso");
   };
 
