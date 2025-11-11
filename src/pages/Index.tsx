@@ -335,54 +335,54 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+          <div className="grid gap-4 md:grid-cols-4 max-w-7xl mx-auto">
             {planos.map((plano: any, index: number) => (
               <Card
                 key={plano.id}
                 className={index === 1 ? "shadow-glow border-primary/50 relative overflow-hidden" : "shadow-card border-border/50 hover:shadow-glow transition-all duration-300"}
               >
                 {index === 1 && (
-                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-semibold">
-                    MAIS POPULAR
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-semibold">
+                    POPULAR
                   </div>
                 )}
-                <CardHeader>
-                  <CardTitle className="text-2xl">{plano.nome}</CardTitle>
-                  <CardDescription className="text-lg">
-                    {plano.qtd_pedidos} pedidos inclusos
+                <CardHeader className="p-4">
+                  <CardTitle className="text-lg">{plano.nome}</CardTitle>
+                  <CardDescription className="text-xs">
+                    {plano.qtd_pedidos} pedidos
                   </CardDescription>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold text-primary">
+                  <div className="mt-2">
+                    <span className="text-2xl font-bold text-primary">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_recorrente)}
                     </span>
-                    <span className="text-muted-foreground">/mês</span>
+                    <span className="text-xs text-muted-foreground">/mês</span>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
+                <CardContent className="p-4 pt-0">
+                  <ul className="space-y-2">
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Até {plano.qtd_pedidos} pedidos/mês</span>
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-xs">Até {plano.qtd_pedidos} pedidos</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        Pedidos adicionais: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_pedido_adicional)}
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-xs">
+                        +{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_pedido_adicional)}/pedido extra
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Atendimento automatizado 24/7</span>
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-xs">Atendimento 24/7</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">Gestão completa de pedidos</span>
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-xs">Gestão de pedidos</span>
                     </li>
                   </ul>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="p-4 pt-0">
                   <Link to="/auth" className="w-full">
-                    <Button className="w-full" variant={index === 1 ? "default" : "outline"}>
+                    <Button className="w-full text-xs py-2" variant={index === 1 ? "default" : "outline"}>
                       Começar Agora
                     </Button>
                   </Link>
@@ -390,16 +390,17 @@ const Index = () => {
               </Card>
             ))}
           </div>
-
-          {/* WhatsApp Contact Button */}
-          <div className="text-center mt-12">
-            <Button size="lg" onClick={handleWhatsAppContact} className="gap-2 shadow-medium">
-              <MessageSquare className="h-5 w-5" />
-              Fale com um Consultor
-            </Button>
-          </div>
         </div>
       </section>
+
+      {/* Floating WhatsApp Button */}
+      <button
+        onClick={handleWhatsAppContact}
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg hover:bg-[#128C7E] transition-all duration-300 hover:scale-110"
+        aria-label="Fale conosco no WhatsApp"
+      >
+        <MessageSquare className="h-7 w-7" />
+      </button>
 
       {/* Contato */}
       <section id="contato" className="py-20">
