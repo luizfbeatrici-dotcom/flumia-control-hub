@@ -138,12 +138,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    navigate("/");
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setProfile(null);
     setRoles([]);
-    navigate("/");
     toast.success("Logout realizado com sucesso");
   };
 
