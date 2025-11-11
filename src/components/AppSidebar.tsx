@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare } from "lucide-react";
+import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -31,7 +31,7 @@ export function AppSidebar() {
     { title: "Bilhetagem", url: "/admin/bilhetagem", icon: Package },
     { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
     { title: "Depoimentos", url: "/admin/depoimentos", icon: MessageSquare },
-    { title: "FAQ", url: "/admin/faq", icon: MessageSquare },
+    { title: "FAQ", url: "/admin/faq", icon: HelpCircle },
   ];
 
   const companyItems = [
