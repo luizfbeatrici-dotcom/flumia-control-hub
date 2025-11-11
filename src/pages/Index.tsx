@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,7 +15,8 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  Check
+  Check,
+  MessageSquare
 } from "lucide-react";
 import flumiaLogo from "@/assets/flumia-logo.png";
 import { useState } from "react";
@@ -27,10 +30,46 @@ const Index = () => {
     mensagem: ""
   });
 
+  // Fetch plans from database
+  const { data: planos = [] } = useQuery({
+    queryKey: ["planos"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("planos")
+        .select("*")
+        .order("valor_recorrente", { ascending: true });
+
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+
+  // Fetch system settings for WhatsApp contact
+  const { data: settings } = useQuery({
+    queryKey: ["system-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("system_settings")
+        .select("*")
+        .single();
+
+      if (error) throw error;
+      return data as any;
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Mensagem enviada com sucesso! Entraremos em contato em breve.");
     setFormData({ nome: "", email: "", telefone: "", mensagem: "" });
+  };
+
+  const handleWhatsAppContact = () => {
+    if (settings?.whatsapp_contato) {
+      window.open(`https://api.whatsapp.com/send?phone=${settings.whatsapp_contato}`, '_blank');
+    } else {
+      toast.error("Número de WhatsApp não configurado");
+    }
   };
 
   return (
