@@ -66,7 +66,8 @@ const Index = () => {
 
   const handleWhatsAppContact = () => {
     if (settings?.whatsapp_contato) {
-      window.open(`https://api.whatsapp.com/send?phone=${settings.whatsapp_contato}`, '_blank');
+      const url = `https://api.whatsapp.com/send?phone=${settings.whatsapp_contato}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
     } else {
       toast.error("Número de WhatsApp não configurado");
     }
