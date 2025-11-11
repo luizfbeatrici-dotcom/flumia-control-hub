@@ -16,6 +16,7 @@ export default function Bilhetagem() {
     valor_recorrente: "",
     qtd_pedidos: "",
     valor_pedido_adicional: "",
+    valor_implantacao: "",
   });
 
   const { data: planos, isLoading } = useQuery({
@@ -35,7 +36,7 @@ export default function Bilhetagem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano criado com sucesso!");
-      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "" });
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "" });
     },
     onError: (err: any) => toast.error(err.message || "Erro ao criar plano"),
   });
@@ -59,13 +60,14 @@ export default function Bilhetagem() {
       valor_recorrente: Number(formValues.valor_recorrente || 0),
       qtd_pedidos: Number(formValues.qtd_pedidos || 0),
       valor_pedido_adicional: Number(formValues.valor_pedido_adicional || 0),
+      valor_implantacao: Number(formValues.valor_implantacao || 0),
     };
 
     if (!payload.nome) {
       toast.error("Informe o nome do pacote");
       return;
     }
-    if (payload.valor_recorrente < 0 || payload.valor_pedido_adicional < 0) {
+    if (payload.valor_recorrente < 0 || payload.valor_pedido_adicional < 0 || payload.valor_implantacao < 0) {
       toast.error("Valores não podem ser negativos");
       return;
     }
@@ -91,7 +93,7 @@ export default function Bilhetagem() {
             <CardDescription>Defina os limites e valores</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-4">
+            <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-5">
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="nome">Nome</label>
                 <Input
@@ -137,8 +139,20 @@ export default function Bilhetagem() {
                   onChange={(e) => setFormValues((s) => ({ ...s, valor_pedido_adicional: e.target.value }))}
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="valor_implantacao">Valor implantação (R$)</label>
+                <Input
+                  id="valor_implantacao"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={formValues.valor_implantacao}
+                  onChange={(e) => setFormValues((s) => ({ ...s, valor_implantacao: e.target.value }))}
+                />
+              </div>
 
-              <div className="md:col-span-4 flex justify-end">
+              <div className="md:col-span-5 flex justify-end">
                 <Button type="submit" disabled={createPlanoMutation.isPending}>
                   {createPlanoMutation.isPending ? "Salvando..." : "Salvar plano"}
                 </Button>
@@ -165,6 +179,7 @@ export default function Bilhetagem() {
                     <TableHead>Valor</TableHead>
                     <TableHead>Qtd. Pedidos</TableHead>
                     <TableHead>Valor Pedido Adicional</TableHead>
+                    <TableHead>Valor Implantação</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -175,6 +190,7 @@ export default function Bilhetagem() {
                       <TableCell>R$ {Number(plano.valor_recorrente || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell>{plano.qtd_pedidos}</TableCell>
                       <TableCell>R$ {Number(plano.valor_pedido_adicional || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell>R$ {Number(plano.valor_implantacao || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"

@@ -398,6 +398,12 @@ const Index = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-xs">
+                        Implantação: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_implantacao)}
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                       <span className="text-xs">Atendimento 24/7</span>
                     </li>
                     <li className="flex items-start gap-2">

@@ -866,6 +866,7 @@ export type Database = {
           nome: string
           qtd_pedidos: number
           updated_at: string | null
+          valor_implantacao: number
           valor_pedido_adicional: number
           valor_recorrente: number
         }
@@ -875,6 +876,7 @@ export type Database = {
           nome: string
           qtd_pedidos?: number
           updated_at?: string | null
+          valor_implantacao?: number
           valor_pedido_adicional?: number
           valor_recorrente?: number
         }
@@ -884,6 +886,7 @@ export type Database = {
           nome?: string
           qtd_pedidos?: number
           updated_at?: string | null
+          valor_implantacao?: number
           valor_pedido_adicional?: number
           valor_recorrente?: number
         }
