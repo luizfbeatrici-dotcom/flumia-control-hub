@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Table,
   TableBody,
@@ -156,7 +157,8 @@ export default function Depoimentos() {
   };
 
   return (
-    <div className="p-8">
+    <DashboardLayout>
+      <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Depoimentos</h1>
@@ -295,6 +297,7 @@ export default function Depoimentos() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
