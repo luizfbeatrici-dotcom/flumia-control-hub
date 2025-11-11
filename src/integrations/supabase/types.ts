@@ -826,6 +826,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pre_cadastros: {
+        Row: {
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          cpf: string | null
+          created_at: string
+          email: string | null
+          empresa_id: string
+          endereco: string | null
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          empresa_id: string
+          endereco?: string | null
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          empresa_id?: string
+          endereco?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       produto_imagens: {
         Row: {
           created_at: string | null
