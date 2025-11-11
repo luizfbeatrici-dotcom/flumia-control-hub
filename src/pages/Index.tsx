@@ -413,11 +413,19 @@ const Index = () => {
                   </ul>
                 </CardContent>
                 <CardFooter className="p-4 pt-0">
-                  <Link to="/auth" className="w-full">
-                    <Button className="w-full text-xs py-2" variant={index === 1 ? "default" : "outline"}>
-                      Começar Agora
-                    </Button>
-                  </Link>
+                  <Button 
+                    className="w-full text-xs py-2" 
+                    variant={index === 1 ? "default" : "outline"}
+                    onClick={() => {
+                      const phone = settings?.whatsapp_contato;
+                      if (phone) {
+                        const message = encodeURIComponent(`Olá! Gostaria de contratar o plano ${plano.nome}.`);
+                        window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${message}`, '_blank');
+                      }
+                    }}
+                  >
+                    Começar Agora
+                  </Button>
                 </CardFooter>
               </Card>
             ))}
