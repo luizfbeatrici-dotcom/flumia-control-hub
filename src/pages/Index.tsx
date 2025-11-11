@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,8 @@ import {
 } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import flumiaLogo from "@/assets/flumia-logo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -33,6 +34,14 @@ const Index = () => {
     telefone: "",
     mensagem: ""
   });
+
+  const { user, isAdminMaster } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      navigate(isAdminMaster ? "/admin" : "/dashboard");
+    }
+  }, [user, isAdminMaster, navigate]);
 
   // Fetch plans from database
   const { data: planos = [] } = useQuery({
