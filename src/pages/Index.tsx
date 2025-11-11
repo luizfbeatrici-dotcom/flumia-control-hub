@@ -48,7 +48,7 @@ const Index = () => {
   const { data: settings } = useQuery({
     queryKey: ["system-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("system_settings")
         .select("*")
         .single();

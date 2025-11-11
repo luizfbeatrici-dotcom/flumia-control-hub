@@ -16,7 +16,7 @@ export default function Configuracoes() {
   const { data: settings, isLoading } = useQuery({
     queryKey: ["system-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("system_settings")
         .select("*")
         .single();
@@ -35,9 +35,9 @@ export default function Configuracoes() {
   // Update system settings mutation
   const updateSettingsMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("system_settings")
-        .update({ whatsapp_contato: whatsappContato } as any)
+        .update({ whatsapp_contato: whatsappContato })
         .eq("id", settings?.id);
 
       if (error) throw error;
