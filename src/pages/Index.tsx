@@ -118,6 +118,9 @@ const Index = () => {
             <a href="#planos" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Planos
             </a>
+            <a href="#faq" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              Perguntas Frequentes
+            </a>
             <a href="#contato" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Contato
             </a>
