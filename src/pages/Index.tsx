@@ -35,13 +35,13 @@ const Index = () => {
     mensagem: ""
   });
 
-  const { user, isAdminMaster } = useAuth();
+  const { user, isAdminMaster, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
-    if (user) {
+    if (!authLoading && user) {
       navigate(isAdminMaster ? "/admin" : "/dashboard");
     }
-  }, [user, isAdminMaster, navigate]);
+  }, [authLoading, user, isAdminMaster, navigate]);
 
   // Fetch plans from database
   const { data: planos = [] } = useQuery({

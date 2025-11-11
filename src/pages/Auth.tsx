@@ -10,28 +10,28 @@ import flumiaLogo from "@/assets/flumia-logo.png";
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { signIn, user, isAdminMaster } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const { signIn, user, isAdminMaster, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    if (!authLoading && user) {
       if (isAdminMaster) {
         navigate("/admin");
       } else {
         navigate("/dashboard");
       }
     }
-  }, [user, isAdminMaster, navigate]);
+  }, [authLoading, user, isAdminMaster, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
     const { error } = await signIn(email, password);
     if (!error) {
       // Navigation handled by useEffect
     }
-    setLoading(false);
+    setSubmitting(false);
   };
 
   return (
@@ -68,8 +68,8 @@ export default function Auth() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Entrando..." : "Entrar"}
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Entrando..." : "Entrar"}
             </Button>
           </form>
         </CardContent>

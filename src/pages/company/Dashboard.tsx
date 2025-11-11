@@ -4,9 +4,18 @@ import { Package, Users, ShoppingCart, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CompanyDashboard() {
-  const { profile } = useAuth();
+  const { profile, isAdminMaster, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && isAdminMaster) {
+      navigate("/admin", { replace: true });
+    }
+  }, [authLoading, isAdminMaster, navigate]);
 
   const { data: stats } = useQuery({
     queryKey: ["company-stats", profile?.empresa_id],
