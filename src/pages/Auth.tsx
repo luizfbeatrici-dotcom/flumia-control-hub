@@ -17,7 +17,7 @@ export default function Auth() {
   useEffect(() => {
     if (user) {
       if (isAdminMaster) {
-        navigate("/admin");
+        navigate("/admin/dashboard");
       } else {
         navigate("/dashboard");
       }
