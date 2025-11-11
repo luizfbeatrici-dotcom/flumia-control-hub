@@ -203,6 +203,39 @@ export type Database = {
           },
         ]
       }
+      depoimentos: {
+        Row: {
+          ativo: boolean
+          autor: string
+          conteudo: string
+          created_at: string | null
+          empresa_nome: string
+          id: string
+          ordem: number
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          autor: string
+          conteudo: string
+          created_at?: string | null
+          empresa_nome: string
+          id?: string
+          ordem?: number
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          autor?: string
+          conteudo?: string
+          created_at?: string | null
+          empresa_nome?: string
+          id?: string
+          ordem?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       empresa_tipos_entrega: {
         Row: {
           ativo: boolean

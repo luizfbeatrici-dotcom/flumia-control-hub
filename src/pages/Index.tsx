@@ -17,8 +17,16 @@ import {
   CheckCircle2,
   XCircle,
   Check,
-  MessageSquare
+  MessageSquare,
+  Quote
 } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import flumiaLogo from "@/assets/flumia-logo.png";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -56,6 +64,21 @@ const Index = () => {
 
       if (error) throw error;
       return data as any;
+    },
+  });
+
+  // Fetch depoimentos
+  const { data: depoimentos = [] } = useQuery({
+    queryKey: ["depoimentos-landing"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("depoimentos")
+        .select("*")
+        .eq("ativo", true)
+        .order("ordem", { ascending: true });
+
+      if (error) throw error;
+      return data as any[];
     },
   });
 
@@ -386,6 +409,46 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Depoimentos */}
+      {depoimentos && depoimentos.length > 0 && (
+        <section className="py-20 bg-secondary/10">
+          <div className="container">
+            <div className="mx-auto max-w-3xl text-center mb-16">
+              <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+                O que nossos clientes dizem
+              </h2>
+            </div>
+            <div className="max-w-4xl mx-auto">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {depoimentos.map((depoimento: any) => (
+                    <CarouselItem key={depoimento.id}>
+                      <Card className="shadow-card border-border/50">
+                        <CardContent className="p-8">
+                          <Quote className="h-12 w-12 text-primary/30 mb-4" />
+                          <p className="text-lg text-muted-foreground italic mb-6">
+                            "{depoimento.conteudo}"
+                          </p>
+                          <div className="border-t pt-4 mt-4">
+                            <p className="font-semibold text-foreground">
+                              {depoimento.autor}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {depoimento.empresa_nome}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Contato */}
       <section id="contato" className="py-20">

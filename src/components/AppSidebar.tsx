@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut } from "lucide-react";
+import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -30,6 +30,7 @@ export function AppSidebar() {
     { title: "Usuários", url: "/admin/usuarios", icon: Users },
     { title: "Bilhetagem", url: "/admin/bilhetagem", icon: Package },
     { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
+    { title: "Depoimentos", url: "/admin/depoimentos", icon: MessageSquare },
   ];
 
   const companyItems = [
