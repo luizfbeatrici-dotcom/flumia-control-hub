@@ -1031,11 +1031,33 @@ export default function EmpresaDetalhes() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">WhatsApp</p>
-                    <p className="text-base">{empresa.whatsapp || "-"}</p>
+                    {empresa.whatsapp ? (
+                      <a 
+                        href={`https://wa.me/${empresa.whatsapp.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base text-primary hover:underline cursor-pointer"
+                      >
+                        {empresa.whatsapp}
+                      </a>
+                    ) : (
+                      <p className="text-base">-</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Celular</p>
-                    <p className="text-base">{empresa.celular || "-"}</p>
+                    {empresa.celular ? (
+                      <a 
+                        href={`https://wa.me/${empresa.celular.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base text-primary hover:underline cursor-pointer"
+                      >
+                        {empresa.celular}
+                      </a>
+                    ) : (
+                      <p className="text-base">-</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Domínio</p>
