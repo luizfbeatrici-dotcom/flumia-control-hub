@@ -19,6 +19,7 @@ import Pedidos from "./pages/company/Pedidos";
 import Configuracoes from "./pages/company/Configuracoes";
 import UsuariosEmpresa from "./pages/company/Usuarios";
 import NotFound from "./pages/NotFound";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,7 @@ const App = () => (
         <AuthProvider>
           <EmpresaSelectorProvider>
             <Routes>
-              <Route path="/" element={<Navigate to="/auth" replace />} />
+              <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
             
             {/* Admin Master Routes */}
