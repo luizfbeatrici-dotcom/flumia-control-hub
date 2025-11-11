@@ -1016,6 +1016,27 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          whatsapp_contato: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          whatsapp_contato?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          whatsapp_contato?: string | null
+        }
+        Relationships: []
+      }
       tipos_entrega: {
         Row: {
           ativo: boolean
