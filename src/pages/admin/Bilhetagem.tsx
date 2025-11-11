@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function Bilhetagem() {
   const queryClient = useQueryClient();
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formValues, setFormValues] = useState({
     nome: "",
@@ -37,8 +38,23 @@ export default function Bilhetagem() {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano criado com sucesso!");
       setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "" });
+      setEditingId(null);
     },
     onError: (err: any) => toast.error(err.message || "Erro ao criar plano"),
+  });
+
+  const updatePlanoMutation = useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: any }) => {
+      const { error } = await supabase.from("planos").update(payload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["planos"] });
+      toast.success("Plano atualizado com sucesso!");
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "" });
+      setEditingId(null);
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao atualizar plano"),
   });
 
   const deletePlanoMutation = useMutation({
@@ -52,6 +68,22 @@ export default function Bilhetagem() {
     },
     onError: (err: any) => toast.error(err.message || "Erro ao excluir plano"),
   });
+
+  const handleEdit = (plano: any) => {
+    setEditingId(plano.id);
+    setFormValues({
+      nome: plano.nome,
+      valor_recorrente: plano.valor_recorrente.toString(),
+      qtd_pedidos: plano.qtd_pedidos.toString(),
+      valor_pedido_adicional: plano.valor_pedido_adicional.toString(),
+      valor_implantacao: plano.valor_implantacao.toString(),
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "" });
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,7 +108,11 @@ export default function Bilhetagem() {
       return;
     }
 
-    createPlanoMutation.mutate(payload);
+    if (editingId) {
+      updatePlanoMutation.mutate({ id: editingId, payload });
+    } else {
+      createPlanoMutation.mutate(payload);
+    }
   };
 
   return (
@@ -89,8 +125,8 @@ export default function Bilhetagem() {
 
         <Card className="shadow-soft">
           <CardHeader>
-            <CardTitle>Criar novo plano</CardTitle>
-            <CardDescription>Defina os limites e valores</CardDescription>
+            <CardTitle>{editingId ? "Editar plano" : "Criar novo plano"}</CardTitle>
+            <CardDescription>{editingId ? "Atualize os limites e valores" : "Defina os limites e valores"}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-5">
@@ -152,9 +188,17 @@ export default function Bilhetagem() {
                 />
               </div>
 
-              <div className="md:col-span-5 flex justify-end">
-                <Button type="submit" disabled={createPlanoMutation.isPending}>
-                  {createPlanoMutation.isPending ? "Salvando..." : "Salvar plano"}
+              <div className="md:col-span-5 flex justify-end gap-2">
+                {editingId && (
+                  <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                    Cancelar
+                  </Button>
+                )}
+                <Button type="submit" disabled={createPlanoMutation.isPending || updatePlanoMutation.isPending}>
+                  {editingId 
+                    ? (updatePlanoMutation.isPending ? "Atualizando..." : "Atualizar plano")
+                    : (createPlanoMutation.isPending ? "Salvando..." : "Salvar plano")
+                  }
                 </Button>
               </div>
             </form>
@@ -192,15 +236,24 @@ export default function Bilhetagem() {
                       <TableCell>R$ {Number(plano.valor_pedido_adicional || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell>R$ {Number(plano.valor_implantacao || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            if (confirm("Excluir este plano?")) deletePlanoMutation.mutate(plano.id);
-                          }}
-                        >
-                          Excluir
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(plano)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("Excluir este plano?")) deletePlanoMutation.mutate(plano.id);
+                            }}
+                          >
+                            Excluir
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
