@@ -1020,18 +1020,24 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          mensagem_inicial: string | null
+          nome_assistente: string | null
           updated_at: string
           whatsapp_contato: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          mensagem_inicial?: string | null
+          nome_assistente?: string | null
           updated_at?: string
           whatsapp_contato?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          mensagem_inicial?: string | null
+          nome_assistente?: string | null
           updated_at?: string
           whatsapp_contato?: string | null
         }

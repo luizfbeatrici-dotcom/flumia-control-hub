@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { 
   Bot, 
   ShoppingCart, 
@@ -62,15 +63,6 @@ const Index = () => {
     e.preventDefault();
     toast.success("Mensagem enviada com sucesso! Entraremos em contato em breve.");
     setFormData({ nome: "", email: "", telefone: "", mensagem: "" });
-  };
-
-  const handleWhatsAppContact = () => {
-    if (settings?.whatsapp_contato) {
-      const url = `https://api.whatsapp.com/send?phone=${settings.whatsapp_contato}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } else {
-      toast.error("Número de WhatsApp não configurado");
-    }
   };
 
   return (
@@ -394,14 +386,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Floating WhatsApp Button */}
-      <button
-        onClick={handleWhatsAppContact}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg hover:bg-[#128C7E] transition-all duration-300 hover:scale-110"
-        aria-label="Fale conosco no WhatsApp"
-      >
-        <MessageSquare className="h-7 w-7" />
-      </button>
 
       {/* Contato */}
       <section id="contato" className="py-20">
@@ -497,6 +481,15 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* WhatsApp Button */}
+      {settings?.whatsapp_contato && (
+        <WhatsAppButton 
+          phoneNumber={settings.whatsapp_contato}
+          assistantName={settings.nome_assistente || "Assistente Flumia"}
+          initialMessage={settings.mensagem_inicial || "Olá! Como posso ajudar você hoje?"}
+        />
+      )}
     </div>
   );
 };

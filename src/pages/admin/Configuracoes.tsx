@@ -5,12 +5,15 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
 export default function Configuracoes() {
   const queryClient = useQueryClient();
   const [whatsappContato, setWhatsappContato] = useState("");
+  const [nomeAssistente, setNomeAssistente] = useState("");
+  const [mensagemInicial, setMensagemInicial] = useState("");
 
   // Fetch system settings
   const { data: settings, isLoading } = useQuery({
@@ -29,6 +32,8 @@ export default function Configuracoes() {
   useEffect(() => {
     if (settings) {
       setWhatsappContato(settings.whatsapp_contato || "");
+      setNomeAssistente(settings.nome_assistente || "Assistente Flumia");
+      setMensagemInicial(settings.mensagem_inicial || "Olá! Como posso ajudar você hoje?");
     }
   }, [settings]);
 
@@ -37,7 +42,11 @@ export default function Configuracoes() {
     mutationFn: async () => {
       const { error } = await (supabase as any)
         .from("system_settings")
-        .update({ whatsapp_contato: whatsappContato })
+        .update({ 
+          whatsapp_contato: whatsappContato,
+          nome_assistente: nomeAssistente,
+          mensagem_inicial: mensagemInicial
+        })
         .eq("id", settings?.id);
 
       if (error) throw error;
@@ -75,13 +84,13 @@ export default function Configuracoes() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Contato WhatsApp</CardTitle>
+            <CardTitle>Assistente Virtual WhatsApp</CardTitle>
             <CardDescription>
-              Configure o número de WhatsApp que será usado para contato na página inicial
+              Configure as informações da assistente virtual que aparecerá na página inicial
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="whatsapp">Número do WhatsApp</Label>
                 <Input
@@ -95,6 +104,35 @@ export default function Configuracoes() {
                   Digite o número no formato: código do país + DDD + número (ex: 5511999999999)
                 </p>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nomeAssistente">Nome da Assistente</Label>
+                <Input
+                  id="nomeAssistente"
+                  type="text"
+                  placeholder="Assistente Flumia"
+                  value={nomeAssistente}
+                  onChange={(e) => setNomeAssistente(e.target.value)}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Nome que será exibido no card de conversa
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mensagemInicial">Mensagem Inicial</Label>
+                <Textarea
+                  id="mensagemInicial"
+                  placeholder="Olá! Como posso ajudar você hoje?"
+                  value={mensagemInicial}
+                  onChange={(e) => setMensagemInicial(e.target.value)}
+                  rows={3}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Mensagem que será exibida no card e enviada ao iniciar a conversa no WhatsApp
+                </p>
+              </div>
+
               <Button type="submit" disabled={updateSettingsMutation.isPending}>
                 {updateSettingsMutation.isPending ? "Salvando..." : "Salvar Configurações"}
               </Button>
