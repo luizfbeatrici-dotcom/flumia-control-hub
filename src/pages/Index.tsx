@@ -336,132 +336,67 @@ const Index = () => {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
-            {/* Plano Básico */}
-            <Card className="shadow-card border-border/50 hover:shadow-glow transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="text-2xl">Plano Básico</CardTitle>
-                <CardDescription className="text-lg">
-                  Ideal para começar
-                </CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-primary">R$ 99</span>
-                  <span className="text-muted-foreground">/mês</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Até 1.000 mensagens/mês</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">1 número WhatsApp</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Automação básica</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Suporte por e-mail</span>
-                  </li>
-                </ul>
-                <Link to="/auth" className="block mt-6">
-                  <Button className="w-full" variant="outline">
-                    Começar Agora
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            {planos.map((plano: any, index: number) => (
+              <Card
+                key={plano.id}
+                className={index === 1 ? "shadow-glow border-primary/50 relative overflow-hidden" : "shadow-card border-border/50 hover:shadow-glow transition-all duration-300"}
+              >
+                {index === 1 && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-semibold">
+                    MAIS POPULAR
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-2xl">{plano.nome}</CardTitle>
+                  <CardDescription className="text-lg">
+                    {plano.qtd_pedidos} pedidos inclusos
+                  </CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold text-primary">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_recorrente)}
+                    </span>
+                    <span className="text-muted-foreground">/mês</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Até {plano.qtd_pedidos} pedidos/mês</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">
+                        Pedidos adicionais: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_pedido_adicional)}
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Atendimento automatizado 24/7</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">Gestão completa de pedidos</span>
+                    </li>
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Link to="/auth" className="w-full">
+                    <Button className="w-full" variant={index === 1 ? "default" : "outline"}>
+                      Começar Agora
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
 
-            {/* Plano Profissional */}
-            <Card className="shadow-glow border-primary/50 relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-semibold">
-                MAIS POPULAR
-              </div>
-              <CardHeader>
-                <CardTitle className="text-2xl">Plano Profissional</CardTitle>
-                <CardDescription className="text-lg">
-                  Para empresas em crescimento
-                </CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-primary">R$ 299</span>
-                  <span className="text-muted-foreground">/mês</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Até 10.000 mensagens/mês</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">3 números WhatsApp</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Automação completa + IA</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Integração com ERP</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Suporte prioritário</span>
-                  </li>
-                </ul>
-                <Link to="/auth" className="block mt-6">
-                  <Button className="w-full shadow-medium">
-                    Começar Agora
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Plano Enterprise */}
-            <Card className="shadow-card border-border/50 hover:shadow-glow transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="text-2xl">Plano Enterprise</CardTitle>
-                <CardDescription className="text-lg">
-                  Solução personalizada
-                </CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-primary">Customizado</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Mensagens ilimitadas</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Números ilimitados</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Recursos exclusivos</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Gerente de conta dedicado</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">SLA garantido</span>
-                  </li>
-                </ul>
-                <a href="#contato" className="block mt-6">
-                  <Button className="w-full" variant="outline">
-                    Falar com Vendas
-                  </Button>
-                </a>
-              </CardContent>
-            </Card>
+          {/* WhatsApp Contact Button */}
+          <div className="text-center mt-12">
+            <Button size="lg" onClick={handleWhatsAppContact} className="gap-2 shadow-medium">
+              <MessageSquare className="h-5 w-5" />
+              Fale com um Consultor
+            </Button>
           </div>
         </div>
       </section>
