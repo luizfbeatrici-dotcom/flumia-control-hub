@@ -19,7 +19,7 @@ export function WhatsAppButton({
   const handleWhatsAppClick = () => {
     if (phoneNumber) {
       const message = encodeURIComponent(initialMessage);
-      const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
+      const url = `https://wa.me/${phoneNumber}?text=${message}`;
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   };

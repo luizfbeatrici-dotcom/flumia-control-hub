@@ -432,7 +432,7 @@ const Index = () => {
                       const phone = settings?.whatsapp_contato;
                       if (phone) {
                         const message = encodeURIComponent(`Olá! Gostaria de contratar o plano ${plano.nome}.`);
-                        window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${message}`, '_blank');
+                        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
                       }
                     }}
                   >

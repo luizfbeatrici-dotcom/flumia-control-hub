@@ -1033,7 +1033,7 @@ export default function EmpresaDetalhes() {
                     <p className="text-sm font-medium text-muted-foreground">WhatsApp</p>
                     {empresa.whatsapp ? (
                       <a 
-                        href={`https://api.whatsapp.com/send?phone=${empresa.whatsapp.replace(/\D/g, '')}`}
+                        href={`https://wa.me/${empresa.whatsapp.replace(/\D/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-base text-primary hover:underline cursor-pointer"
@@ -1048,7 +1048,7 @@ export default function EmpresaDetalhes() {
                     <p className="text-sm font-medium text-muted-foreground">Celular</p>
                     {empresa.celular ? (
                       <a 
-                        href={`https://api.whatsapp.com/send?phone=${empresa.celular.replace(/\D/g, '')}`}
+                        href={`https://wa.me/${empresa.celular.replace(/\D/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-base text-primary hover:underline cursor-pointer"
