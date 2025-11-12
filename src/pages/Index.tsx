@@ -149,7 +149,9 @@ const Index = () => {
         <div className="container relative z-10">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-              A ponte entre o atendimento humano e a{" "}
+              <span className="text-destructive">PARE DE PERDER VENDAS.</span>
+              <br />
+              A Flumia é a ponte entre o atendimento humano e a{" "}
               <span className="text-primary">automação inteligente</span>
             </h1>
             <p className="mb-8 text-lg text-muted-foreground md:text-xl">
@@ -157,7 +159,7 @@ const Index = () => {
             </p>
             <a href="#planos">
               <Button size="lg" className="shadow-glow text-lg px-8 py-6 h-auto">
-                Conheça os Planos
+                QUERO PARAR DE PERDER VENDAS
               </Button>
             </a>
           </div>
@@ -269,8 +271,11 @@ const Index = () => {
         <div className="container">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Chega de perder vendas por problemas que podemos resolver
+              <span className="text-destructive">O QUE VOCÊ ESTÁ PERDENDO AGORA?</span>
             </h2>
+            <p className="text-xl text-muted-foreground">
+              O Custo Real de Não Ter a Flumia
+            </p>
           </div>
 
           <div className="mx-auto max-w-5xl">
@@ -520,10 +525,10 @@ const Index = () => {
           <div className="mx-auto max-w-2xl">
             <div className="text-center mb-12">
               <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-                Ficou com alguma dúvida?
+                Não perca mais tempo e dinheiro
               </h2>
-              <p className="text-muted-foreground">
-                Preencha o formulário abaixo e nossa equipe entrará em contato
+              <p className="text-lg text-muted-foreground">
+                Fale com um especialista e descubra como a Flumia pode transformar suas vendas
               </p>
             </div>
 
