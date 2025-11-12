@@ -29,7 +29,7 @@ export function AppSidebar() {
     { title: "Empresas", url: "/admin/empresas", icon: Building2 },
     { title: "Usuários", url: "/admin/usuarios", icon: Users },
     { title: "Bilhetagem", url: "/admin/bilhetagem", icon: Package },
-    { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
+    { title: "Assistente", url: "/admin/configuracoes", icon: Settings },
     { title: "Depoimentos", url: "/admin/depoimentos", icon: MessageSquare },
     { title: "FAQ", url: "/admin/faq", icon: HelpCircle },
   ];
