@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 
 export default function CompanyDashboard() {
   const { profile, isAdminMaster, loading: authLoading } = useAuth();
@@ -99,6 +100,10 @@ export default function CompanyDashboard() {
             </Card>
           ))}
         </div>
+
+        {profile?.empresa_id && (
+          <SalesFunnelWidget empresaId={profile.empresa_id} />
+        )}
       </div>
     </DashboardLayout>
   );
