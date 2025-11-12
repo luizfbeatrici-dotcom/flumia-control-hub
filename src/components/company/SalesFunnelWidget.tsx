@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Users } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { FunnelChart, Funnel, Cell, LabelList, ResponsiveContainer } from "recharts";
 
 interface SalesFunnelWidgetProps {
   empresaId: string;
@@ -77,7 +77,22 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
   }
 
   const { stats = [], totalContatos = 0 } = funnelData || {};
-  const maxContatos = Math.max(...stats.map((s) => s.total_contatos), 1);
+
+  // Preparar dados para o gráfico de funil
+  const chartData = stats.map((stat) => ({
+    name: stat.etapa_nome,
+    value: stat.total_contatos,
+    fill: `hsl(var(--primary))`,
+  }));
+
+  // Cores do gradiente para o funil
+  const COLORS = [
+    'hsl(var(--primary))',
+    'hsl(262 83% 48%)',
+    'hsl(262 83% 40%)',
+    'hsl(262 83% 32%)',
+    'hsl(262 83% 24%)',
+  ];
 
   return (
     <Card>
@@ -90,26 +105,57 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
           {totalContatos} contato{totalContatos !== 1 ? "s" : ""} ativo{totalContatos !== 1 ? "s" : ""}
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent>
         {stats.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-4">
+          <p className="text-center text-sm text-muted-foreground py-8">
             Nenhuma etapa configurada
           </p>
         ) : (
-          stats.map((stat) => (
-            <div key={stat.etapa_id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{stat.etapa_nome}</span>
-                <span className="text-sm text-muted-foreground">
-                  {stat.total_contatos} {stat.total_contatos !== 1 ? "contatos" : "contato"}
-                </span>
-              </div>
-              <Progress 
-                value={(stat.total_contatos / maxContatos) * 100} 
-                className="h-2"
-              />
-            </div>
-          ))
+          <ResponsiveContainer width="100%" height={400}>
+            <FunnelChart>
+              <Funnel
+                dataKey="value"
+                data={chartData}
+                isAnimationActive
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+                <LabelList
+                  position="center"
+                  fill="#fff"
+                  stroke="none"
+                  dataKey="name"
+                  content={({ x, y, width, height, value, name }: any) => {
+                    return (
+                      <g>
+                        <text
+                          x={x + width / 2}
+                          y={y + height / 2 - 10}
+                          fill="#fff"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          className="font-semibold text-sm"
+                        >
+                          {name}
+                        </text>
+                        <text
+                          x={x + width / 2}
+                          y={y + height / 2 + 10}
+                          fill="#fff"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          className="text-xs"
+                        >
+                          {value} {value !== 1 ? "contatos" : "contato"}
+                        </text>
+                      </g>
+                    );
+                  }}
+                />
+              </Funnel>
+            </FunnelChart>
+          </ResponsiveContainer>
         )}
       </CardContent>
     </Card>
