@@ -490,6 +490,7 @@ export type Database = {
       }
       mensagens: {
         Row: {
+          aplicativo_id: string | null
           contato_id: string
           created_at: string
           empresa_id: string
@@ -500,6 +501,7 @@ export type Database = {
           wamid: string | null
         }
         Insert: {
+          aplicativo_id?: string | null
           contato_id: string
           created_at?: string
           empresa_id: string
@@ -510,6 +512,7 @@ export type Database = {
           wamid?: string | null
         }
         Update: {
+          aplicativo_id?: string | null
           contato_id?: string
           created_at?: string
           empresa_id?: string
@@ -525,6 +528,13 @@ export type Database = {
             columns: ["contato_id"]
             isOneToOne: false
             referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_aplicativo_id_fkey"
+            columns: ["aplicativo_id"]
+            isOneToOne: false
+            referencedRelation: "aplicativos"
             referencedColumns: ["id"]
           },
         ]
