@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Users } from "lucide-react";
-import { FunnelChart, Funnel, Cell, LabelList, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface SalesFunnelWidgetProps {
   empresaId: string;
@@ -78,14 +78,13 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
 
   const { stats = [], totalContatos = 0 } = funnelData || {};
 
-  // Preparar dados para o gráfico de funil
+  // Preparar dados para o gráfico de barras
   const chartData = stats.map((stat) => ({
-    name: stat.etapa_nome,
-    value: stat.total_contatos,
-    fill: `hsl(var(--primary))`,
+    etapa: stat.etapa_nome,
+    contatos: stat.total_contatos,
   }));
 
-  // Cores do gradiente para o funil
+  // Cores do gradiente
   const COLORS = [
     'hsl(var(--primary))',
     'hsl(262 83% 48%)',
@@ -111,50 +110,34 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
             Nenhuma etapa configurada
           </p>
         ) : (
-          <ResponsiveContainer width="100%" height={400}>
-            <FunnelChart>
-              <Funnel
-                dataKey="value"
-                data={chartData}
-                isAnimationActive
-              >
+          <ResponsiveContainer width="100%" height={Math.max(stats.length * 80, 300)}>
+            <BarChart 
+              data={chartData}
+              layout="vertical"
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis type="number" stroke="hsl(var(--foreground))" />
+              <YAxis 
+                dataKey="etapa" 
+                type="category" 
+                stroke="hsl(var(--foreground))"
+                width={150}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px',
+                }}
+                labelStyle={{ color: 'hsl(var(--foreground))' }}
+              />
+              <Bar dataKey="contatos" radius={[0, 8, 8, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
-                <LabelList
-                  position="center"
-                  fill="#fff"
-                  stroke="none"
-                  dataKey="name"
-                  content={({ x, y, width, height, value, name }: any) => {
-                    return (
-                      <g>
-                        <text
-                          x={x + width / 2}
-                          y={y + height / 2 - 10}
-                          fill="#fff"
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          className="font-semibold text-sm"
-                        >
-                          {name}
-                        </text>
-                        <text
-                          x={x + width / 2}
-                          y={y + height / 2 + 10}
-                          fill="#fff"
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          className="text-xs"
-                        >
-                          {value} {value !== 1 ? "contatos" : "contato"}
-                        </text>
-                      </g>
-                    );
-                  }}
-                />
-              </Funnel>
-            </FunnelChart>
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         )}
       </CardContent>
