@@ -488,6 +488,47 @@ export type Database = {
           },
         ]
       }
+      mensagens: {
+        Row: {
+          contato_id: string
+          created_at: string
+          empresa_id: string
+          id: string
+          message_body: string | null
+          message_type: string
+          payload: Json
+          wamid: string | null
+        }
+        Insert: {
+          contato_id: string
+          created_at?: string
+          empresa_id: string
+          id?: string
+          message_body?: string | null
+          message_type: string
+          payload?: Json
+          wamid?: string | null
+        }
+        Update: {
+          contato_id?: string
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          message_body?: string | null
+          message_type?: string
+          payload?: Json
+          wamid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_mensagens_contato"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mercadopago_config: {
         Row: {
           access_token: string
