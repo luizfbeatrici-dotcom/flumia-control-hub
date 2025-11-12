@@ -491,10 +491,13 @@ export type Database = {
       mensagens: {
         Row: {
           aplicativo_id: string | null
+          audio_data: Json | null
           contato_id: string
           created_at: string
           empresa_id: string
           id: string
+          image_data: Json | null
+          interactive_data: Json | null
           message_body: string | null
           message_type: string
           payload: Json
@@ -502,10 +505,13 @@ export type Database = {
         }
         Insert: {
           aplicativo_id?: string | null
+          audio_data?: Json | null
           contato_id: string
           created_at?: string
           empresa_id: string
           id?: string
+          image_data?: Json | null
+          interactive_data?: Json | null
           message_body?: string | null
           message_type: string
           payload?: Json
@@ -513,10 +519,13 @@ export type Database = {
         }
         Update: {
           aplicativo_id?: string | null
+          audio_data?: Json | null
           contato_id?: string
           created_at?: string
           empresa_id?: string
           id?: string
+          image_data?: Json | null
+          interactive_data?: Json | null
           message_body?: string | null
           message_type?: string
           payload?: Json
