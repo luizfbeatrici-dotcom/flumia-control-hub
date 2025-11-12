@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users } from "lucide-react";
+import { Loader2, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 interface SalesFunnelWidgetProps {
   empresaId: string;
@@ -16,6 +20,9 @@ interface EtapaStats {
 }
 
 export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedEtapa, setSelectedEtapa] = useState<string | null>(null);
+
   const { data: funnelData, isLoading } = useQuery({
     queryKey: ["sales-funnel", empresaId],
     queryFn: async () => {
@@ -60,6 +67,25 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
     enabled: !!empresaId,
   });
 
+  // Query para buscar contatos de uma etapa específica
+  const { data: contatosEtapa } = useQuery({
+    queryKey: ["contatos-etapa", selectedEtapa],
+    queryFn: async () => {
+      if (!selectedEtapa) return [];
+
+      const { data, error } = await supabase
+        .from("contatos")
+        .select("id, name, wa_id, status, created_at")
+        .eq("etapa_id", selectedEtapa)
+        .not("status", "is", null)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedEtapa,
+  });
+
   if (isLoading) {
     return (
       <Card>
@@ -77,6 +103,7 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
   }
 
   const { stats = [], totalContatos = 0 } = funnelData || {};
+  const etapaSelecionada = stats.find(s => s.etapa_id === selectedEtapa);
 
   // Preparar dados para o gráfico de barras
   const chartData = stats.map((stat) => ({
@@ -94,53 +121,123 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Funil de Vendas
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {totalContatos} contato{totalContatos !== 1 ? "s" : ""} ativo{totalContatos !== 1 ? "s" : ""}
-        </p>
-      </CardHeader>
-      <CardContent>
-        {stats.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-8">
-            Nenhuma etapa configurada
-          </p>
-        ) : (
-          <ResponsiveContainer width="100%" height={Math.max(stats.length * 80, 300)}>
-            <BarChart 
-              data={chartData}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Funil de Vendas
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {totalContatos} contato{totalContatos !== 1 ? "s" : ""} ativo{totalContatos !== 1 ? "s" : ""}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis type="number" stroke="hsl(var(--foreground))" />
-              <YAxis 
-                dataKey="etapa" 
-                type="category" 
-                stroke="hsl(var(--foreground))"
-                width={150}
-              />
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px',
-                }}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
-              />
-              <Bar dataKey="contatos" radius={[0, 8, 8, 0]}>
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="h-4 w-4 mr-1" />
+                  Recolher
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4 mr-1" />
+                  Expandir
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        {isExpanded && (
+          <CardContent>
+            {stats.length === 0 ? (
+              <p className="text-center text-sm text-muted-foreground py-8">
+                Nenhuma etapa configurada
+              </p>
+            ) : (
+              <ResponsiveContainer width="100%" height={Math.max(stats.length * 80, 300)}>
+                <BarChart 
+                  data={chartData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis type="number" stroke="hsl(var(--foreground))" />
+                  <YAxis 
+                    dataKey="etapa" 
+                    type="category" 
+                    stroke="hsl(var(--foreground))"
+                    width={150}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '6px',
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
+                  <Bar 
+                    dataKey="contatos" 
+                    radius={[0, 8, 8, 0]}
+                    onClick={(data) => {
+                      const etapa = stats.find(s => s.etapa_nome === data.etapa);
+                      if (etapa) {
+                        setSelectedEtapa(etapa.etapa_id);
+                      }
+                    }}
+                    cursor="pointer"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
         )}
-      </CardContent>
-    </Card>
+      </Card>
+
+      <Dialog open={!!selectedEtapa} onOpenChange={() => setSelectedEtapa(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Contatos - {etapaSelecionada?.etapa_nome}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {contatosEtapa?.length === 0 ? (
+              <p className="text-center text-sm text-muted-foreground py-8">
+                Nenhum contato nesta etapa
+              </p>
+            ) : (
+              contatosEtapa?.map((contato) => (
+                <div
+                  key={contato.id}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium">{contato.name || "Sem nome"}</p>
+                    <p className="text-sm text-muted-foreground">
+                      WhatsApp: {contato.wa_id}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Desde: {new Date(contato.created_at).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                  <Badge variant="secondary">{contato.status}</Badge>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
