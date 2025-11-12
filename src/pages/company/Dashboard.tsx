@@ -100,10 +100,6 @@ export default function CompanyDashboard() {
             </Card>
           ))}
         </div>
-
-        {profile?.empresa_id && (
-          <SalesFunnelWidget empresaId={profile.empresa_id} />
-        )}
       </div>
     </DashboardLayout>
   );

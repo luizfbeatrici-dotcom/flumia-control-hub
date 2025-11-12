@@ -37,6 +37,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 
 export default function EmpresaDetalhes() {
   const { id } = useParams<{ id: string }>();
@@ -967,6 +968,9 @@ export default function EmpresaDetalhes() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Widget de Funil de Vendas */}
+        <SalesFunnelWidget empresaId={id!} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
