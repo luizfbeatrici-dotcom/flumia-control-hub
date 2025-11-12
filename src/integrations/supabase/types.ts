@@ -138,6 +138,7 @@ export type Database = {
           name: string | null
           pessoa_id: string | null
           status: string | null
+          ultima_interacao: string | null
           updated_at: string
           wa_id: string
           whatsapp_from: string
@@ -153,6 +154,7 @@ export type Database = {
           name?: string | null
           pessoa_id?: string | null
           status?: string | null
+          ultima_interacao?: string | null
           updated_at?: string
           wa_id: string
           whatsapp_from: string
@@ -168,6 +170,7 @@ export type Database = {
           name?: string | null
           pessoa_id?: string | null
           status?: string | null
+          ultima_interacao?: string | null
           updated_at?: string
           wa_id?: string
           whatsapp_from?: string
