@@ -425,7 +425,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 max-w-7xl mx-auto justify-items-center">
+          <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
             {planos.map((plano: any, index: number) => {
               // Get caracteristicas for this plano
               const planoCaracteristicaIds = planoCaracteristicas
@@ -436,72 +436,73 @@ const Index = () => {
                 .filter((c: any) => planoCaracteristicaIds.includes(c.id));
 
               return (
-                <Card
-                  key={plano.id}
-                  className={index === 1 ? "shadow-glow border-primary/50 relative overflow-hidden" : "shadow-card border-border/50 hover:shadow-glow transition-all duration-300"}
-                >
-                  {index === 1 && (
-                    <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-semibold">
-                      POPULAR
-                    </div>
-                  )}
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-lg">{plano.nome}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {plano.qtd_pedidos} pedidos
-                    </CardDescription>
-                    <div className="mt-2">
-                      <span className="text-2xl font-bold text-primary">
-                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_recorrente)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">/mês</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-xs">Até {plano.qtd_pedidos} pedidos</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-xs">
-                          +{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_pedido_adicional)}/pedido extra
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-xs">
-                          Ativação: {plano.valor_implantacao_a_verificar 
-                            ? "A verificar" 
-                            : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_implantacao)
-                          }
-                        </span>
-                      </li>
-                      {planoCaracteristicasList.map((caracteristica: any) => (
-                        <li key={caracteristica.id} className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                          <span className="text-xs">{caracteristica.nome}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0">
-                    <Button 
-                      className="w-full text-xs py-2"
-                    variant={index === 1 ? "default" : "outline"}
-                    onClick={() => {
-                      const phone = settings?.whatsapp_contato;
-                      if (phone) {
-                        const message = encodeURIComponent(`Olá! Gostaria de contratar o plano ${plano.nome}.`);
-                        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-                      }
-                    }}
+                <div key={plano.id} className="w-full max-w-sm">
+                  <Card
+                    className={index === 1 ? "shadow-glow border-primary/50 relative overflow-hidden" : "shadow-card border-border/50 hover:shadow-glow transition-all duration-300"}
                   >
-                    Começar Agora
-                  </Button>
-                </CardFooter>
-              </Card>
+                    {index === 1 && (
+                      <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-semibold">
+                        POPULAR
+                      </div>
+                    )}
+                    <CardHeader className="p-4">
+                      <CardTitle className="text-lg">{plano.nome}</CardTitle>
+                      <CardDescription className="text-xs">
+                        {plano.qtd_pedidos} pedidos
+                      </CardDescription>
+                      <div className="mt-2">
+                        <span className="text-2xl font-bold text-primary">
+                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_recorrente)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">/mês</span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0">
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                          <span className="text-xs">Até {plano.qtd_pedidos} pedidos</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                          <span className="text-xs">
+                            +{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_pedido_adicional)}/pedido extra
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                          <span className="text-xs">
+                            Ativação: {plano.valor_implantacao_a_verificar 
+                              ? "A verificar" 
+                              : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_implantacao)
+                            }
+                          </span>
+                        </li>
+                        {planoCaracteristicasList.map((caracteristica: any) => (
+                          <li key={caracteristica.id} className="flex items-start gap-2">
+                            <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                            <span className="text-xs">{caracteristica.nome}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0">
+                      <Button 
+                        className="w-full text-xs py-2"
+                        variant={index === 1 ? "default" : "outline"}
+                        onClick={() => {
+                          const phone = settings?.whatsapp_contato;
+                          if (phone) {
+                            const message = encodeURIComponent(`Olá! Gostaria de contratar o plano ${plano.nome}.`);
+                            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+                          }
+                        }}
+                      >
+                        Começar Agora
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </div>
               );
             })}
           </div>
