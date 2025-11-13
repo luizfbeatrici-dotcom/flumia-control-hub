@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import flumiaLogo from "@/assets/flumia-logo.png";
+import authAiBackground from "@/assets/auth-ai-background.png";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -35,8 +36,13 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
-      <Card className="w-full max-w-md shadow-medium">
+    <div className="relative flex min-h-screen items-center justify-center p-4 overflow-hidden">
+      <div className="absolute inset-0 gradient-hero opacity-10"></div>
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{ backgroundImage: `url(${authAiBackground})` }}
+      ></div>
+      <Card className="relative z-10 w-full max-w-md shadow-medium">
         <CardHeader className="space-y-1 text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-purple p-3">
             <img src={flumiaLogo} alt="Flumia Flow Logo" className="h-full w-full object-contain" />
