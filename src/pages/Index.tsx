@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   XCircle,
   Check,
+  X,
   MessageSquare,
   Quote
 } from "lucide-react";
@@ -272,7 +273,7 @@ const Index = () => {
       </section>
 
       {/* Problema vs Solução */}
-      <section id="o-que-e" className="py-20">
+      <section id="o-que-e" className="py-20 bg-secondary/30">
         <div className="container">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -286,39 +287,39 @@ const Index = () => {
           <div className="mx-auto max-w-5xl">
             <div className="grid gap-8 md:grid-cols-2">
               {/* Problema */}
-              <div className="space-y-6">
+              <div className="space-y-6 bg-background/50 p-8 rounded-lg border border-destructive/20">
                 <h3 className="text-2xl font-bold flex items-center gap-2">
-                  <XCircle className="h-6 w-6 text-destructive" />
+                  <X className="h-6 w-6 text-red-500" />
                   Sem a Flumia
                 </h3>
                 
                 <div className="space-y-4">
                   <div className="flex gap-3">
-                    <XCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <X className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Vendas perdidas fora do horário comercial
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <XCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <X className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Atendimento lento e inconsistente
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <XCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <X className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Dificuldade em gerenciar múltiplos canais
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <XCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <X className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Processos manuais e repetitivos
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <XCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <X className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Falta de integração com seu ERP
                     </p>
@@ -327,39 +328,39 @@ const Index = () => {
               </div>
 
               {/* Solução */}
-              <div className="space-y-6">
+              <div className="space-y-6 bg-background/50 p-8 rounded-lg border border-primary/20">
                 <h3 className="text-2xl font-bold flex items-center gap-2">
-                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                  <Check className="h-6 w-6 text-[hsl(var(--primary))]" />
                   Com a Flumia
                 </h3>
                 
                 <div className="space-y-4">
                   <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-[hsl(var(--primary))] flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Atendimento 24/7 sem custo adicional
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-[hsl(var(--primary))] flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Respostas instantâneas e padronizadas
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-[hsl(var(--primary))] flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Centralização completa em uma plataforma
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-[hsl(var(--primary))] flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Automação inteligente de tarefas
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-[hsl(var(--primary))] flex-shrink-0 mt-0.5" />
                     <p className="text-muted-foreground">
                       Sincronização automática de dados
                     </p>
