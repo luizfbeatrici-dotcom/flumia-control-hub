@@ -51,7 +51,7 @@ const Index = () => {
   const planosQuery = useQuery({
     queryKey: ["planos"],
     queryFn: async () => {
-      const response = await supabase
+      const response = await (supabase as any)
         .from("planos")
         .select("*")
         .eq("exibir_landing_page", true)
