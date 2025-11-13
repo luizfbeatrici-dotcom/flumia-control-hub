@@ -54,6 +54,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from("planos")
         .select("*")
+        .eq("exibir_landing_page", true)
         .order("valor_recorrente", { ascending: true });
 
       if (error) throw error;
@@ -434,7 +435,7 @@ const Index = () => {
                     <li className="flex items-start gap-2">
                       <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                       <span className="text-xs">
-                        Implantação: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_implantacao)}
+                        Ativação: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_implantacao)}
                       </span>
                     </li>
                     <li className="flex items-start gap-2">

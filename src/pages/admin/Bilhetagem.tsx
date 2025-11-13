@@ -18,6 +18,7 @@ export default function Bilhetagem() {
     qtd_pedidos: "",
     valor_pedido_adicional: "",
     valor_implantacao: "",
+    exibir_landing_page: true,
   });
 
   const { data: planos, isLoading } = useQuery({
@@ -37,7 +38,7 @@ export default function Bilhetagem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano criado com sucesso!");
-      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "" });
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", exibir_landing_page: true });
       setEditingId(null);
     },
     onError: (err: any) => toast.error(err.message || "Erro ao criar plano"),
@@ -51,7 +52,7 @@ export default function Bilhetagem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano atualizado com sucesso!");
-      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "" });
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", exibir_landing_page: true });
       setEditingId(null);
     },
     onError: (err: any) => toast.error(err.message || "Erro ao atualizar plano"),
@@ -77,12 +78,13 @@ export default function Bilhetagem() {
       qtd_pedidos: plano.qtd_pedidos.toString(),
       valor_pedido_adicional: plano.valor_pedido_adicional.toString(),
       valor_implantacao: plano.valor_implantacao.toString(),
+      exibir_landing_page: plano.exibir_landing_page ?? true,
     });
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "" });
+    setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", exibir_landing_page: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -93,6 +95,7 @@ export default function Bilhetagem() {
       qtd_pedidos: Number(formValues.qtd_pedidos || 0),
       valor_pedido_adicional: Number(formValues.valor_pedido_adicional || 0),
       valor_implantacao: Number(formValues.valor_implantacao || 0),
+      exibir_landing_page: formValues.exibir_landing_page,
     };
 
     if (!payload.nome) {
@@ -176,7 +179,7 @@ export default function Bilhetagem() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="valor_implantacao">Valor implantação (R$)</label>
+                <label className="text-sm font-medium" htmlFor="valor_implantacao">Valor ativação (R$)</label>
                 <Input
                   id="valor_implantacao"
                   type="number"
@@ -186,6 +189,21 @@ export default function Bilhetagem() {
                   value={formValues.valor_implantacao}
                   onChange={(e) => setFormValues((s) => ({ ...s, valor_implantacao: e.target.value }))}
                 />
+              </div>
+              
+              <div className="space-y-2 flex items-end">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="exibir_landing_page"
+                    checked={formValues.exibir_landing_page}
+                    onChange={(e) => setFormValues((s) => ({ ...s, exibir_landing_page: e.target.checked }))}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <label htmlFor="exibir_landing_page" className="text-sm font-medium cursor-pointer">
+                    Exibir na landing page
+                  </label>
+                </div>
               </div>
 
               <div className="md:col-span-5 flex justify-end gap-2">
@@ -223,7 +241,8 @@ export default function Bilhetagem() {
                     <TableHead>Valor</TableHead>
                     <TableHead>Qtd. Pedidos</TableHead>
                     <TableHead>Valor Pedido Adicional</TableHead>
-                    <TableHead>Valor Implantação</TableHead>
+                    <TableHead>Valor Ativação</TableHead>
+                    <TableHead>Exibir no Site</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -235,6 +254,7 @@ export default function Bilhetagem() {
                       <TableCell>{plano.qtd_pedidos}</TableCell>
                       <TableCell>R$ {Number(plano.valor_pedido_adicional || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell>R$ {Number(plano.valor_implantacao || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell>{plano.exibir_landing_page ? "Sim" : "Não"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
