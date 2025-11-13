@@ -68,7 +68,7 @@ const Index = () => {
   const { data: caracteristicas = [] } = useQuery({
     queryKey: ["caracteristicas"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("caracteristicas")
         .select("*")
         .eq("ativo", true)
@@ -82,7 +82,7 @@ const Index = () => {
   const { data: planoCaracteristicas = [] } = useQuery({
     queryKey: ["plano_caracteristicas"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("plano_caracteristicas")
         .select("plano_id, caracteristica_id");
       if (error) throw error;
@@ -425,7 +425,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4 max-w-7xl mx-auto">
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 max-w-7xl mx-auto justify-items-center">
             {planos.map((plano: any, index: number) => {
               // Get caracteristicas for this plano
               const planoCaracteristicaIds = planoCaracteristicas

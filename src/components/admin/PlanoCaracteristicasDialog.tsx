@@ -26,7 +26,7 @@ export function PlanoCaracteristicasDialog({
   const { data: caracteristicas } = useQuery({
     queryKey: ["caracteristicas"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("caracteristicas")
         .select("*")
         .eq("ativo", true)
@@ -41,7 +41,7 @@ export function PlanoCaracteristicasDialog({
     queryKey: ["plano_caracteristicas", planoId],
     queryFn: async () => {
       if (!planoId) return [];
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("plano_caracteristicas")
         .select("caracteristica_id")
         .eq("plano_id", planoId);
@@ -64,7 +64,7 @@ export function PlanoCaracteristicasDialog({
       if (!planoId) return;
 
       // Delete all existing relationships
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await (supabase as any)
         .from("plano_caracteristicas")
         .delete()
         .eq("plano_id", planoId);
@@ -78,7 +78,7 @@ export function PlanoCaracteristicasDialog({
           caracteristica_id: caracteristicaId,
         }));
 
-        const { error: insertError } = await supabase
+        const { error: insertError } = await (supabase as any)
           .from("plano_caracteristicas")
           .insert(inserts);
         
