@@ -8,13 +8,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
+// Helper types
+type NotificationSetting = {
+  id: string;
+  tipo: string;
+  titulo: string;
+  descricao?: string;
+  ativo: boolean;
+  etapa_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type Etapa = {
+  id: string;
+  nome: string;
+  ordem: number;
+  ativo: boolean;
+};
+
 export default function Notificacoes() {
   const queryClient = useQueryClient();
 
   // Fetch etapas
-  const { data: etapas = [] } = useQuery({
+  const { data: etapas = [] } = useQuery<Etapa[]>({
     queryKey: ['etapas'],
-    queryFn: async () => {
+    queryFn: async (): Promise<Etapa[]> => {
       const { data, error } = await supabase
         .from('etapas')
         .select('*')
@@ -22,20 +41,22 @@ export default function Notificacoes() {
         .order('ordem');
 
       if (error) throw error;
-      return data;
+      return (data || []) as Etapa[];
     },
   });
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading } = useQuery<NotificationSetting[]>({
     queryKey: ['notification-settings'],
-    queryFn: async () => {
-      const { data, error } = await supabase
+    queryFn: async (): Promise<NotificationSetting[]> => {
+      const result = await supabase
         .from('notification_settings')
         .select('*')
         .order('tipo');
+      
+      const { data, error } = result as any;
 
       if (error) throw error;
-      return data;
+      return (data || []) as NotificationSetting[];
     },
   });
 
@@ -45,10 +66,12 @@ export default function Notificacoes() {
       if (ativo !== undefined) updateData.ativo = ativo;
       if (etapa_id !== undefined) updateData.etapa_id = etapa_id;
 
-      const { error } = await supabase
+      const result = await supabase
         .from('notification_settings')
-        .update(updateData)
+        .update(updateData as any)
         .eq('id', id);
+      
+      const { error } = result as any;
 
       if (error) throw error;
     },
@@ -105,7 +128,7 @@ export default function Notificacoes() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {settings?.map((setting) => (
+            {settings?.map((setting: NotificationSetting) => (
               <div
                 key={setting.id}
                 className="flex flex-col gap-4 p-4 border rounded-lg"
@@ -143,7 +166,7 @@ export default function Notificacoes() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Nenhuma etapa</SelectItem>
-                      {etapas.map((etapa) => (
+                      {etapas.map((etapa: Etapa) => (
                         <SelectItem key={etapa.id} value={etapa.id}>
                           {etapa.nome}
                         </SelectItem>

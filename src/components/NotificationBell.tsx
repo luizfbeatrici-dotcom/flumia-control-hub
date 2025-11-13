@@ -16,6 +16,20 @@ import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+// Helper type for notifications
+type NotificationRow = {
+  id: string;
+  empresa_id: string;
+  tipo: string;
+  titulo: string;
+  mensagem: string;
+  link?: string;
+  lida: boolean;
+  created_at: string;
+  pedido_id?: string;
+  contato_id?: string;
+};
+
 export function NotificationBell() {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -25,14 +39,16 @@ export function NotificationBell() {
   // Fetch unread notifications count
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications-count', profile?.empresa_id],
-    queryFn: async () => {
+    queryFn: async (): Promise<number> => {
       if (!profile?.empresa_id) return 0;
       
-      const { count, error } = await supabase
+      const result = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
         .eq('empresa_id', profile.empresa_id)
         .eq('lida', false);
+      
+      const { count, error } = result as any;
 
       if (error) throw error;
       return count || 0;
@@ -42,20 +58,22 @@ export function NotificationBell() {
   });
 
   // Fetch notifications list
-  const { data: notifications = [] } = useQuery({
+  const { data: notifications = [] } = useQuery<NotificationRow[]>({
     queryKey: ['notifications', profile?.empresa_id],
-    queryFn: async () => {
+    queryFn: async (): Promise<NotificationRow[]> => {
       if (!profile?.empresa_id) return [];
       
-      const { data, error } = await supabase
+      const result = await supabase
         .from('notifications')
         .select('*')
         .eq('empresa_id', profile.empresa_id)
         .order('created_at', { ascending: false })
         .limit(10);
+      
+      const { data, error } = result as any;
 
       if (error) throw error;
-      return data || [];
+      return (data || []) as NotificationRow[];
     },
     enabled: !!profile?.empresa_id && isOpen,
   });
@@ -63,10 +81,12 @@ export function NotificationBell() {
   // Mark as read mutation
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      const { error } = await supabase
+      const result = await supabase
         .from('notifications')
-        .update({ lida: true })
+        .update({ lida: true } as any)
         .eq('id', notificationId);
+      
+      const { error } = result as any;
 
       if (error) throw error;
     },
