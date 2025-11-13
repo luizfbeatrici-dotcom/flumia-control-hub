@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.api-v1-pessoas]
 verify_jwt = false
+
+[functions.api-v1-pedidos]
+verify_jwt = false

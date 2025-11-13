@@ -55,7 +55,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
             </CardHeader>
             <CardContent>
               <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-                <code>{baseUrl}/api/v1</code>
+                <code>https://flumia.com.br/api/v1</code>
               </pre>
               <p className="text-xs text-muted-foreground mt-2">
                 ℹ️ URLs legadas (/webhook-produtos, /webhook-pessoas) continuam funcionando
@@ -65,9 +65,10 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
 
           {/* Endpoints */}
           <Tabs defaultValue="produtos" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="produtos">Produtos</TabsTrigger>
-              <TabsTrigger value="pessoas">Pessoas (Clientes)</TabsTrigger>
+              <TabsTrigger value="pessoas">Pessoas</TabsTrigger>
+              <TabsTrigger value="pedidos">Pedidos</TabsTrigger>
             </TabsList>
 
             {/* Produtos */}
@@ -326,7 +327,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">GET - Listar produtos</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X GET \\
-  "${baseUrl}/api/v1/produtos?limit=10&offset=0" \\
+  "https://flumia.com.br/api/v1/produtos?limit=10&offset=0" \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
@@ -334,7 +335,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">POST - Criar produto</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X POST \\
-  ${baseUrl}/api/v1/produtos \\
+  https://flumia.com.br/api/v1/produtos \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \\
   -H 'Content-Type: application/json' \\
   -d '{
@@ -548,7 +549,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">GET - Listar pessoas</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X GET \\
-  "${baseUrl}/api/v1/pessoas?limit=10&offset=0" \\
+  "https://flumia.com.br/api/v1/pessoas?limit=10&offset=0" \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
@@ -556,7 +557,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">POST - Criar pessoa</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X POST \\
-  ${baseUrl}/api/v1/pessoas \\
+  https://flumia.com.br/api/v1/pessoas \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \\
   -H 'Content-Type: application/json' \\
   -d '{
@@ -565,6 +566,178 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
     "email": "maria@example.com",
     "celular": "11988887777"
   }'`}
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Pedidos */}
+            <TabsContent value="pedidos" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>GET /pedidos</CardTitle>
+                    <Badge>Listar</Badge>
+                  </div>
+                  <CardDescription>Consultar pedidos com dados completos incluindo itens, cliente, endereço, pagamento e frete</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Parâmetros de Query (opcionais)</h4>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Parâmetro</TableHead>
+                          <TableHead>Tipo</TableHead>
+                          <TableHead>Descrição</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">id</TableCell>
+                          <TableCell><Badge variant="outline">string (UUID)</Badge></TableCell>
+                          <TableCell>Buscar pedido específico por ID</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">numero</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell>Filtrar por número do pedido</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">status</TableCell>
+                          <TableCell><Badge variant="outline">string</Badge></TableCell>
+                          <TableCell>Filtrar por status (pending, confirmed, preparing, shipping, delivered, cancelled)</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">pessoa_id</TableCell>
+                          <TableCell><Badge variant="outline">string (UUID)</Badge></TableCell>
+                          <TableCell>Filtrar por ID do cliente</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">data_inicial</TableCell>
+                          <TableCell><Badge variant="outline">string (ISO 8601)</Badge></TableCell>
+                          <TableCell>Filtrar pedidos criados a partir desta data</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">data_final</TableCell>
+                          <TableCell><Badge variant="outline">string (ISO 8601)</Badge></TableCell>
+                          <TableCell>Filtrar pedidos criados até esta data</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">limit</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell>Limite de resultados (padrão: 100)</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">offset</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell>Pular N resultados (paginação)</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-2">Exemplo de Resposta</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`{
+  "success": true,
+  "total": 1,
+  "limit": 100,
+  "offset": 0,
+  "pedidos": [
+    {
+      "id": "uuid-do-pedido",
+      "numero": 123,
+      "status": "confirmed",
+      "total": 150.50,
+      "vlr_frete": 10.00,
+      "observacoes": "Entregar pela manhã",
+      "created_at": "2025-11-13T10:00:00Z",
+      "finalizado_em": null,
+      "pessoa": {
+        "id": "uuid-pessoa",
+        "nome": "João Silva",
+        "cnpjf": "12345678900",
+        "celular": "11999998888",
+        "email": "joao@example.com"
+      },
+      "endereco": {
+        "id": "uuid-endereco",
+        "endereco": "Rua das Flores, 123",
+        "complemento": "Apto 45",
+        "bairro": "Centro",
+        "cidade": "São Paulo",
+        "cep": "01234-567"
+      },
+      "itens": [
+        {
+          "id": "uuid-item",
+          "quantidade": 2,
+          "valor_unitario": 70.25,
+          "valor_total": 140.50,
+          "produto": {
+            "id": "uuid-produto",
+            "descricao": "Produto Exemplo",
+            "sku": "PROD001",
+            "preco1": 70.25,
+            "preco2": 65.00
+          }
+        }
+      ],
+      "tipo_entrega": {
+        "id": "uuid-tipo-entrega",
+        "valor_frete": 10.00,
+        "prazo_estimado": "2-3 dias úteis",
+        "tipo_entrega": {
+          "nome": "Entrega Expressa",
+          "descricao": "Entrega rápida em até 3 dias"
+        }
+      },
+      "pagamento": {
+        "id": "uuid-pagamento",
+        "id_transacao": "MP123456",
+        "status": "approved",
+        "pix_url": "https://...",
+        "date_created": "2025-11-13T10:00:00Z",
+        "date_approved": "2025-11-13T10:05:00Z"
+      }
+    }
+  ]
+}`}
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Exemplo cURL</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">GET - Listar todos os pedidos</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`curl -X GET \\
+  "https://flumia.com.br/api/v1/pedidos?limit=10&offset=0" \\
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
+                    </pre>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">GET - Buscar pedido específico por ID</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`curl -X GET \\
+  "https://flumia.com.br/api/v1/pedidos?id=uuid-do-pedido" \\
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
+                    </pre>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">GET - Filtrar por status e data</h4>
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+{`curl -X GET \\
+  "https://flumia.com.br/api/v1/pedidos?status=confirmed&data_inicial=2025-11-01&limit=50" \\
+  -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
                 </CardContent>
