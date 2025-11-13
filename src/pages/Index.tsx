@@ -25,6 +25,8 @@ import {
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import flumiaLogo from "@/assets/flumia-logo.png";
 import heroAiBackground from "@/assets/hero-ai-background.png";
+import withoutFlumia from "@/assets/without-flumia.png";
+import withFlumia from "@/assets/with-flumia.png";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -288,6 +290,14 @@ const Index = () => {
             <div className="grid gap-8 md:grid-cols-2">
               {/* Problema */}
               <div className="space-y-6 bg-background/50 p-8 rounded-lg border border-destructive/20">
+                <div className="mb-6 rounded-lg overflow-hidden">
+                  <img 
+                    src={withoutFlumia} 
+                    alt="Caos sem automação" 
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                
                 <h3 className="text-2xl font-bold flex items-center gap-2">
                   <X className="h-6 w-6 text-red-500" />
                   Sem a Flumia
@@ -329,6 +339,14 @@ const Index = () => {
 
               {/* Solução */}
               <div className="space-y-6 bg-background/50 p-8 rounded-lg border border-primary/20">
+                <div className="mb-6 rounded-lg overflow-hidden">
+                  <img 
+                    src={withFlumia} 
+                    alt="Sucesso com automação" 
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                
                 <h3 className="text-2xl font-bold flex items-center gap-2">
                   <Check className="h-6 w-6 text-[hsl(var(--primary))]" />
                   Com a Flumia
