@@ -26,7 +26,7 @@ export function CaracteristicasDialog({ open, onOpenChange }: CaracteristicasDia
   const { data: caracteristicas, isLoading } = useQuery({
     queryKey: ["caracteristicas"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("caracteristicas")
         .select("*")
         .eq("ativo", true)
@@ -39,7 +39,7 @@ export function CaracteristicasDialog({ open, onOpenChange }: CaracteristicasDia
 
   const createMutation = useMutation({
     mutationFn: async (payload: any) => {
-      const { error } = await supabase.from("caracteristicas").insert(payload);
+      const { error } = await (supabase as any).from("caracteristicas").insert(payload);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -52,7 +52,7 @@ export function CaracteristicasDialog({ open, onOpenChange }: CaracteristicasDia
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: any }) => {
-      const { error } = await supabase.from("caracteristicas").update(payload).eq("id", id);
+      const { error } = await (supabase as any).from("caracteristicas").update(payload).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -65,7 +65,7 @@ export function CaracteristicasDialog({ open, onOpenChange }: CaracteristicasDia
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("caracteristicas").update({ ativo: false }).eq("id", id);
+      const { error } = await (supabase as any).from("caracteristicas").update({ ativo: false }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
