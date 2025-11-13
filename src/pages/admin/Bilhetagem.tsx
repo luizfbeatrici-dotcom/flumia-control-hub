@@ -31,6 +31,7 @@ export default function Bilhetagem() {
     qtd_pedidos: "",
     valor_pedido_adicional: "",
     valor_implantacao: "",
+    valor_implantacao_a_verificar: false,
     exibir_landing_page: true,
   });
 
@@ -51,7 +52,7 @@ export default function Bilhetagem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano criado com sucesso!");
-      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", exibir_landing_page: true });
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
       setEditingId(null);
     },
     onError: (err: any) => toast.error(err.message || "Erro ao criar plano"),
@@ -65,7 +66,7 @@ export default function Bilhetagem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano atualizado com sucesso!");
-      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", exibir_landing_page: true });
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
       setEditingId(null);
     },
     onError: (err: any) => toast.error(err.message || "Erro ao atualizar plano"),
@@ -91,13 +92,14 @@ export default function Bilhetagem() {
       qtd_pedidos: plano.qtd_pedidos.toString(),
       valor_pedido_adicional: plano.valor_pedido_adicional.toString(),
       valor_implantacao: plano.valor_implantacao.toString(),
+      valor_implantacao_a_verificar: plano.valor_implantacao_a_verificar ?? false,
       exibir_landing_page: plano.exibir_landing_page ?? true,
     });
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", exibir_landing_page: true });
+    setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -107,7 +109,8 @@ export default function Bilhetagem() {
       valor_recorrente: Number(formValues.valor_recorrente || 0),
       qtd_pedidos: Number(formValues.qtd_pedidos || 0),
       valor_pedido_adicional: Number(formValues.valor_pedido_adicional || 0),
-      valor_implantacao: Number(formValues.valor_implantacao || 0),
+      valor_implantacao: formValues.valor_implantacao_a_verificar ? 0 : Number(formValues.valor_implantacao || 0),
+      valor_implantacao_a_verificar: formValues.valor_implantacao_a_verificar,
       exibir_landing_page: formValues.exibir_landing_page,
     };
 
@@ -210,7 +213,20 @@ export default function Bilhetagem() {
                   placeholder="0.00"
                   value={formValues.valor_implantacao}
                   onChange={(e) => setFormValues((s) => ({ ...s, valor_implantacao: e.target.value }))}
+                  disabled={formValues.valor_implantacao_a_verificar}
                 />
+                <div className="flex items-center space-x-2 mt-2">
+                  <input
+                    type="checkbox"
+                    id="valor_implantacao_a_verificar"
+                    checked={formValues.valor_implantacao_a_verificar}
+                    onChange={(e) => setFormValues((s) => ({ ...s, valor_implantacao_a_verificar: e.target.checked }))}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <label htmlFor="valor_implantacao_a_verificar" className="text-sm text-muted-foreground cursor-pointer">
+                    A verificar
+                  </label>
+                </div>
               </div>
               
               <div className="space-y-2 flex items-end">

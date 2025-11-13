@@ -472,7 +472,10 @@ const Index = () => {
                       <li className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-xs">
-                          Ativação: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_implantacao)}
+                          Ativação: {plano.valor_implantacao_a_verificar 
+                            ? "A verificar" 
+                            : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(plano.valor_implantacao)
+                          }
                         </span>
                       </li>
                       {planoCaracteristicasList.map((caracteristica: any) => (
