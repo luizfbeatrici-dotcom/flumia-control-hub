@@ -58,11 +58,11 @@ const Index = () => {
         .order("valor_recorrente", { ascending: true });
 
       if (response.error) throw response.error;
-      return response.data || [];
+      return (response.data || []) as any;
     },
   });
   
-  const planos = planosQuery.data || [];
+  const planos = (planosQuery.data || []) as any[];
 
   // Fetch system settings for WhatsApp contact
   const { data: settings } = useQuery({
