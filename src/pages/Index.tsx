@@ -427,13 +427,10 @@ const Index = () => {
 
           <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
             {planos.map((plano: any, index: number) => {
-              // Get caracteristicas for this plano
+              // Get caracteristicas IDs for this plano
               const planoCaracteristicaIds = planoCaracteristicas
                 .filter((pc: any) => pc.plano_id === plano.id)
                 .map((pc: any) => pc.caracteristica_id);
-
-              const planoCaracteristicasList = caracteristicas
-                .filter((c: any) => planoCaracteristicaIds.includes(c.id));
 
               return (
                 <div key={plano.id} className="w-full max-w-sm">
@@ -478,12 +475,21 @@ const Index = () => {
                             }
                           </span>
                         </li>
-                        {planoCaracteristicasList.map((caracteristica: any) => (
-                          <li key={caracteristica.id} className="flex items-start gap-2">
-                            <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                            <span className="text-xs">{caracteristica.nome}</span>
-                          </li>
-                        ))}
+                        {caracteristicas.map((caracteristica: any) => {
+                          const planoTemCaracteristica = planoCaracteristicaIds.includes(caracteristica.id);
+                          return (
+                            <li key={caracteristica.id} className="flex items-start gap-2">
+                              {planoTemCaracteristica ? (
+                                <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                              ) : (
+                                <X className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                              )}
+                              <span className={`text-xs ${!planoTemCaracteristica ? 'text-muted-foreground' : ''}`}>
+                                {caracteristica.nome}
+                              </span>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </CardContent>
                     <CardFooter className="p-4 pt-0">
