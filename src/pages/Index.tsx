@@ -48,19 +48,21 @@ const Index = () => {
   }, [authLoading, user, isAdminMaster, navigate]);
 
   // Fetch plans from database
-  const { data: planos = [] } = useQuery({
+  const planosQuery = useQuery({
     queryKey: ["planos"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const response = await supabase
         .from("planos")
         .select("*")
         .eq("exibir_landing_page", true)
         .order("valor_recorrente", { ascending: true });
 
-      if (error) throw error;
-      return data as any[];
+      if (response.error) throw response.error;
+      return response.data || [];
     },
   });
+  
+  const planos = planosQuery.data || [];
 
   // Fetch system settings for WhatsApp contact
   const { data: settings } = useQuery({
