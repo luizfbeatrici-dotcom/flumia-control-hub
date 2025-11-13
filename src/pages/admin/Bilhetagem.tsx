@@ -7,10 +7,23 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { CaracteristicasDialog } from "@/components/admin/CaracteristicasDialog";
+import { PlanoCaracteristicasDialog } from "@/components/admin/PlanoCaracteristicasDialog";
+import { Settings, CheckSquare } from "lucide-react";
 
 export default function Bilhetagem() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [caracteristicasDialogOpen, setCaracteristicasDialogOpen] = useState(false);
+  const [planoCaracteristicasDialog, setPlanoCaracteristicasDialog] = useState<{
+    open: boolean;
+    planoId: string | null;
+    planoNome: string;
+  }>({
+    open: false,
+    planoId: null,
+    planoNome: "",
+  });
 
   const [formValues, setFormValues] = useState({
     nome: "",
@@ -121,9 +134,18 @@ export default function Bilhetagem() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bilhetagem</h1>
-          <p className="text-muted-foreground">Configure os planos de assinatura</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Bilhetagem</h1>
+            <p className="text-muted-foreground">Configure os planos de assinatura</p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setCaracteristicasDialogOpen(true)}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Gerenciar Características
+          </Button>
         </div>
 
         <Card className="shadow-soft">
@@ -260,6 +282,18 @@ export default function Bilhetagem() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => setPlanoCaracteristicasDialog({
+                              open: true,
+                              planoId: plano.id,
+                              planoNome: plano.nome,
+                            })}
+                          >
+                            <CheckSquare className="mr-1 h-4 w-4" />
+                            Características
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleEdit(plano)}
                           >
                             Editar
@@ -285,8 +319,21 @@ export default function Bilhetagem() {
           </CardContent>
         </Card>
       </div>
+
+      <CaracteristicasDialog
+        open={caracteristicasDialogOpen}
+        onOpenChange={setCaracteristicasDialogOpen}
+      />
+
+      <PlanoCaracteristicasDialog
+        planoId={planoCaracteristicasDialog.planoId}
+        planoNome={planoCaracteristicasDialog.planoNome}
+        open={planoCaracteristicasDialog.open}
+        onOpenChange={(open) =>
+          setPlanoCaracteristicasDialog((prev) => ({ ...prev, open }))
+        }
+      />
     </DashboardLayout>
   );
 }
-
 
