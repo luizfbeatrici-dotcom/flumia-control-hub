@@ -126,6 +126,61 @@ export type Database = {
         }
         Relationships: []
       }
+      contato_sub_etapa_respostas: {
+        Row: {
+          completada: boolean
+          contato_id: string
+          created_at: string
+          dados: Json
+          empresa_id: string
+          id: string
+          sub_etapa_id: string
+          updated_at: string
+        }
+        Insert: {
+          completada?: boolean
+          contato_id: string
+          created_at?: string
+          dados?: Json
+          empresa_id: string
+          id?: string
+          sub_etapa_id: string
+          updated_at?: string
+        }
+        Update: {
+          completada?: boolean
+          contato_id?: string
+          created_at?: string
+          dados?: Json
+          empresa_id?: string
+          id?: string
+          sub_etapa_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contato_sub_etapa_respostas_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contato_sub_etapa_respostas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contato_sub_etapa_respostas_sub_etapa_id_fkey"
+            columns: ["sub_etapa_id"]
+            isOneToOne: false
+            referencedRelation: "sub_etapas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contatos: {
         Row: {
           aplicativo_id: string | null
@@ -1138,6 +1193,50 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sub_etapas: {
+        Row: {
+          ativo: boolean
+          campos_solicitados: Json
+          created_at: string
+          descricao: string | null
+          etapa_id: string
+          id: string
+          nome: string
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          campos_solicitados?: Json
+          created_at?: string
+          descricao?: string | null
+          etapa_id: string
+          id?: string
+          nome: string
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          campos_solicitados?: Json
+          created_at?: string
+          descricao?: string | null
+          etapa_id?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_etapas_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
             referencedColumns: ["id"]
           },
         ]
