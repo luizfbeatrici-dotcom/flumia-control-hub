@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { EmpresaSelector } from "@/components/EmpresaSelector";
+import { NotificationBell } from "@/components/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "react-router-dom";
 import flumiaLogo from "@/assets/flumia-logo.png";
@@ -36,7 +37,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <img src={flumiaLogo} alt="Flumia Flow" className="h-full w-full object-contain" />
               </div>
             </div>
-            {mostrarSeletor && <EmpresaSelector />}
+            <div className="flex items-center gap-4">
+              {mostrarSeletor && <EmpresaSelector />}
+              <NotificationBell />
+            </div>
           </header>
           <main className="flex-1 p-6">{children}</main>
         </div>

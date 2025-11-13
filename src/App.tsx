@@ -15,6 +15,7 @@ import Bilhetagem from "./pages/admin/Bilhetagem";
 import AdminConfiguracoes from "./pages/admin/Configuracoes";
 import Depoimentos from "./pages/admin/Depoimentos";
 import FAQ from "./pages/admin/FAQ";
+import Notificacoes from "./pages/admin/Notificacoes";
 import CompanyDashboard from "./pages/company/Dashboard";
 import Produtos from "./pages/company/Produtos";
 import Clientes from "./pages/company/Clientes";
@@ -100,6 +101,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdminMaster>
                     <FAQ />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/notificacoes"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <Notificacoes />
                   </ProtectedRoute>
                 }
               />
