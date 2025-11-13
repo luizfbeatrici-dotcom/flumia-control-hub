@@ -252,9 +252,8 @@ export default function EmpresaDetalhes() {
       const { data, error } = await supabase
         .from("etapas")
         .select("*")
-        .eq("empresa_id", id)
         .eq("ativo", true)
-        .order("ordem", { ascending: true });
+        .order("ordem", { ascending: true }) as any;
       if (error) throw error;
       return data;
     },

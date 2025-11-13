@@ -30,9 +30,8 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
       const { data: etapas, error: etapasError } = await supabase
         .from("etapas")
         .select("id, nome, ordem")
-        .eq("empresa_id", empresaId)
         .eq("ativo", true)
-        .order("ordem");
+        .order("ordem") as any;
 
       if (etapasError) throw etapasError;
 
