@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle, MessageCircle, DollarSign, Bell } from "lucide-react";
+import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle, MessageCircle, DollarSign, Bell, UserCheck } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -29,6 +29,7 @@ export function AppSidebar() {
     { title: "Empresas", url: "/admin/empresas", icon: Building2 },
     { title: "Usuários", url: "/admin/usuarios", icon: Users },
     { title: "Bilhetagem", url: "/admin/bilhetagem", icon: DollarSign },
+    { title: "Leads", url: "/admin/leads", icon: UserCheck },
     { title: "Notificações", url: "/admin/notificacoes", icon: Bell },
     { title: "Assistente", url: "/admin/configuracoes", icon: MessageCircle },
     { title: "Depoimentos", url: "/admin/depoimentos", icon: MessageSquare },

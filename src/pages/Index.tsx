@@ -30,6 +30,8 @@ import withFlumia from "@/assets/with-flumia.png";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { CookieConsent } from "@/components/CookieConsent";
+import { trackVisitor, updateVisitorContact } from "@/lib/visitorTracking";
 
 const Index = () => {
   const [formData, setFormData] = useState({
@@ -41,11 +43,30 @@ const Index = () => {
 
   const { user, isAdminMaster, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  
   useEffect(() => {
     if (!authLoading && user) {
       navigate(isAdminMaster ? "/admin" : "/dashboard");
     }
   }, [authLoading, user, isAdminMaster, navigate]);
+
+  // Rastreamento inicial de visitante
+  useEffect(() => {
+    const consent = localStorage.getItem("flumia_cookie_consent");
+    if (consent === "accepted") {
+      trackVisitor(true);
+    } else if (consent === "declined") {
+      trackVisitor(false);
+    }
+  }, []);
+
+  const handleCookieAccept = () => {
+    trackVisitor(true);
+  };
+
+  const handleCookieDecline = () => {
+    trackVisitor(false);
+  };
 
   // Fetch plans from database
   const planosQuery = useQuery({
@@ -134,8 +155,17 @@ const Index = () => {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Atualiza informações de contato do visitante
+    await updateVisitorContact({
+      nome: formData.nome,
+      email: formData.email,
+      telefone: formData.telefone,
+      interesse: formData.mensagem,
+    });
+    
     toast.success("Mensagem enviada com sucesso! Entraremos em contato em breve.");
     setFormData({ nome: "", email: "", telefone: "", mensagem: "" });
   };
@@ -678,6 +708,12 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent 
+        onAccept={handleCookieAccept}
+        onDecline={handleCookieDecline}
+      />
 
       {/* WhatsApp Button */}
       {settings?.whatsapp_contato && (

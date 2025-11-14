@@ -573,6 +573,69 @@ export type Database = {
           },
         ]
       }
+      landing_page_visitors: {
+        Row: {
+          cookie_consent: boolean | null
+          created_at: string
+          email: string | null
+          first_visit: string
+          id: string
+          interesse: string | null
+          ip_address: string | null
+          last_visit: string
+          nome: string | null
+          page_views: number | null
+          referrer: string | null
+          session_id: string
+          telefone: string | null
+          updated_at: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          cookie_consent?: boolean | null
+          created_at?: string
+          email?: string | null
+          first_visit?: string
+          id?: string
+          interesse?: string | null
+          ip_address?: string | null
+          last_visit?: string
+          nome?: string | null
+          page_views?: number | null
+          referrer?: string | null
+          session_id: string
+          telefone?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          cookie_consent?: boolean | null
+          created_at?: string
+          email?: string | null
+          first_visit?: string
+          id?: string
+          interesse?: string | null
+          ip_address?: string | null
+          last_visit?: string
+          nome?: string | null
+          page_views?: number | null
+          referrer?: string | null
+          session_id?: string
+          telefone?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       mensagens: {
         Row: {
           aplicativo_id: string | null
