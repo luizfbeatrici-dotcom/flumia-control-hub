@@ -198,12 +198,28 @@ export default function EmpresaDetalhes() {
           *,
           pessoas:pessoa_id(nome, cnpjf, celular, email),
           pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep),
-          pagamentos (status, date_approved, date_last_updated, date_created)
+          pagamentos (status, date_approved, date_last_updated, date_created),
+          contatos:contato_id(etapa_id)
         `)
         .eq("empresa_id", id)
         .order("numero", { ascending: false });
       if (error) throw error;
-      return data;
+      
+      // Buscar etapas relacionadas aos pedidos
+      const etapaIds = data
+        ?.map(p => (p.contatos as any)?.etapa_id)
+        .filter(Boolean) || [];
+      
+      const { data: etapasData } = await supabase
+        .from("etapas")
+        .select("id, nome, descricao")
+        .in("id", etapaIds);
+      
+      // Combinar os dados
+      return data?.map(pedido => ({
+        ...pedido,
+        etapa: etapasData?.find(e => e.id === (pedido.contatos as any)?.etapa_id)
+      }));
     },
   });
 
@@ -1372,6 +1388,7 @@ export default function EmpresaDetalhes() {
                         <TableHead>Data</TableHead>
                         <TableHead>Valor Total</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Etapa</TableHead>
                         <TableHead>Finalizado em</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
@@ -1420,6 +1437,9 @@ export default function EmpresaDetalhes() {
                               <Badge variant={getStatusColor(pedido.status)}>
                                 {getStatusLabel(pedido.status)}
                               </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {(pedido as any).etapa?.descricao || "-"}
                             </TableCell>
                             <TableCell>
                               {pedido.finalizado_em
