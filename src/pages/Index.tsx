@@ -146,8 +146,8 @@ const Index = () => {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={flumiaLogo} alt="Flumia Logo" className="h-8 w-8" />
-            <span className="text-xl font-bold text-foreground">Flumia</span>
+            <img src={flumiaLogo} alt="flum.ia Logo" className="h-8 w-8" />
+            <span className="text-xl font-bold text-foreground">flum.ia</span>
           </div>
           
           <nav className="hidden md:flex items-center gap-6">
@@ -188,7 +188,7 @@ const Index = () => {
             <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
               <span className="text-destructive">PARE DE PERDER VENDAS.</span>
               <br />
-              A Flumia é a ponte entre o atendimento humano e a{" "}
+              A flum.ia é a ponte entre o atendimento humano e a{" "}
               <span className="text-primary">automação inteligente</span>
             </h1>
             <p className="mb-8 text-lg text-muted-foreground md:text-xl">
@@ -211,7 +211,7 @@ const Index = () => {
               Uma plataforma completa para escalar suas vendas
             </h2>
             <p className="text-muted-foreground">
-              Flumia oferece tudo que você precisa para automatizar, gerenciar e potencializar seu atendimento
+              flum.ia oferece tudo que você precisa para automatizar, gerenciar e potencializar seu atendimento
             </p>
           </div>
 
@@ -311,7 +311,7 @@ const Index = () => {
               <span className="text-destructive">O QUE VOCÊ ESTÁ PERDENDO AGORA?</span>
             </h2>
             <p className="text-xl text-muted-foreground">
-              O Custo Real de Não Ter a Flumia
+              O Custo Real de Não Ter a flum.ia
             </p>
           </div>
 
@@ -326,7 +326,7 @@ const Index = () => {
                 
                 <h3 className="text-2xl font-bold flex items-center gap-2 relative z-10">
                   <X className="h-6 w-6 text-red-500" />
-                  Sem a Flumia
+                  Sem a flum.ia
                 </h3>
                 
                 <div className="space-y-4 relative z-10">
@@ -372,7 +372,7 @@ const Index = () => {
                 
                 <h3 className="text-2xl font-bold flex items-center gap-2 relative z-10">
                   <Check className="h-6 w-6 text-[hsl(var(--primary))]" />
-                  Com a Flumia
+                  Com a flum.ia
                 </h3>
                 
                 <div className="space-y-4 relative z-10">
@@ -564,7 +564,7 @@ const Index = () => {
               Perguntas Frequentes
             </h2>
             <p className="text-muted-foreground">
-              Tire suas dúvidas sobre o Flumia Flow
+              Tire suas dúvidas sobre o flum.ia
             </p>
           </div>
           <div className="max-w-3xl mx-auto">
@@ -593,7 +593,7 @@ const Index = () => {
                 Não perca mais tempo e dinheiro
               </h2>
               <p className="text-lg text-muted-foreground">
-                Fale com um especialista e descubra como a Flumia pode transformar suas vendas
+                Fale com um especialista e descubra como a flum.ia pode transformar suas vendas
               </p>
             </div>
 
@@ -662,12 +662,12 @@ const Index = () => {
         <div className="container">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <img src={flumiaLogo} alt="Flumia Logo" className="h-6 w-6" />
-              <span className="font-bold text-foreground">Flumia</span>
+              <img src={flumiaLogo} alt="flum.ia Logo" className="h-6 w-6" />
+              <span className="font-bold text-foreground">flum.ia</span>
             </div>
             
             <p className="text-sm text-muted-foreground">
-              © 2025 Flumia. Todos os direitos reservados.
+              © 2025 flum.ia. Todos os direitos reservados.
             </p>
             
             <Link to="/auth">
@@ -683,7 +683,7 @@ const Index = () => {
       {settings?.whatsapp_contato && (
         <WhatsAppButton 
           phoneNumber={settings.whatsapp_contato}
-          assistantName={settings.nome_assistente || "Assistente Flumia"}
+          assistantName={settings.nome_assistente || "Assistente flum.ia"}
           initialMessage={settings.mensagem_inicial || "Olá! Como posso ajudar você hoje?"}
         />
       )}
