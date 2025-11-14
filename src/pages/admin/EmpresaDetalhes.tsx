@@ -81,13 +81,20 @@ export default function EmpresaDetalhes() {
     },
   });
 
-  // Fetch produtos
+  // Fetch produtos com estoque
   const { data: produtos, isLoading: isLoadingProdutos } = useQuery({
     queryKey: ["produtos", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("produtos")
-        .select("*")
+        .select(`
+          *,
+          estoque (
+            saldo,
+            saldo_minimo,
+            saldo_maximo
+          )
+        `)
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -395,11 +402,33 @@ export default function EmpresaDetalhes() {
   // Produto mutations
   const createProdutoMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { error } = await supabase.from("produtos").insert({
-        ...data,
-        empresa_id: id,
-      });
-      if (error) throw error;
+      const { saldo, saldo_minimo, saldo_maximo, ...produtoData } = data;
+      
+      const { data: produtoResult, error: produtoError } = await supabase
+        .from("produtos")
+        .insert({
+          ...produtoData,
+          empresa_id: id,
+        })
+        .select()
+        .single();
+      
+      if (produtoError) throw produtoError;
+      
+      // Criar registro de estoque
+      if (produtoResult) {
+        const { error: estoqueError } = await supabase
+          .from("estoque")
+          .insert({
+            produto_id: produtoResult.id,
+            empresa_id: id,
+            saldo: saldo || 0,
+            saldo_minimo: saldo_minimo || 0,
+            saldo_maximo: saldo_maximo || null,
+          });
+        
+        if (estoqueError) throw estoqueError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["produtos", id] });
@@ -414,12 +443,51 @@ export default function EmpresaDetalhes() {
 
   const updateProdutoMutation = useMutation({
     mutationFn: async ({ produtoId, data }: { produtoId: string; data: any }) => {
-      const { error } = await supabase
+      const { saldo, saldo_minimo, saldo_maximo, ...produtoData } = data;
+      
+      const { error: produtoError } = await supabase
         .from("produtos")
-        .update(data)
+        .update(produtoData)
         .eq("id", produtoId)
         .eq("empresa_id", id);
-      if (error) throw error;
+      
+      if (produtoError) throw produtoError;
+      
+      // Verificar se existe registro de estoque
+      const { data: estoqueExistente } = await supabase
+        .from("estoque")
+        .select("id")
+        .eq("produto_id", produtoId)
+        .eq("empresa_id", id)
+        .maybeSingle();
+      
+      if (estoqueExistente) {
+        // Atualizar estoque existente
+        const { error: estoqueError } = await supabase
+          .from("estoque")
+          .update({
+            saldo: saldo || 0,
+            saldo_minimo: saldo_minimo || 0,
+            saldo_maximo: saldo_maximo || null,
+          })
+          .eq("produto_id", produtoId)
+          .eq("empresa_id", id);
+        
+        if (estoqueError) throw estoqueError;
+      } else {
+        // Criar novo registro de estoque
+        const { error: estoqueError } = await supabase
+          .from("estoque")
+          .insert({
+            produto_id: produtoId,
+            empresa_id: id,
+            saldo: saldo || 0,
+            saldo_minimo: saldo_minimo || 0,
+            saldo_maximo: saldo_maximo || null,
+          });
+        
+        if (estoqueError) throw estoqueError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["produtos", id] });
@@ -1169,35 +1237,45 @@ export default function EmpresaDetalhes() {
                         <TableHead>SKU</TableHead>
                         <TableHead>Categoria</TableHead>
                         <TableHead>Preço</TableHead>
+                        <TableHead>Saldo</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {produtos.map((produto) => (
-                        <TableRow key={produto.id}>
-                          <TableCell className="font-medium">{produto.descricao}</TableCell>
-                          <TableCell>{produto.sku || "-"}</TableCell>
-                          <TableCell>{produto.categoria || "-"}</TableCell>
-                          <TableCell>
-                            R$ {Number(produto.preco1 || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={produto.ativo ? "default" : "secondary"}>
-                              {produto.ativo ? "Ativo" : "Inativo"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditProduto(produto)}
-                            >
-                              Editar
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {produtos.map((produto) => {
+                        const estoqueData = Array.isArray(produto.estoque) ? produto.estoque[0] : produto.estoque;
+                        const saldo = estoqueData?.saldo || 0;
+                        return (
+                          <TableRow key={produto.id}>
+                            <TableCell className="font-medium">{produto.descricao}</TableCell>
+                            <TableCell>{produto.sku || "-"}</TableCell>
+                            <TableCell>{produto.categoria || "-"}</TableCell>
+                            <TableCell>
+                              R$ {Number(produto.preco1 || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </TableCell>
+                            <TableCell>
+                              <span className={saldo <= 0 ? "text-destructive font-medium" : ""}>
+                                {Number(saldo).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={produto.ativo ? "default" : "secondary"}>
+                                {produto.ativo ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditProduto(produto)}
+                              >
+                                Editar
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 ) : (

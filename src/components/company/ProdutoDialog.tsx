@@ -42,6 +42,9 @@ const produtoSchema = z.object({
   subgrupo: z.string().max(50).optional().nullable(),
   visibilidade: z.enum(["visible", "hidden", "featured"]).default("visible"),
   ativo: z.boolean().default(true),
+  saldo: z.coerce.number().min(0).optional().nullable(),
+  saldo_minimo: z.coerce.number().min(0).optional().nullable(),
+  saldo_maximo: z.coerce.number().min(0).optional().nullable(),
 });
 
 type ProdutoFormValues = z.infer<typeof produtoSchema>;
@@ -76,11 +79,15 @@ export function ProdutoDialog({
       subgrupo: "",
       visibilidade: "visible",
       ativo: true,
+      saldo: 0,
+      saldo_minimo: 0,
+      saldo_maximo: 0,
     },
   });
 
   useEffect(() => {
     if (produto) {
+      const estoqueData = Array.isArray(produto.estoque) ? produto.estoque[0] : produto.estoque;
       form.reset({
         descricao: produto.descricao || "",
         complemento: produto.complemento || "",
@@ -94,6 +101,9 @@ export function ProdutoDialog({
         subgrupo: produto.subgrupo || "",
         visibilidade: produto.visibilidade || "visible",
         ativo: produto.ativo ?? true,
+        saldo: estoqueData?.saldo || 0,
+        saldo_minimo: estoqueData?.saldo_minimo || 0,
+        saldo_maximo: estoqueData?.saldo_maximo || 0,
       });
     } else {
       form.reset({
@@ -109,6 +119,9 @@ export function ProdutoDialog({
         subgrupo: "",
         visibilidade: "visible",
         ativo: true,
+        saldo: 0,
+        saldo_minimo: 0,
+        saldo_maximo: 0,
       });
     }
   }, [produto, form]);
@@ -314,6 +327,53 @@ export function ProdutoDialog({
                   </FormItem>
                 )}
               />
+
+              <div className="col-span-2">
+                <h3 className="text-lg font-semibold mb-4">Controle de Estoque</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="saldo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Saldo Atual</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="saldo_minimo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Saldo Mínimo</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="saldo_maximo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Saldo Máximo</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
 
               <FormField
                 control={form.control}
