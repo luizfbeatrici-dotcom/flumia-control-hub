@@ -105,6 +105,36 @@ export type Database = {
           },
         ]
       }
+      caracteristicas: {
+        Row: {
+          ativo: boolean
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          ordem: number
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          ordem?: number
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cidades: {
         Row: {
           cidade: string
@@ -662,8 +692,111 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          ativo: boolean
+          created_at: string | null
+          descricao: string | null
+          etapa_id: string | null
+          id: string
+          tipo: Database["public"]["Enums"]["notification_type"]
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string | null
+          descricao?: string | null
+          etapa_id?: string | null
+          id?: string
+          tipo: Database["public"]["Enums"]["notification_type"]
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string | null
+          descricao?: string | null
+          etapa_id?: string | null
+          id?: string
+          tipo?: Database["public"]["Enums"]["notification_type"]
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          contato_id: string | null
+          created_at: string | null
+          empresa_id: string
+          id: string
+          lida: boolean
+          link: string | null
+          mensagem: string
+          pedido_id: string | null
+          tipo: Database["public"]["Enums"]["notification_type"]
+          titulo: string
+        }
+        Insert: {
+          contato_id?: string | null
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          lida?: boolean
+          link?: string | null
+          mensagem: string
+          pedido_id?: string | null
+          tipo: Database["public"]["Enums"]["notification_type"]
+          titulo: string
+        }
+        Update: {
+          contato_id?: string | null
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          lida?: boolean
+          link?: string | null
+          mensagem?: string
+          pedido_id?: string | null
+          tipo?: Database["public"]["Enums"]["notification_type"]
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pagamentos: {
         Row: {
+          contato_id: string | null
           created_at: string | null
           date_approved: string | null
           date_created: string | null
@@ -681,6 +814,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          contato_id?: string | null
           created_at?: string | null
           date_approved?: string | null
           date_created?: string | null
@@ -698,6 +832,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          contato_id?: string | null
           created_at?: string | null
           date_approved?: string | null
           date_created?: string | null
@@ -715,6 +850,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pagamentos_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pagamentos_empresa_id_fkey"
             columns: ["empresa_id"]
@@ -974,34 +1116,79 @@ export type Database = {
           },
         ]
       }
+      plano_caracteristicas: {
+        Row: {
+          caracteristica_id: string
+          created_at: string | null
+          id: string
+          plano_id: string
+        }
+        Insert: {
+          caracteristica_id: string
+          created_at?: string | null
+          id?: string
+          plano_id: string
+        }
+        Update: {
+          caracteristica_id?: string
+          created_at?: string | null
+          id?: string
+          plano_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plano_caracteristicas_caracteristica_id_fkey"
+            columns: ["caracteristica_id"]
+            isOneToOne: false
+            referencedRelation: "caracteristicas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plano_caracteristicas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planos: {
         Row: {
           created_at: string | null
+          exibir_landing_page: boolean
           id: string
           nome: string
           qtd_pedidos: number
+          qtd_pedidos_tipo: string | null
           updated_at: string | null
           valor_implantacao: number
+          valor_implantacao_a_verificar: boolean
           valor_pedido_adicional: number
           valor_recorrente: number
         }
         Insert: {
           created_at?: string | null
+          exibir_landing_page?: boolean
           id?: string
           nome: string
           qtd_pedidos?: number
+          qtd_pedidos_tipo?: string | null
           updated_at?: string | null
           valor_implantacao?: number
+          valor_implantacao_a_verificar?: boolean
           valor_pedido_adicional?: number
           valor_recorrente?: number
         }
         Update: {
           created_at?: string | null
+          exibir_landing_page?: boolean
           id?: string
           nome?: string
           qtd_pedidos?: number
+          qtd_pedidos_tipo?: string | null
           updated_at?: string | null
           valor_implantacao?: number
+          valor_implantacao_a_verificar?: boolean
           valor_pedido_adicional?: number
           valor_recorrente?: number
         }
@@ -1363,6 +1550,10 @@ export type Database = {
     }
     Enums: {
       app_role: "admin_master" | "company_admin" | "company_user"
+      notification_type:
+        | "conversa_iniciada"
+        | "venda_finalizada"
+        | "pagamento_finalizado"
       order_status: "pending" | "processing" | "completed" | "cancelled"
       product_visibility: "visible" | "hidden"
     }
@@ -1493,6 +1684,11 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin_master", "company_admin", "company_user"],
+      notification_type: [
+        "conversa_iniciada",
+        "venda_finalizada",
+        "pagamento_finalizado",
+      ],
       order_status: ["pending", "processing", "completed", "cancelled"],
       product_visibility: ["visible", "hidden"],
     },
