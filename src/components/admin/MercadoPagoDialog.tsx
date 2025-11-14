@@ -2,29 +2,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const mercadoPagoSchema = z.object({
   public_key: z.string().min(1, "Public key é obrigatória"),
@@ -49,13 +31,7 @@ interface MercadoPagoDialogProps {
   isLoading?: boolean;
 }
 
-export function MercadoPagoDialog({
-  open,
-  onOpenChange,
-  onSave,
-  config,
-  isLoading,
-}: MercadoPagoDialogProps) {
+export function MercadoPagoDialog({ open, onOpenChange, onSave, config, isLoading }: MercadoPagoDialogProps) {
   const form = useForm<MercadoPagoFormData>({
     resolver: zodResolver(mercadoPagoSchema),
     defaultValues: {
@@ -97,9 +73,7 @@ export function MercadoPagoDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {config ? "Editar" : "Nova"} Configuração Mercado Pago
-          </DialogTitle>
+          <DialogTitle>{config ? "Editar" : "Nova"} Configuração Mercado Pago</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -110,10 +84,7 @@ export function MercadoPagoDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo de Ambiente</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
@@ -191,7 +162,7 @@ export function MercadoPagoDialog({
                 name="expires_in"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Expires In (segundos)</FormLabel>
+                    <FormLabel>Expires In (minutos)</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" />
                     </FormControl>
@@ -258,12 +229,7 @@ export function MercadoPagoDialog({
             />
 
             <div className="flex justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isLoading}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={isLoading}>
