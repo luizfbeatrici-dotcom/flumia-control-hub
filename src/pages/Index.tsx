@@ -31,7 +31,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CookieConsent } from "@/components/CookieConsent";
-import { trackVisitor, updateVisitorContact } from "@/lib/visitorTracking";
+import { trackVisitor, updateVisitorContact, startSessionTracking, trackEvent, trackSectionView } from "@/lib/visitorTracking";
 
 const Index = () => {
   const [formData, setFormData] = useState({
@@ -50,18 +50,45 @@ const Index = () => {
     }
   }, [authLoading, user, isAdminMaster, navigate]);
 
-  // Rastreamento inicial de visitante
+  // Rastreamento inicial de visitante e tracking da sessão
   useEffect(() => {
     const consent = localStorage.getItem("flumia_cookie_consent");
     if (consent === "accepted") {
       trackVisitor(true);
+      startSessionTracking();
     } else if (consent === "declined") {
       trackVisitor(false);
     }
   }, []);
 
+  // Intersection Observer para detectar visualização de seções
+  useEffect(() => {
+    const consent = localStorage.getItem("flumia_cookie_consent");
+    if (consent !== "accepted") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id;
+            if (sectionId) {
+              trackSectionView(sectionId);
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleCookieAccept = () => {
     trackVisitor(true);
+    startSessionTracking();
   };
 
   const handleCookieDecline = () => {
@@ -158,6 +185,9 @@ const Index = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Registra evento de envio de formulário
+    trackEvent('form_submit', 'contact-form', 'Formulário de contato enviado');
+    
     // Atualiza informações de contato do visitante
     await updateVisitorContact({
       nome: formData.nome,
@@ -181,24 +211,44 @@ const Index = () => {
           </div>
           
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#o-que-e" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a 
+              href="#o-que-e" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              onClick={() => trackEvent('nav_click', 'nav-o-que-e', 'O que é')}
+            >
               O que é
             </a>
-            <a href="#funcionalidades" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a 
+              href="#funcionalidades" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              onClick={() => trackEvent('nav_click', 'nav-funcionalidades', 'Funcionalidades')}
+            >
               Funcionalidades
             </a>
-            <a href="#planos" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a 
+              href="#planos" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              onClick={() => trackEvent('nav_click', 'nav-planos', 'Planos')}
+            >
               Planos
             </a>
-            <a href="#faq" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a 
+              href="#faq" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              onClick={() => trackEvent('nav_click', 'nav-faq', 'Perguntas Frequentes')}
+            >
               Perguntas Frequentes
             </a>
-            <a href="#contato" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <a 
+              href="#contato" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              onClick={() => trackEvent('nav_click', 'nav-contato', 'Contato')}
+            >
               Contato
             </a>
           </nav>
 
-          <Link to="/auth">
+          <Link to="/auth" onClick={() => trackEvent('cta_click', 'header-login', 'Acessar Plataforma')}>
             <Button size="lg" className="shadow-medium">
               Acessar Plataforma
             </Button>
@@ -207,7 +257,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
+      <section id="hero" data-section className="relative overflow-hidden py-20 md:py-32">
         <div className="absolute inset-0 gradient-hero opacity-10"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -224,7 +274,7 @@ const Index = () => {
             <p className="mb-8 text-lg text-muted-foreground md:text-xl">
               Transforme conversas em vendas e oportunidades em clientes, a qualquer hora, em qualquer lugar.
             </p>
-            <a href="#planos">
+            <a href="#planos" onClick={() => trackEvent('cta_click', 'hero-cta', 'Quero parar de perder vendas')}>
               <Button size="lg" className="shadow-glow text-lg px-8 py-6 h-auto">
                 QUERO PARAR DE PERDER VENDAS
               </Button>
@@ -234,7 +284,7 @@ const Index = () => {
       </section>
 
       {/* O que é / Funcionalidades */}
-      <section id="funcionalidades" className="py-20 bg-muted/30">
+      <section id="funcionalidades" data-section className="py-20 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -444,7 +494,7 @@ const Index = () => {
       </section>
 
       {/* Planos */}
-      <section id="planos" className="py-20 bg-muted/30">
+      <section id="planos" data-section className="py-20 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -527,6 +577,7 @@ const Index = () => {
                         className="w-full text-xs py-2"
                         variant={index === 1 ? "default" : "outline"}
                         onClick={() => {
+                          trackEvent('plan_click', `plan-${plano.nome}`, `Contratar ${plano.nome}`);
                           const phone = settings?.whatsapp_contato;
                           if (phone) {
                             const message = encodeURIComponent(`Olá! Gostaria de contratar o plano ${plano.nome}.`);
@@ -587,7 +638,7 @@ const Index = () => {
       )}
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 bg-muted/30">
+      <section id="faq" data-section className="py-20 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-3xl text-center mb-12">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -615,7 +666,7 @@ const Index = () => {
       </section>
 
       {/* Contato */}
-      <section id="contato" className="py-20">
+      <section id="contato" data-section className="py-20">
         <div className="container">
           <div className="mx-auto max-w-2xl">
             <div className="text-center mb-12">

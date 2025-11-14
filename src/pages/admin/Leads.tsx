@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Users, MousePointer, CheckCircle, XCircle } from "lucide-react";
+import { Users, MousePointer, CheckCircle, XCircle, Clock, Activity } from "lucide-react";
 
 const Leads = () => {
   const { data: visitors = [], isLoading } = useQuery({
@@ -26,6 +26,30 @@ const Leads = () => {
     total: visitors.length,
     withConsent: visitors.filter(v => v.cookie_consent).length,
     withContact: visitors.filter(v => v.email || v.telefone).length,
+    avgSessionDuration: Math.round(
+      visitors.reduce((acc, v) => acc + (v.session_duration || 0), 0) / Math.max(visitors.length, 1)
+    ),
+    highEngagement: visitors.filter(v => (v.session_duration || 0) > 120 && (v.scroll_depth || 0) > 50).length,
+  };
+
+  const formatDuration = (seconds: number) => {
+    if (!seconds) return "-";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return mins > 0 ? `${mins}min ${secs}s` : `${secs}s`;
+  };
+
+  const getEngagementBadge = (visitor: any) => {
+    const duration = visitor.session_duration || 0;
+    const scroll = visitor.scroll_depth || 0;
+    const events = Array.isArray(visitor.session_events) ? visitor.session_events.length : 0;
+
+    if (duration > 120 && scroll > 70) {
+      return <Badge className="bg-green-500">Alto</Badge>;
+    } else if (duration > 60 && scroll > 40) {
+      return <Badge className="bg-yellow-500">Médio</Badge>;
+    }
+    return <Badge variant="outline">Baixo</Badge>;
   };
 
   return (
@@ -36,7 +60,7 @@ const Leads = () => {
           <p className="text-muted-foreground">Visitantes e potenciais clientes</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Visitantes</CardTitle>
@@ -72,6 +96,32 @@ const Leads = () => {
               </p>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Tempo Médio no Site</CardTitle>
+              <Clock className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatDuration(stats.avgSessionDuration)}</div>
+              <p className="text-xs text-muted-foreground">
+                Duração média das sessões
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Alto Engajamento</CardTitle>
+              <Activity className="h-4 w-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.highEngagement}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.total > 0 ? Math.round((stats.highEngagement / stats.total) * 100) : 0}% do total
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         <Card>
@@ -93,6 +143,10 @@ const Leads = () => {
                       <TableHead>Email</TableHead>
                       <TableHead>Telefone</TableHead>
                       <TableHead>Interesse</TableHead>
+                      <TableHead>Tempo no Site</TableHead>
+                      <TableHead>Scroll %</TableHead>
+                      <TableHead>Interações</TableHead>
+                      <TableHead>Engajamento</TableHead>
                       <TableHead>Visualizações</TableHead>
                       <TableHead>Origem</TableHead>
                       <TableHead>Cookies</TableHead>
@@ -107,7 +161,11 @@ const Leads = () => {
                         <TableCell>{visitor.nome || "-"}</TableCell>
                         <TableCell>{visitor.email || "-"}</TableCell>
                         <TableCell>{visitor.telefone || "-"}</TableCell>
-                        <TableCell>{visitor.interesse || "-"}</TableCell>
+                        <TableCell className="max-w-[200px] truncate">{visitor.interesse || "-"}</TableCell>
+                        <TableCell className="whitespace-nowrap">{formatDuration(visitor.session_duration || 0)}</TableCell>
+                        <TableCell>{visitor.scroll_depth || 0}%</TableCell>
+                        <TableCell>{Array.isArray(visitor.session_events) ? visitor.session_events.length : 0}</TableCell>
+                        <TableCell>{getEngagementBadge(visitor)}</TableCell>
                         <TableCell>{visitor.page_views || 1}</TableCell>
                         <TableCell>
                           {visitor.utm_source ? (
