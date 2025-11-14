@@ -2105,7 +2105,7 @@ export default function EmpresaDetalhes() {
                           </div>
                           {(pedido.pagamentos[0] as any).date_created && (
                             <div>
-                              <p className="text-sm text-muted-foreground">Data de Criação</p>
+                              <p className="text-sm text-muted-foreground">Data de Criação (Horário de Brasília)</p>
                               <p className="font-medium">
                                 {new Date((pedido.pagamentos[0] as any).date_created).toLocaleDateString("pt-BR", {
                                   day: "2-digit",
@@ -2113,6 +2113,7 @@ export default function EmpresaDetalhes() {
                                   year: "numeric",
                                   hour: "2-digit",
                                   minute: "2-digit",
+                                  timeZone: "America/Sao_Paulo",
                                 })}
                               </p>
                             </div>
