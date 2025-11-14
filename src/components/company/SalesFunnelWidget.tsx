@@ -219,21 +219,22 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
                 Nenhum contato nesta etapa
               </p>
             ) : (
-              contatosEtapa?.map((contato) => (
+              contatosEtapa?.map((pedido: any) => (
                 <div
-                  key={contato.id}
+                  key={pedido.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
                 >
                   <div className="flex-1">
-                    <p className="font-medium">{contato.name || "Sem nome"}</p>
+                    <p className="font-medium">
+                      Pedido #{pedido.numero} - {pedido.contatos?.name || "Sem nome"}
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      WhatsApp: {contato.wa_id}
+                      Total: R$ {Number(pedido.total || 0).toFixed(2)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Desde: {new Date(contato.created_at).toLocaleDateString("pt-BR")}
+                      Criado em: {new Date(pedido.created_at).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
-                  <Badge variant="secondary">{contato.status}</Badge>
                 </div>
               ))
             )}
