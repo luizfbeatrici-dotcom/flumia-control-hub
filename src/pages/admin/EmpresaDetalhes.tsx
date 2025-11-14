@@ -199,26 +199,16 @@ export default function EmpresaDetalhes() {
           pessoas:pessoa_id(nome, cnpjf, celular, email),
           pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep),
           pagamentos (status, date_approved, date_last_updated, date_created),
-          contatos:contato_id(etapa_id)
+          contatos:contato_id(etapa_id, etapas:etapa_id(nome, descricao))
         `)
         .eq("empresa_id", id)
         .order("numero", { ascending: false });
       if (error) throw error;
       
-      // Buscar etapas relacionadas aos pedidos
-      const etapaIds = data
-        ?.map(p => (p.contatos as any)?.etapa_id)
-        .filter(Boolean) || [];
-      
-      const { data: etapasData } = await supabase
-        .from("etapas")
-        .select("id, nome, descricao")
-        .in("id", etapaIds);
-      
-      // Combinar os dados
+      // Combinar os dados com a etapa do contato
       return data?.map(pedido => ({
         ...pedido,
-        etapa: etapasData?.find(e => e.id === (pedido.contatos as any)?.etapa_id)
+        etapa: (pedido.contatos as any)?.etapas
       }));
     },
   });
