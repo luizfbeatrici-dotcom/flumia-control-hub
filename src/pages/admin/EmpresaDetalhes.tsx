@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings, Phone, CreditCard } from "lucide-react";
+import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings, Phone, CreditCard, RefreshCw } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -1658,11 +1658,21 @@ export default function EmpresaDetalhes() {
           {/* Aba Contatos */}
           <TabsContent value="contatos">
             <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle>Contatos da Empresa</CardTitle>
-                <CardDescription>
-                  Histórico de contatos registrados
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Contatos da Empresa</CardTitle>
+                  <CardDescription>
+                    Histórico de contatos registrados
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => queryClient.invalidateQueries({ queryKey: ["contatos", id] })}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Atualizar
+                </Button>
               </CardHeader>
               <CardContent>
                 {/* Filtros */}
