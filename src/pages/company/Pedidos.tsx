@@ -44,7 +44,7 @@ export default function Pedidos() {
           pessoas (nome, cnpjf, celular, email),
           pessoa_enderecos (endereco, bairro, cidade, cep, complemento),
           pagamentos (status, date_approved, date_last_updated, date_created),
-          contatos:contato_id (name, wa_id)
+          contatos:contato_id (name, whatsapp_from)
         `)
         .eq("empresa_id", profile.empresa_id)
         .order("numero", { ascending: false });
@@ -266,7 +266,7 @@ export default function Pedidos() {
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Celular:</span>
                                       <span className="font-medium">
-                                        {(pedido.contatos as any)?.wa_id || "N/A"}
+                                        {(pedido.contatos as any)?.whatsapp_from || "N/A"}
                                       </span>
                                     </div>
                                   </div>

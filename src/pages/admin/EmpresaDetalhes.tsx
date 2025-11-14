@@ -199,7 +199,7 @@ export default function EmpresaDetalhes() {
           pessoas:pessoa_id(nome, cnpjf, celular, email),
           pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep),
           pagamentos (status, date_approved, date_last_updated, date_created),
-          contatos:contato_id(name, wa_id, etapas:etapa_id(nome, descricao))
+          contatos:contato_id(name, whatsapp_from, etapas:etapa_id(nome, descricao))
         `)
         .eq("empresa_id", id)
         .order("numero", { ascending: false });
@@ -2126,7 +2126,7 @@ export default function EmpresaDetalhes() {
                           </div>
                           <div>
                             <p className="text-sm text-muted-foreground">Celular</p>
-                            <p className="font-medium">{(pedido.contatos as any)?.wa_id || "-"}</p>
+                            <p className="font-medium">{(pedido.contatos as any)?.whatsapp_from || "-"}</p>
                           </div>
                         </div>
                       </div>
