@@ -199,13 +199,12 @@ export default function EmpresaDetalhes() {
           pessoas:pessoa_id(nome, cnpjf, celular, email),
           pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep),
           pagamentos (status, date_approved, date_last_updated, date_created),
-          contatos:contato_id(etapa_id, etapas:etapa_id(nome, descricao))
+          contatos:contato_id(etapas:etapa_id(nome, descricao))
         `)
         .eq("empresa_id", id)
         .order("numero", { ascending: false });
       if (error) throw error;
       
-      // Combinar os dados com a etapa do contato
       return data?.map(pedido => ({
         ...pedido,
         etapa: (pedido.contatos as any)?.etapas
