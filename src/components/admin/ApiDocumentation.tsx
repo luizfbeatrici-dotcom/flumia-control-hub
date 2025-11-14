@@ -4,7 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Code } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Code, Download } from "lucide-react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { toast } from "sonner";
 
 interface ApiDocumentationProps {
   open: boolean;
@@ -13,20 +17,74 @@ interface ApiDocumentationProps {
 }
 
 export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentationProps) {
+  const handleExportPDF = async () => {
+    try {
+      toast.loading("Gerando PDF...");
+      
+      const content = document.getElementById("api-documentation-content");
+      if (!content) return;
+
+      const canvas = await html2canvas(content, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save("documentacao-api-webhooks.pdf");
+      toast.dismiss();
+      toast.success("PDF gerado com sucesso!");
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Erro ao gerar PDF");
+      console.error(error);
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-4xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Code className="h-5 w-5" />
-            Documentação da API de Webhooks
-          </SheetTitle>
-          <SheetDescription>
-            Referência completa para integração via API REST
-          </SheetDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <SheetTitle className="flex items-center gap-2">
+                <Code className="h-5 w-5" />
+                Documentação da API de Webhooks
+              </SheetTitle>
+              <SheetDescription>
+                Referência completa para integração via API REST
+              </SheetDescription>
+            </div>
+            <Button onClick={handleExportPDF} variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Exportar PDF
+            </Button>
+          </div>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div id="api-documentation-content" className="mt-6 space-y-6">
           {/* Autenticação */}
           <Card>
             <CardHeader>
