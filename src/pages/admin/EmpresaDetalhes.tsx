@@ -1428,7 +1428,7 @@ export default function EmpresaDetalhes() {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              {(pedido as any).etapa?.descricao || "-"}
+                              {(pedido as any).etapa?.nome || (pedido as any).etapa?.descricao || "-"}
                             </TableCell>
                             <TableCell>
                               {pedido.finalizado_em
