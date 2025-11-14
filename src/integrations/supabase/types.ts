@@ -586,6 +586,10 @@ export type Database = {
           nome: string | null
           page_views: number | null
           referrer: string | null
+          scroll_depth: number | null
+          sections_viewed: Json | null
+          session_duration: number | null
+          session_events: Json | null
           session_id: string
           telefone: string | null
           updated_at: string
@@ -606,6 +610,10 @@ export type Database = {
           nome?: string | null
           page_views?: number | null
           referrer?: string | null
+          scroll_depth?: number | null
+          sections_viewed?: Json | null
+          session_duration?: number | null
+          session_events?: Json | null
           session_id: string
           telefone?: string | null
           updated_at?: string
@@ -626,6 +634,10 @@ export type Database = {
           nome?: string | null
           page_views?: number | null
           referrer?: string | null
+          scroll_depth?: number | null
+          sections_viewed?: Json | null
+          session_duration?: number | null
+          session_events?: Json | null
           session_id?: string
           telefone?: string | null
           updated_at?: string
