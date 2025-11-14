@@ -35,19 +35,21 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
 
       if (etapasError) throw etapasError;
 
-      // Buscar contatos ativos agrupados por etapa
-      const { data: contatos, error: contatosError } = await supabase
-        .from("contatos")
-        .select("etapa_id, status")
+      // Buscar pedidos não cancelados com suas etapas
+      const { data: pedidos, error: pedidosError } = await supabase
+        .from("pedidos")
+        .select("id, contato_id, contatos!inner(etapa_id)")
         .eq("empresa_id", empresaId)
-        .not("status", "is", null);
+        .neq("status", "cancelled");
 
-      if (contatosError) throw contatosError;
+      if (pedidosError) throw pedidosError;
 
-      // Agrupar contatos por etapa
-      const contatosPorEtapa = contatos.reduce((acc, contato) => {
-        const etapaId = contato.etapa_id;
-        acc[etapaId] = (acc[etapaId] || 0) + 1;
+      // Agrupar pedidos por etapa
+      const pedidosPorEtapa = pedidos.reduce((acc, pedido: any) => {
+        const etapaId = pedido.contatos?.etapa_id;
+        if (etapaId) {
+          acc[etapaId] = (acc[etapaId] || 0) + 1;
+        }
         return acc;
       }, {} as Record<string, number>);
 
@@ -56,27 +58,28 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
         etapa_id: etapa.id,
         etapa_nome: etapa.nome,
         ordem: etapa.ordem,
-        total_contatos: contatosPorEtapa[etapa.id] || 0,
+        total_contatos: pedidosPorEtapa[etapa.id] || 0,
       }));
 
-      const totalContatos = contatos.length;
+      const totalContatos = pedidos.length;
 
       return { stats, totalContatos };
     },
     enabled: !!empresaId,
   });
 
-  // Query para buscar contatos de uma etapa específica
+  // Query para buscar pedidos de uma etapa específica
   const { data: contatosEtapa } = useQuery({
-    queryKey: ["contatos-etapa", selectedEtapa],
+    queryKey: ["pedidos-etapa", selectedEtapa, empresaId],
     queryFn: async () => {
       if (!selectedEtapa) return [];
 
       const { data, error } = await supabase
-        .from("contatos")
-        .select("id, name, wa_id, status, created_at")
-        .eq("etapa_id", selectedEtapa)
-        .not("status", "is", null)
+        .from("pedidos")
+        .select("id, numero, total, created_at, contatos!inner(id, name, wa_id, status)")
+        .eq("empresa_id", empresaId)
+        .eq("contatos.etapa_id", selectedEtapa)
+        .neq("status", "cancelled")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
