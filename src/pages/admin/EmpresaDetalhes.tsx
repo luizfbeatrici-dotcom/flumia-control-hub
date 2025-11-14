@@ -199,7 +199,7 @@ export default function EmpresaDetalhes() {
           pessoas:pessoa_id(nome, cnpjf, celular, email),
           pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep),
           pagamentos (status, date_approved, date_last_updated, date_created),
-          contatos:contato_id(etapas:etapa_id(nome, descricao))
+          contatos:contato_id(name, wa_id, etapas:etapa_id(nome, descricao))
         `)
         .eq("empresa_id", id)
         .order("numero", { ascending: false });
@@ -2112,6 +2112,26 @@ export default function EmpresaDetalhes() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Informações do Contato */}
+                  {pedido.contatos && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Contato</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Nome</p>
+                            <p className="font-medium">{(pedido.contatos as any)?.name || "-"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Celular</p>
+                            <p className="font-medium">{(pedido.contatos as any)?.wa_id || "-"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <Separator />
 
