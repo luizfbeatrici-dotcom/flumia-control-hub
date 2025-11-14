@@ -24,6 +24,7 @@ import Configuracoes from "./pages/company/Configuracoes";
 import UsuariosEmpresa from "./pages/company/Usuarios";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
+import Leads from "./pages/admin/Leads";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdminMaster>
                     <Notificacoes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/leads"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <Leads />
                   </ProtectedRoute>
                 }
               />
