@@ -162,7 +162,7 @@ export function MercadoPagoDialog({ open, onOpenChange, onSave, config, isLoadin
                 name="expires_in"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Expires In (minutos)</FormLabel>
+                    <FormLabel>Expira em (minutos)</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" />
                     </FormControl>
