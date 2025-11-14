@@ -29,6 +29,7 @@ export default function Bilhetagem() {
     nome: "",
     valor_recorrente: "",
     qtd_pedidos: "",
+    qtd_pedidos_tipo: "ate",
     valor_pedido_adicional: "",
     valor_implantacao: "",
     valor_implantacao_a_verificar: false,
@@ -52,7 +53,7 @@ export default function Bilhetagem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano criado com sucesso!");
-      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", qtd_pedidos_tipo: "ate", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
       setEditingId(null);
     },
     onError: (err: any) => toast.error(err.message || "Erro ao criar plano"),
@@ -66,7 +67,7 @@ export default function Bilhetagem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["planos"] });
       toast.success("Plano atualizado com sucesso!");
-      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
+      setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", qtd_pedidos_tipo: "ate", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
       setEditingId(null);
     },
     onError: (err: any) => toast.error(err.message || "Erro ao atualizar plano"),
@@ -90,6 +91,7 @@ export default function Bilhetagem() {
       nome: plano.nome,
       valor_recorrente: plano.valor_recorrente.toString(),
       qtd_pedidos: plano.qtd_pedidos.toString(),
+      qtd_pedidos_tipo: plano.qtd_pedidos_tipo || "ate",
       valor_pedido_adicional: plano.valor_pedido_adicional.toString(),
       valor_implantacao: plano.valor_implantacao.toString(),
       valor_implantacao_a_verificar: plano.valor_implantacao_a_verificar ?? false,
@@ -99,7 +101,7 @@ export default function Bilhetagem() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
+    setFormValues({ nome: "", valor_recorrente: "", qtd_pedidos: "", qtd_pedidos_tipo: "ate", valor_pedido_adicional: "", valor_implantacao: "", valor_implantacao_a_verificar: false, exibir_landing_page: true });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -108,6 +110,7 @@ export default function Bilhetagem() {
       nome: formValues.nome.trim(),
       valor_recorrente: Number(formValues.valor_recorrente || 0),
       qtd_pedidos: Number(formValues.qtd_pedidos || 0),
+      qtd_pedidos_tipo: formValues.qtd_pedidos_tipo,
       valor_pedido_adicional: Number(formValues.valor_pedido_adicional || 0),
       valor_implantacao: formValues.valor_implantacao_a_verificar ? 0 : Number(formValues.valor_implantacao || 0),
       valor_implantacao_a_verificar: formValues.valor_implantacao_a_verificar,
@@ -181,15 +184,27 @@ export default function Bilhetagem() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="qtd_pedidos">Quantidade de pedidos</label>
-                <Input
-                  id="qtd_pedidos"
-                  type="number"
-                  step="1"
-                  min="0"
-                  placeholder="0"
-                  value={formValues.qtd_pedidos}
-                  onChange={(e) => setFormValues((s) => ({ ...s, qtd_pedidos: e.target.value }))}
-                />
+                <div className="flex gap-2">
+                  <select
+                    id="qtd_pedidos_tipo"
+                    value={formValues.qtd_pedidos_tipo}
+                    onChange={(e) => setFormValues((s) => ({ ...s, qtd_pedidos_tipo: e.target.value }))}
+                    className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="ate">Até</option>
+                    <option value="a_partir_de">A partir de</option>
+                  </select>
+                  <Input
+                    id="qtd_pedidos"
+                    type="number"
+                    step="1"
+                    min="0"
+                    placeholder="0"
+                    value={formValues.qtd_pedidos}
+                    onChange={(e) => setFormValues((s) => ({ ...s, qtd_pedidos: e.target.value }))}
+                    className="flex-1"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="valor_pedido_adicional">Valor pedido adicional (R$)</label>
