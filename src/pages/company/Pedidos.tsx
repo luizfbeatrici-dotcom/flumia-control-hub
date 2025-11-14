@@ -43,7 +43,8 @@ export default function Pedidos() {
           *,
           pessoas (nome, cnpjf, celular, email),
           pessoa_enderecos (endereco, bairro, cidade, cep, complemento),
-          pagamentos (status, date_approved, date_last_updated, date_created)
+          pagamentos (status, date_approved, date_last_updated, date_created),
+          contatos:contato_id (name, wa_id)
         `)
         .eq("empresa_id", profile.empresa_id)
         .order("numero", { ascending: false });
@@ -248,6 +249,29 @@ export default function Pedidos() {
                                   )}
                                 </div>
                               </div>
+
+                              <Separator />
+
+                              {/* Informações do Contato */}
+                              {pedido.contatos && (
+                                <div>
+                                  <h3 className="mb-3 font-semibold">Contato</h3>
+                                  <div className="grid gap-2 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Nome:</span>
+                                      <span className="font-medium">
+                                        {(pedido.contatos as any)?.name || "N/A"}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Celular:</span>
+                                      <span className="font-medium">
+                                        {(pedido.contatos as any)?.wa_id || "N/A"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
 
                               <Separator />
 
