@@ -11,7 +11,7 @@ interface WhatsAppButtonProps {
 
 export function WhatsAppButton({ 
   phoneNumber, 
-  assistantName = "Assistente Flumia",
+  assistantName = "Assistente flum.ia",
   initialMessage = "Olá! Como posso ajudar você hoje?"
 }: WhatsAppButtonProps) {
   const [isOpen, setIsOpen] = useState(false);

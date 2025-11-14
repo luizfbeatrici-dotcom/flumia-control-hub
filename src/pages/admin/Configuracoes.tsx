@@ -32,7 +32,7 @@ export default function Configuracoes() {
   useEffect(() => {
     if (settings) {
       setWhatsappContato(settings.whatsapp_contato || "");
-      setNomeAssistente(settings.nome_assistente || "Assistente Flumia");
+      setNomeAssistente(settings.nome_assistente || "Assistente flum.ia");
       setMensagemInicial(settings.mensagem_inicial || "Olá! Como posso ajudar você hoje?");
     }
   }, [settings]);
@@ -110,7 +110,7 @@ export default function Configuracoes() {
                 <Input
                   id="nomeAssistente"
                   type="text"
-                  placeholder="Assistente Flumia"
+                  placeholder="Assistente flum.ia"
                   value={nomeAssistente}
                   onChange={(e) => setNomeAssistente(e.target.value)}
                 />

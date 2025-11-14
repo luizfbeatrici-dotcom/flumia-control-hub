@@ -53,11 +53,11 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-purple p-2">
-            <img src={flumiaLogo} alt="Flumia Flow" className="h-full w-full object-contain" />
+            <img src={flumiaLogo} alt="flum.ia" className="h-full w-full object-contain" />
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-sidebar-foreground">Flumia Flow</span>
+              <span className="text-sm font-semibold text-sidebar-foreground">flum.ia</span>
               <span className="text-xs text-sidebar-foreground/60">
                 {isAdminMaster ? "Admin Master" : "Painel Gerencial"}
               </span>

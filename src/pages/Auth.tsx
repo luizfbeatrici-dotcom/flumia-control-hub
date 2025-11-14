@@ -45,9 +45,9 @@ export default function Auth() {
       <Card className="relative z-10 w-full max-w-md shadow-medium">
         <CardHeader className="space-y-1 text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-purple p-3">
-            <img src={flumiaLogo} alt="Flumia Flow Logo" className="h-full w-full object-contain" />
+            <img src={flumiaLogo} alt="flum.ia Logo" className="h-full w-full object-contain" />
           </div>
-          <CardTitle className="text-2xl">Flumia Flow</CardTitle>
+          <CardTitle className="text-2xl">flum.ia</CardTitle>
           <CardDescription>Portal Administrativo de Automação</CardDescription>
         </CardHeader>
         <CardContent>

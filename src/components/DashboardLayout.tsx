@@ -34,7 +34,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center gap-3">
               <SidebarTrigger />
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-purple p-1.5">
-                <img src={flumiaLogo} alt="Flumia Flow" className="h-full w-full object-contain" />
+                <img src={flumiaLogo} alt="flum.ia" className="h-full w-full object-contain" />
               </div>
             </div>
             <div className="flex items-center gap-4">
