@@ -27,6 +27,10 @@ import flumiaLogo from "@/assets/flumia-logo.png";
 import heroAiBackground from "@/assets/hero-ai-background.png";
 import withoutFlumia from "@/assets/without-flumia.png";
 import withFlumia from "@/assets/with-flumia.png";
+import whatsappProduto from "@/assets/whatsapp-produto.jpg";
+import whatsappBusca from "@/assets/whatsapp-busca.jpg";
+import whatsappDetalhes from "@/assets/whatsapp-produto-detalhes.jpg";
+import whatsappFinalizacao from "@/assets/whatsapp-finalizacao.jpg";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -259,26 +263,178 @@ const Index = () => {
       {/* Hero Section */}
       <section id="hero" data-section className="relative overflow-hidden py-20 md:py-32">
         <div className="absolute inset-0 gradient-hero opacity-10"></div>
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: `url(${heroAiBackground})` }}
-        ></div>
         <div className="container relative z-10">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-              <span className="text-destructive">PARE DE PERDER VENDAS.</span>
-              <br />
-              A flum.ia é a ponte entre o atendimento humano e a{" "}
-              <span className="text-primary">automação inteligente</span>
-            </h1>
-            <p className="mb-8 text-lg text-muted-foreground md:text-xl">
-              Transforme conversas em vendas e oportunidades em clientes, a qualquer hora, em qualquer lugar.
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+                <Brain className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Seu Time de Vendas Aprimorado com IA</span>
+              </div>
+              <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+                <span className="text-destructive">PARE DE PERDER VENDAS.</span>
+                <br />
+                A flum.ia é a ponte entre o atendimento humano e a{" "}
+                <span className="text-primary">automação inteligente</span>
+              </h1>
+              <p className="mb-8 text-lg text-muted-foreground">
+                Transforme conversas em vendas e oportunidades em clientes, a qualquer hora, em qualquer lugar.
+              </p>
+              <a href="#planos" onClick={() => trackEvent('cta_click', 'hero-cta', 'Quero parar de perder vendas')}>
+                <Button size="lg" className="shadow-glow text-lg px-8 py-6 h-auto">
+                  QUERO PARAR DE PERDER VENDAS
+                </Button>
+              </a>
+            </div>
+            <div className="relative">
+              <div className="relative mx-auto w-full max-w-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl rounded-full"></div>
+                <img 
+                  src={whatsappProduto} 
+                  alt="Flumia Flow em ação" 
+                  className="relative rounded-3xl shadow-2xl border-8 border-background"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Nova Seção de Destaque da IA */}
+      <section id="ia-destaque" data-section className="py-20 bg-gradient-to-br from-primary/5 to-accent/5">
+        <div className="container">
+          <div className="mx-auto max-w-3xl text-center mb-16">
+            <h2 className="mb-4 text-3xl font-bold md:text-5xl">
+              Vá Além do Chatbot: <br />
+              <span className="text-primary">A Inteligência Artificial que Vende por Você</span>
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Nossa IA não apenas responde perguntas - ela entende contexto, personaliza atendimento e fecha vendas
             </p>
-            <a href="#planos" onClick={() => trackEvent('cta_click', 'hero-cta', 'Quero parar de perder vendas')}>
-              <Button size="lg" className="shadow-glow text-lg px-8 py-6 h-auto">
-                QUERO PARAR DE PERDER VENDAS
-              </Button>
-            </a>
+          </div>
+
+          <div className="space-y-24">
+            {/* Subseção 1: Entendimento de Contexto */}
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                  <Brain className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">Processamento de Linguagem Natural</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                  Entende o que seu cliente realmente quer
+                </h3>
+                <p className="text-muted-foreground text-lg mb-6">
+                  Nossa IA interpreta as mensagens dos seus clientes, compreende a intenção por trás de cada pergunta 
+                  e busca automaticamente o produto certo - mesmo quando o cliente não sabe exatamente o que procura.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Busca inteligente por produtos usando linguagem natural</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Reconhece sinônimos, cores, marcas e características</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Sugere alternativas quando o produto não está disponível</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="order-1 md:order-2">
+                <div className="relative mx-auto w-full max-w-sm">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl"></div>
+                  <img 
+                    src={whatsappBusca} 
+                    alt="IA entendendo busca de produto" 
+                    className="relative rounded-3xl shadow-2xl border-8 border-background"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Subseção 2: Personalização e Dados */}
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="relative mx-auto w-full max-w-sm">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 blur-3xl"></div>
+                  <img 
+                    src={whatsappDetalhes} 
+                    alt="Personalização com dados do cliente" 
+                    className="relative rounded-3xl shadow-2xl border-8 border-background"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-4">
+                  <UserCheck className="h-4 w-4 text-accent" />
+                  <span className="text-sm font-medium text-accent">Integração Total com Dados</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                  Conhece cada cliente profundamente
+                </h3>
+                <p className="text-muted-foreground text-lg mb-6">
+                  Integrada ao seu ERP, a IA acessa histórico de compras, preferências e dados cadastrais em tempo real. 
+                  Cada atendimento é personalizado e contextualizado.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                    <span>Acesso instantâneo ao cadastro completo do cliente</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                    <span>Histórico de pedidos e preferências</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                    <span>Recomendações baseadas em compras anteriores</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Subseção 3: Transação e Negociação */}
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                  <ShoppingCart className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">Fechamento Automático</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                  Negocia e fecha vendas automaticamente
+                </h3>
+                <p className="text-muted-foreground text-lg mb-6">
+                  Da apresentação do produto até o fechamento, a IA gerencia todo o processo de venda: 
+                  apresenta preços, calcula fretes, processa pagamentos e confirma pedidos.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Apresenta produtos com preço, SKU e disponibilidade em estoque</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Calcula frete e apresenta opções de entrega</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Processa pagamento via Pix e finaliza pedido automaticamente</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="order-1 md:order-2">
+                <div className="relative mx-auto w-full max-w-sm">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl"></div>
+                  <img 
+                    src={whatsappFinalizacao} 
+                    alt="IA fechando venda" 
+                    className="relative rounded-3xl shadow-2xl border-8 border-background"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
