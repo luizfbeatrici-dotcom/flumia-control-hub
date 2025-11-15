@@ -27,10 +27,10 @@ import flumiaLogo from "@/assets/flumia-logo.png";
 import heroAiBackground from "@/assets/hero-ai-background.png";
 import withoutFlumia from "@/assets/without-flumia.png";
 import withFlumia from "@/assets/with-flumia.png";
-import whatsappProduto from "@/assets/whatsapp-produto.jpg";
-import whatsappBusca from "@/assets/whatsapp-busca.jpg";
-import whatsappDetalhes from "@/assets/whatsapp-produto-detalhes.jpg";
-import whatsappFinalizacao from "@/assets/whatsapp-finalizacao.jpg";
+import whatsappNegociacaoProduto from "@/assets/whatsapp-negociacao-produto.jpg";
+import whatsappResumoEntrega from "@/assets/whatsapp-resumo-entrega.jpg";
+import whatsappBuscaRefinada from "@/assets/whatsapp-busca-refinada.jpg";
+import whatsappDetalhesNegociacao from "@/assets/whatsapp-detalhes-negociacao.jpg";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -289,7 +289,7 @@ const Index = () => {
               <div className="relative mx-auto w-full max-w-sm">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl rounded-full"></div>
                 <img 
-                  src={whatsappProduto} 
+                  src={whatsappNegociacaoProduto} 
                   alt="Flumia Flow em ação" 
                   className="relative rounded-3xl shadow-2xl border-8 border-background"
                 />
@@ -346,7 +346,7 @@ const Index = () => {
                 <div className="relative mx-auto w-full max-w-sm">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl"></div>
                   <img 
-                    src={whatsappBusca} 
+                    src={whatsappBuscaRefinada} 
                     alt="IA entendendo busca de produto" 
                     className="relative rounded-3xl shadow-2xl border-8 border-background"
                   />
@@ -360,7 +360,7 @@ const Index = () => {
                 <div className="relative mx-auto w-full max-w-sm">
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 blur-3xl"></div>
                   <img 
-                    src={whatsappDetalhes} 
+                    src={whatsappDetalhesNegociacao} 
                     alt="Personalização com dados do cliente" 
                     className="relative rounded-3xl shadow-2xl border-8 border-background"
                   />
@@ -428,7 +428,7 @@ const Index = () => {
                 <div className="relative mx-auto w-full max-w-sm">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl"></div>
                   <img 
-                    src={whatsappFinalizacao} 
+                    src={whatsappResumoEntrega} 
                     alt="IA fechando venda" 
                     className="relative rounded-3xl shadow-2xl border-8 border-background"
                   />
