@@ -499,6 +499,142 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Nova Seção: Vendedores Ilimitados */}
+      <section id="vendedores-ilimitados" data-section className="py-20 bg-gradient-to-br from-accent/10 to-primary/10">
+        <div className="container">
+          <div className="mx-auto max-w-4xl text-center mb-16">
+            <div className="inline-block mb-6 px-6 py-3 bg-accent/20 border-2 border-accent rounded-full">
+              <h2 className="text-2xl md:text-3xl font-black text-accent uppercase tracking-tight">
+                PROCURA-SE
+              </h2>
+            </div>
+            <h3 className="mb-6 text-3xl font-bold md:text-5xl">
+              Empresários que Querem <span className="text-primary">Vendedores Ilimitados</span> Pagando Pouco
+            </h3>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              A Flumia é o único "contrato" que permite que você tenha um time de vendas 24/7, 
+              que não tira férias, não adoece e não exige 13º.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
+            {/* O Vendedor Humano */}
+            <Card className="border-2 border-destructive/30 bg-background/80 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-2xl">
+                  <XCircle className="h-8 w-8 text-destructive" />
+                  O Vendedor Humano
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3">
+                    <X className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Salário:</strong> R$ 2.500 - R$ 5.000/mês
+                      <p className="text-sm text-muted-foreground">+ encargos, férias, 13º</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <X className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Horário:</strong> 8-10 horas/dia
+                      <p className="text-sm text-muted-foreground">Vendas perdidas à noite e fins de semana</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <X className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Capacidade:</strong> 1 cliente por vez
+                      <p className="text-sm text-muted-foreground">Limitado pela atenção humana</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <X className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Escalabilidade:</strong> Custa mais a cada contratação
+                      <p className="text-sm text-muted-foreground">Mais vendedores = mais custos fixos</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <X className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Consistência:</strong> Varia por humor e energia
+                      <p className="text-sm text-muted-foreground">Qualidade inconsistente</p>
+                    </div>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* A Flumia IA */}
+            <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-2xl">
+                  <CheckCircle2 className="h-8 w-8 text-primary" />
+                  A Flumia IA
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-primary">Investimento:</strong> A partir de R$ 297/mês
+                      <p className="text-sm text-muted-foreground">Sem encargos, férias ou 13º</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-primary">Horário:</strong> 24 horas, 7 dias por semana
+                      <p className="text-sm text-muted-foreground">Nunca perde uma venda</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-primary">Capacidade:</strong> Infinitos clientes simultâneos
+                      <p className="text-sm text-muted-foreground">Sem limite de atendimentos</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-primary">Escalabilidade:</strong> Mesmo custo para 10 ou 10.000 clientes
+                      <p className="text-sm text-muted-foreground">Cresce sem aumentar custos</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-primary">Consistência:</strong> Sempre no mesmo padrão de excelência
+                      <p className="text-sm text-muted-foreground">Qualidade garantida 100% do tempo</p>
+                    </div>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              size="lg" 
+              className="text-lg px-8 py-6 h-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              onClick={() => {
+                trackEvent('cta_vendedores_ilimitados');
+                document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              QUERO MULTIPLICAR MINHAS VENDAS AGORA
+            </Button>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Comece hoje e veja a diferença em 7 dias
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Problema vs Solução */}
       <section id="o-que-e" className="py-20 bg-secondary/30">
         <div className="container">
