@@ -354,46 +354,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Subseção 2: Personalização e Dados */}
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <div className="relative mx-auto w-full max-w-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 blur-3xl"></div>
-                  <img 
-                    src={whatsappDetalhesNegociacao} 
-                    alt="Personalização com dados do cliente" 
-                    className="relative rounded-3xl shadow-2xl border-8 border-background"
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-4">
-                  <UserCheck className="h-4 w-4 text-accent" />
-                  <span className="text-sm font-medium text-accent">Integração Total com Dados</span>
-                </div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                  Conhece cada cliente profundamente
-                </h3>
-                <p className="text-muted-foreground text-lg mb-6">
-                  Integrada ao seu ERP, a IA acessa histórico de compras, preferências e dados cadastrais em tempo real. 
-                  Cada atendimento é personalizado e contextualizado.
-                </p>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                    <span>Acesso instantâneo ao cadastro completo do cliente</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                    <span>Histórico de pedidos e preferências</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                    <span>Recomendações baseadas em compras anteriores</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
 
             {/* Subseção 3: Transação e Negociação */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
