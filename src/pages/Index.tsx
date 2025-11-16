@@ -290,7 +290,7 @@ const Index = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl rounded-full"></div>
                 <img 
                   src={whatsappNegociacaoProduto} 
-                  alt="Flumia Flow em ação" 
+                  alt="Flum.ia Flow em ação" 
                   className="relative rounded-3xl shadow-2xl border-8 border-background"
                 />
               </div>
@@ -512,7 +512,7 @@ const Index = () => {
               Empresários que Querem <span className="text-primary">Vendedores Ilimitados</span> Pagando Pouco
             </h3>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              A Flumia é o único "contrato" que permite que você tenha um time de vendas 24/7, 
+              A Flum.ia é o único "contrato" que permite que você tenha um time de vendas 24/7, 
               que não tira férias, não adoece e não exige 13º.
             </p>
           </div>
@@ -567,12 +567,12 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* A Flumia IA */}
+            {/* A Flum.ia IA */}
             <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 shadow-xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3 text-2xl">
                   <CheckCircle2 className="h-8 w-8 text-primary" />
-                  A Flumia IA
+                  A Flum.ia IA
                 </CardTitle>
               </CardHeader>
               <CardContent>

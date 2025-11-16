@@ -113,7 +113,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
             </CardHeader>
             <CardContent>
               <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-                <code>https://flumia.com.br/api/v1</code>
+                <code>https://flum.ia/api/v1</code>
               </pre>
               <p className="text-xs text-muted-foreground mt-2">
                 ℹ️ URLs legadas (/webhook-produtos, /webhook-pessoas) continuam funcionando
@@ -385,7 +385,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">GET - Listar produtos</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X GET \\
-  "https://flumia.com.br/api/v1/produtos?limit=10&offset=0" \\
+  "https://flum.ia/api/v1/produtos?limit=10&offset=0" \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
@@ -393,7 +393,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">POST - Criar produto</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X POST \\
-  https://flumia.com.br/api/v1/produtos \\
+  https://flum.ia/api/v1/produtos \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \\
   -H 'Content-Type: application/json' \\
   -d '{
@@ -607,7 +607,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">GET - Listar pessoas</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X GET \\
-  "https://flumia.com.br/api/v1/pessoas?limit=10&offset=0" \\
+  "https://flum.ia/api/v1/pessoas?limit=10&offset=0" \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
@@ -615,7 +615,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">POST - Criar pessoa</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X POST \\
-  https://flumia.com.br/api/v1/pessoas \\
+  https://flum.ia/api/v1/pessoas \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \\
   -H 'Content-Type: application/json' \\
   -d '{
@@ -778,7 +778,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">GET - Listar todos os pedidos</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X GET \\
-  "https://flumia.com.br/api/v1/pedidos?limit=10&offset=0" \\
+  "https://flum.ia/api/v1/pedidos?limit=10&offset=0" \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
@@ -786,7 +786,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">GET - Buscar pedido específico por ID</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X GET \\
-  "https://flumia.com.br/api/v1/pedidos?id=uuid-do-pedido" \\
+  "https://flum.ia/api/v1/pedidos?id=uuid-do-pedido" \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
@@ -794,7 +794,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                     <h4 className="font-semibold mb-2">GET - Filtrar por status e data</h4>
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
 {`curl -X GET \\
-  "https://flumia.com.br/api/v1/pedidos?status=confirmed&data_inicial=2025-11-01&limit=50" \\
+  "https://flum.ia/api/v1/pedidos?status=confirmed&data_inicial=2025-11-01&limit=50" \\
   -H 'Authorization: Bearer SEU_TOKEN_AQUI'`}
                     </pre>
                   </div>
