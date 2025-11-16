@@ -500,9 +500,9 @@ const Index = () => {
       </section>
 
       {/* Nova Seção: Vendedores Ilimitados */}
-      <section id="vendedores-ilimitados" data-section className="py-20 bg-gradient-to-br from-accent/10 to-primary/10">
-        <div className="container">
-          <div className="mx-auto max-w-4xl text-center mb-16">
+      <section id="vendedores-ilimitados" data-section className="py-12 md:py-16 bg-gradient-to-br from-accent/10 to-primary/10">
+        <div className="container px-4">
+          <div className="mx-auto max-w-4xl text-center mb-8 md:mb-12">
             <div className="inline-block mb-6 px-6 py-3 bg-accent/20 border-2 border-accent rounded-full">
               <h2 className="text-2xl md:text-3xl font-black text-accent uppercase tracking-tight">
                 PROCURA-SE
@@ -517,7 +517,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto mb-8 md:mb-12">
             {/* O Vendedor Humano */}
             <Card className="border-2 border-destructive/30 bg-background/80 shadow-xl">
               <CardHeader>
@@ -617,10 +617,10 @@ const Index = () => {
             </Card>
           </div>
 
-          <div className="text-center">
+          <div className="text-center px-4">
             <Button 
               size="lg" 
-              className="text-lg px-8 py-6 h-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              className="text-base md:text-lg px-6 md:px-8 py-4 md:py-6 h-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity w-full md:w-auto"
               onClick={() => {
                 trackEvent('cta_vendedores_ilimitados');
                 document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' });
