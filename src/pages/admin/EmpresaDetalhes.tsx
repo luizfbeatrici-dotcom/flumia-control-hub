@@ -1553,15 +1553,15 @@ export default function EmpresaDetalhes() {
                           <div className="space-y-1 text-sm font-mono pl-2">
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
-                              <code className="text-xs">https://flumia.com.br/api/v1/produtos</code>
+                              <code className="text-xs">https://flum.ia/api/v1/produtos</code>
                             </div>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
-                              <code className="text-xs">https://flumia.com.br/api/v1/produtos</code>
+                              <code className="text-xs">https://flum.ia/api/v1/produtos</code>
                             </div>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
-                              <code className="text-xs">https://flumia.com.br/api/v1/produtos</code>
+                              <code className="text-xs">https://flum.ia/api/v1/produtos</code>
                             </div>
                           </div>
                         </div>
@@ -1571,15 +1571,15 @@ export default function EmpresaDetalhes() {
                           <div className="space-y-1 text-sm font-mono pl-2">
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
-                              <code className="text-xs">https://flumia.com.br/api/v1/pessoas</code>
+                              <code className="text-xs">https://flum.ia/api/v1/pessoas</code>
                             </div>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
-                              <code className="text-xs">https://flumia.com.br/api/v1/pessoas</code>
+                              <code className="text-xs">https://flum.ia/api/v1/pessoas</code>
                             </div>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
-                              <code className="text-xs">https://flumia.com.br/api/v1/pessoas</code>
+                              <code className="text-xs">https://flum.ia/api/v1/pessoas</code>
                             </div>
                           </div>
                         </div>
@@ -1589,7 +1589,7 @@ export default function EmpresaDetalhes() {
                           <div className="space-y-1 text-sm font-mono pl-2">
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
-                              <code className="text-xs">https://flumia.com.br/api/v1/pedidos</code>
+                              <code className="text-xs">https://flum.ia/api/v1/pedidos</code>
                             </div>
                           </div>
                         </div>
