@@ -620,7 +620,7 @@ const Index = () => {
           <div className="text-center px-4">
             <Button 
               size="lg" 
-              className="text-base md:text-lg px-6 md:px-8 py-4 md:py-6 h-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity w-full md:w-auto"
+              className="text-sm md:text-lg px-4 md:px-8 py-3 md:py-6 h-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity w-full md:w-auto leading-tight"
               onClick={() => {
                 trackEvent('cta_vendedores_ilimitados');
                 document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' });
