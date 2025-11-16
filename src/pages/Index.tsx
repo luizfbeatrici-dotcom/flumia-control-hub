@@ -513,7 +513,7 @@ const Index = () => {
             </h3>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               A Flum.ia é o único "contrato" que permite que você tenha um time de vendas 24/7, 
-              que não tira férias, não adoece e não exige 13º.
+              que não tira férias, sempre disponível e não exige 13º.
             </p>
           </div>
 
