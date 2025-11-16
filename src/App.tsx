@@ -25,6 +25,7 @@ import UsuariosEmpresa from "./pages/company/Usuarios";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import Leads from "./pages/admin/Leads";
+import AddProductsTemp from "./pages/admin/AddProductsTemp";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +119,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdminMaster>
                     <Leads />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/add-products-temp"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <AddProductsTemp />
                   </ProtectedRoute>
                 }
               />
