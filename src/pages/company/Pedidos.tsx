@@ -24,8 +24,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Eye, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatDateFromDB } from "@/lib/dateUtils";
 import { useState } from "react";
 
 export default function Pedidos() {
@@ -168,9 +167,7 @@ export default function Pedidos() {
                     </TableCell>
                     <TableCell>{pedido.pessoas?.nome || "N/A"}</TableCell>
                     <TableCell>
-                      {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm", {
-                        locale: ptBR,
-                      })}
+                      {formatDateFromDB(pedido.created_at)}
                     </TableCell>
                     <TableCell className="font-medium">
                       {formatCurrency(pedido.total)}
@@ -183,9 +180,7 @@ export default function Pedidos() {
                     <TableCell className="font-medium">
                       {pedido.finalizado_em ? (
                         <span className="text-foreground">
-                          {format(new Date(pedido.finalizado_em), "dd/MM/yyyy HH:mm", {
-                            locale: ptBR,
-                          })}
+                          {formatDateFromDB(pedido.finalizado_em)}
                         </span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
@@ -282,11 +277,7 @@ export default function Pedidos() {
                                   <div className="flex justify-between">
                                     <span className="text-muted-foreground">Data:</span>
                                     <span className="font-medium">
-                                      {format(
-                                        new Date(pedido.created_at),
-                                        "dd/MM/yyyy 'às' HH:mm",
-                                        { locale: ptBR }
-                                      )}
+                                      {formatDateFromDB(pedido.created_at)}
                                     </span>
                                   </div>
                                   <div className="flex justify-between">
@@ -383,11 +374,7 @@ export default function Pedidos() {
                                         <div className="flex justify-between">
                                           <span className="text-muted-foreground">Data de Criação:</span>
                                           <span className="font-medium">
-                                            {format(
-                                              new Date(pedido.pagamentos[0].date_created),
-                                              "dd/MM/yyyy 'às' HH:mm",
-                                              { locale: ptBR }
-                                            )}
+                                            {formatDateFromDB(pedido.pagamentos[0].date_created)}
                                           </span>
                                         </div>
                                       )}
@@ -395,11 +382,7 @@ export default function Pedidos() {
                                         <div className="flex justify-between">
                                           <span className="text-muted-foreground">Data de Aprovação:</span>
                                           <span className="font-medium">
-                                            {format(
-                                              new Date(pedido.pagamentos[0].date_approved),
-                                              "dd/MM/yyyy 'às' HH:mm",
-                                              { locale: ptBR }
-                                            )}
+                                            {formatDateFromDB(pedido.pagamentos[0].date_approved)}
                                           </span>
                                         </div>
                                       )}
@@ -407,11 +390,7 @@ export default function Pedidos() {
                                         <div className="flex justify-between">
                                           <span className="text-muted-foreground">Última Atualização:</span>
                                           <span className="font-medium">
-                                            {format(
-                                              new Date(pedido.pagamentos[0].date_last_updated),
-                                              "dd/MM/yyyy 'às' HH:mm",
-                                              { locale: ptBR }
-                                            )}
+                                            {formatDateFromDB(pedido.pagamentos[0].date_last_updated)}
                                           </span>
                                         </div>
                                       )}
