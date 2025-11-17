@@ -15,6 +15,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
 import { ImportProdutosDialog } from "@/components/company/ImportProdutosDialog";
@@ -1413,10 +1415,8 @@ export default function EmpresaDetalhes() {
                               {(pedido.pessoas as any)?.nome || "-"}
                             </TableCell>
                             <TableCell>
-                              {new Date(pedido.created_at).toLocaleDateString("pt-BR", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
+                              {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm", {
+                                locale: ptBR,
                               })}
                             </TableCell>
                             <TableCell>
@@ -2142,12 +2142,8 @@ export default function EmpresaDetalhes() {
                       <div>
                         <p className="text-sm text-muted-foreground">Data do Pedido</p>
                         <p className="font-medium">
-                          {new Date(pedido.created_at).toLocaleDateString("pt-BR", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
+                          {format(new Date(pedido.created_at), "dd/MM/yyyy 'às' HH:mm", {
+                            locale: ptBR,
                           })}
                         </p>
                       </div>
