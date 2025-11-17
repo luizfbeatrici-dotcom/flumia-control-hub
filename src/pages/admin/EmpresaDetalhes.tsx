@@ -15,8 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatDateFromDB } from "@/lib/dateUtils";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
 import { ImportProdutosDialog } from "@/components/company/ImportProdutosDialog";
@@ -1415,9 +1414,7 @@ export default function EmpresaDetalhes() {
                               {(pedido.pessoas as any)?.nome || "-"}
                             </TableCell>
                             <TableCell>
-                              {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm", {
-                                locale: ptBR,
-                              })}
+                              {formatDateFromDB(pedido.created_at)}
                             </TableCell>
                             <TableCell>
                               R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -2142,9 +2139,7 @@ export default function EmpresaDetalhes() {
                       <div>
                         <p className="text-sm text-muted-foreground">Data do Pedido</p>
                         <p className="font-medium">
-                          {format(new Date(pedido.created_at), "dd/MM/yyyy 'às' HH:mm", {
-                            locale: ptBR,
-                          })}
+                          {formatDateFromDB(pedido.created_at)}
                         </p>
                       </div>
                       <div>
