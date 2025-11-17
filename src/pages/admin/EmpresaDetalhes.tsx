@@ -2213,16 +2213,9 @@ export default function EmpresaDetalhes() {
                           </div>
                           {(pedido.pagamentos[0] as any).date_created && (
                             <div>
-                              <p className="text-sm text-muted-foreground">Data de Criação (Horário de Brasília)</p>
+                              <p className="text-sm text-muted-foreground">Data de Criação</p>
                               <p className="font-medium">
-                                {new Date((pedido.pagamentos[0] as any).date_created).toLocaleDateString("pt-BR", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  timeZone: "America/Sao_Paulo",
-                                })}
+                                {formatDateFromDB((pedido.pagamentos[0] as any).date_created)}
                               </p>
                             </div>
                           )}
@@ -2230,13 +2223,7 @@ export default function EmpresaDetalhes() {
                             <div>
                               <p className="text-sm text-muted-foreground">Data de Aprovação</p>
                               <p className="font-medium">
-                                {new Date((pedido.pagamentos[0] as any).date_approved).toLocaleDateString("pt-BR", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {formatDateFromDB((pedido.pagamentos[0] as any).date_approved)}
                               </p>
                             </div>
                           )}
@@ -2244,13 +2231,7 @@ export default function EmpresaDetalhes() {
                             <div>
                               <p className="text-sm text-muted-foreground">Última Atualização</p>
                               <p className="font-medium">
-                                {new Date((pedido.pagamentos[0] as any).date_last_updated).toLocaleDateString("pt-BR", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {formatDateFromDB((pedido.pagamentos[0] as any).date_last_updated)}
                               </p>
                             </div>
                           )}
