@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/admin/Dashboard";
 import Empresas from "./pages/admin/Empresas";
 import EmpresaDetalhes from "./pages/admin/EmpresaDetalhes";
+import DashboardEmpresa from "./pages/admin/DashboardEmpresa";
 import UsuariosAdmin from "./pages/admin/Usuarios";
 import Bilhetagem from "./pages/admin/Bilhetagem";
 import AdminConfiguracoes from "./pages/admin/Configuracoes";
@@ -63,6 +64,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdminMaster>
                     <EmpresaDetalhes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/empresas/:id/dashboard"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <DashboardEmpresa />
                   </ProtectedRoute>
                 }
               />
