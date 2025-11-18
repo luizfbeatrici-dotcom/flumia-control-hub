@@ -9,7 +9,27 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Plus, Users, Package, ShoppingCart, MessageSquare, Smartphone, Key, Copy, Trash2, BookOpen, Download, Upload, Eye, Settings, Phone, CreditCard, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Plus,
+  Users,
+  Package,
+  ShoppingCart,
+  MessageSquare,
+  Smartphone,
+  Key,
+  Copy,
+  Trash2,
+  BookOpen,
+  Download,
+  Upload,
+  Eye,
+  Settings,
+  Phone,
+  CreditCard,
+  RefreshCw,
+} from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -61,7 +81,7 @@ export default function EmpresaDetalhes() {
   const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
   const [selectedPedidoId, setSelectedPedidoId] = useState<string | null>(null);
   const [selectedMercadoPagoTipo, setSelectedMercadoPagoTipo] = useState<"test" | "prod">("test");
-  
+
   // Filtros para contatos
   const [filterEtapa, setFilterEtapa] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -72,11 +92,7 @@ export default function EmpresaDetalhes() {
   const { data: empresa, isLoading: isLoadingEmpresa } = useQuery({
     queryKey: ["empresa", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("empresas")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await supabase.from("empresas").select("*").eq("id", id).single();
       if (error) throw error;
       return data;
     },
@@ -88,14 +104,16 @@ export default function EmpresaDetalhes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("produtos")
-        .select(`
+        .select(
+          `
           *,
           estoque (
             saldo,
             saldo_minimo,
             saldo_maximo
           )
-        `)
+        `,
+        )
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -139,7 +157,7 @@ export default function EmpresaDetalhes() {
         .from("api_tokens")
         .select("*")
         .eq("empresa_id", id)
-        .order("created_at", { ascending: false});
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -159,30 +177,23 @@ export default function EmpresaDetalhes() {
     },
   });
 
-
   // Fetch usuarios
   const { data: usuarios, isLoading: isLoadingUsuarios } = useQuery({
     queryKey: ["usuarios-empresa", id],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("empresa_id", id);
-      
+      const { data: profiles, error } = await supabase.from("profiles").select("*").eq("empresa_id", id);
+
       if (error) throw error;
 
       const usersWithRoles = await Promise.all(
         profiles.map(async (profile) => {
-          const { data: rolesData } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", profile.id);
-          
+          const { data: rolesData } = await supabase.from("user_roles").select("role").eq("user_id", profile.id);
+
           return {
             ...profile,
-            roles: rolesData?.map(r => r.role) || [],
+            roles: rolesData?.map((r) => r.role) || [],
           };
-        })
+        }),
       );
 
       return usersWithRoles;
@@ -195,20 +206,22 @@ export default function EmpresaDetalhes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pedidos")
-        .select(`
+        .select(
+          `
           *,
           pessoas:pessoa_id(nome, cnpjf, celular, email),
           pessoa_enderecos:endereco_id(endereco, complemento, bairro, cidade, cep),
           pagamentos (status, date_approved, date_last_updated, date_created),
           contatos:contato_id(name, whatsapp_from, etapas:etapa_id(nome, descricao))
-        `)
+        `,
+        )
         .eq("empresa_id", id)
         .order("numero", { ascending: false });
       if (error) throw error;
-      
-      return data?.map(pedido => ({
+
+      return data?.map((pedido) => ({
         ...pedido,
-        etapa: (pedido.contatos as any)?.etapas
+        etapa: (pedido.contatos as any)?.etapas,
       }));
     },
   });
@@ -223,37 +236,31 @@ export default function EmpresaDetalhes() {
         .select("*")
         .eq("empresa_id", id)
         .order("created_at", { ascending: false });
-      
+
       if (contatosError) throw contatosError;
       if (!contatosData) return [];
 
       // Buscar pessoas relacionadas
-      const pessoaIds = contatosData
-        .map(c => c.pessoa_id)
-        .filter(Boolean);
-      
+      const pessoaIds = contatosData.map((c) => c.pessoa_id).filter(Boolean);
+
       const { data: pessoasData } = await supabase
         .from("pessoas")
         .select("id, nome, cnpjf, celular, email")
         .in("id", pessoaIds);
 
       // Buscar etapas relacionadas
-      const etapaIds = [
-        ...contatosData.map(c => c.etapa_id),
-        ...contatosData.map(c => c.etapa_old_id)
-      ].filter(Boolean);
+      const etapaIds = [...contatosData.map((c) => c.etapa_id), ...contatosData.map((c) => c.etapa_old_id)].filter(
+        Boolean,
+      );
 
-      const { data: etapasData } = await supabase
-        .from("etapas")
-        .select("id, nome")
-        .in("id", etapaIds);
+      const { data: etapasData } = await supabase.from("etapas").select("id, nome").in("id", etapaIds);
 
       // Combinar os dados
-      return contatosData.map(contato => ({
+      return contatosData.map((contato) => ({
         ...contato,
-        pessoas: pessoasData?.find(p => p.id === contato.pessoa_id),
-        etapa_atual: etapasData?.find(e => e.id === contato.etapa_id),
-        etapa_anterior: etapasData?.find(e => e.id === contato.etapa_old_id)
+        pessoas: pessoasData?.find((p) => p.id === contato.pessoa_id),
+        etapa_atual: etapasData?.find((e) => e.id === contato.etapa_id),
+        etapa_anterior: etapasData?.find((e) => e.id === contato.etapa_old_id),
       }));
     },
   });
@@ -262,11 +269,11 @@ export default function EmpresaDetalhes() {
   const { data: etapas } = useQuery({
     queryKey: ["etapas", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("etapas")
         .select("*")
         .eq("ativo", true)
-        .order("ordem", { ascending: true }) as any;
+        .order("ordem", { ascending: true })) as any;
       if (error) throw error;
       return data;
     },
@@ -275,34 +282,34 @@ export default function EmpresaDetalhes() {
   // Filtrar contatos
   const contatosFiltrados = useMemo(() => {
     if (!contatos) return [];
-    
+
     return contatos.filter((contato) => {
       // Filtro por etapa
       if (filterEtapa && filterEtapa !== "all" && contato.etapa_id !== filterEtapa) {
         return false;
       }
-      
+
       // Filtro por status
       if (filterStatus && filterStatus !== "all" && contato.status !== filterStatus) {
         return false;
       }
-      
+
       // Filtro por data de criação
       if (filterCriadoEm) {
-        const contatoDate = new Date(contato.created_at).toISOString().split('T')[0];
+        const contatoDate = new Date(contato.created_at).toISOString().split("T")[0];
         if (contatoDate !== filterCriadoEm) {
           return false;
         }
       }
-      
+
       // Filtro por última atualização
       if (filterUltimaAtualizacao) {
-        const contatoDate = new Date(contato.updated_at).toISOString().split('T')[0];
+        const contatoDate = new Date(contato.updated_at).toISOString().split("T")[0];
         if (contatoDate !== filterUltimaAtualizacao) {
           return false;
         }
       }
-      
+
       return true;
     });
   }, [contatos, filterEtapa, filterStatus, filterCriadoEm, filterUltimaAtualizacao]);
@@ -310,7 +317,7 @@ export default function EmpresaDetalhes() {
   // Obter lista única de status
   const statusList = useMemo(() => {
     if (!contatos) return [];
-    const statusSet = new Set(contatos.map(c => c.status).filter(Boolean));
+    const statusSet = new Set(contatos.map((c) => c.status).filter(Boolean));
     return Array.from(statusSet).sort();
   }, [contatos]);
 
@@ -321,10 +328,12 @@ export default function EmpresaDetalhes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pedido_itens")
-        .select(`
+        .select(
+          `
           *,
           produtos:produto_id(descricao, sku, unidade)
-        `)
+        `,
+        )
         .eq("pedido_id", selectedPedidoId)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -350,10 +359,7 @@ export default function EmpresaDetalhes() {
   const { data: planos } = useQuery({
     queryKey: ["planos"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("planos")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("planos").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -373,9 +379,9 @@ export default function EmpresaDetalhes() {
         .eq("empresa_id", id)
         .gte("created_at", firstDay.toISOString())
         .lte("created_at", lastDay.toISOString());
-      
+
       if (error) throw error;
-      
+
       const totalVendas = data?.reduce((acc, pedido) => acc + (Number(pedido.total) || 0), 0) || 0;
       return totalVendas;
     },
@@ -384,10 +390,7 @@ export default function EmpresaDetalhes() {
   // Update empresa mutation
   const updateEmpresaMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const { error } = await supabase
-        .from("empresas")
-        .update(data)
-        .eq("id", id);
+      const { error } = await supabase.from("empresas").update(data).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -409,7 +412,7 @@ export default function EmpresaDetalhes() {
   const createProdutoMutation = useMutation({
     mutationFn: async (data: any) => {
       const { saldo, saldo_minimo, saldo_maximo, ...produtoData } = data;
-      
+
       const { data: produtoResult, error: produtoError } = await supabase
         .from("produtos")
         .insert({
@@ -418,21 +421,19 @@ export default function EmpresaDetalhes() {
         })
         .select()
         .single();
-      
+
       if (produtoError) throw produtoError;
-      
+
       // Criar registro de estoque
       if (produtoResult) {
-        const { error: estoqueError } = await supabase
-          .from("estoque")
-          .insert({
-            produto_id: produtoResult.id,
-            empresa_id: id,
-            saldo: saldo || 0,
-            saldo_minimo: saldo_minimo || 0,
-            saldo_maximo: saldo_maximo || null,
-          });
-        
+        const { error: estoqueError } = await supabase.from("estoque").insert({
+          produto_id: produtoResult.id,
+          empresa_id: id,
+          saldo: saldo || 0,
+          saldo_minimo: saldo_minimo || 0,
+          saldo_maximo: saldo_maximo || null,
+        });
+
         if (estoqueError) throw estoqueError;
       }
     },
@@ -450,15 +451,15 @@ export default function EmpresaDetalhes() {
   const updateProdutoMutation = useMutation({
     mutationFn: async ({ produtoId, data }: { produtoId: string; data: any }) => {
       const { saldo, saldo_minimo, saldo_maximo, ...produtoData } = data;
-      
+
       const { error: produtoError } = await supabase
         .from("produtos")
         .update(produtoData)
         .eq("id", produtoId)
         .eq("empresa_id", id);
-      
+
       if (produtoError) throw produtoError;
-      
+
       // Verificar se existe registro de estoque
       const { data: estoqueExistente } = await supabase
         .from("estoque")
@@ -466,7 +467,7 @@ export default function EmpresaDetalhes() {
         .eq("produto_id", produtoId)
         .eq("empresa_id", id)
         .maybeSingle();
-      
+
       if (estoqueExistente) {
         // Atualizar estoque existente
         const { error: estoqueError } = await supabase
@@ -478,20 +479,18 @@ export default function EmpresaDetalhes() {
           })
           .eq("produto_id", produtoId)
           .eq("empresa_id", id);
-        
+
         if (estoqueError) throw estoqueError;
       } else {
         // Criar novo registro de estoque
-        const { error: estoqueError } = await supabase
-          .from("estoque")
-          .insert({
-            produto_id: produtoId,
-            empresa_id: id,
-            saldo: saldo || 0,
-            saldo_minimo: saldo_minimo || 0,
-            saldo_maximo: saldo_maximo || null,
-          });
-        
+        const { error: estoqueError } = await supabase.from("estoque").insert({
+          produto_id: produtoId,
+          empresa_id: id,
+          saldo: saldo || 0,
+          saldo_minimo: saldo_minimo || 0,
+          saldo_maximo: saldo_maximo || null,
+        });
+
         if (estoqueError) throw estoqueError;
       }
     },
@@ -528,11 +527,7 @@ export default function EmpresaDetalhes() {
 
   const updatePessoaMutation = useMutation({
     mutationFn: async ({ pessoaId, data }: { pessoaId: string; data: any }) => {
-      const { error } = await supabase
-        .from("pessoas")
-        .update(data)
-        .eq("id", pessoaId)
-        .eq("empresa_id", id);
+      const { error } = await supabase.from("pessoas").update(data).eq("id", pessoaId).eq("empresa_id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -572,11 +567,7 @@ export default function EmpresaDetalhes() {
 
   const updateAplicativoMutation = useMutation({
     mutationFn: async ({ aplicativoId, data }: { aplicativoId: string; data: any }) => {
-      const { error } = await supabase
-        .from("aplicativos")
-        .update(data)
-        .eq("id", aplicativoId)
-        .eq("empresa_id", id);
+      const { error } = await supabase.from("aplicativos").update(data).eq("id", aplicativoId).eq("empresa_id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -612,14 +603,18 @@ export default function EmpresaDetalhes() {
   const createApiTokenMutation = useMutation({
     mutationFn: async (data: any) => {
       // Gerar token seguro
-      const token = crypto.randomUUID() + '-' + crypto.randomUUID();
-      
-      const { data: newToken, error } = await supabase.from("api_tokens").insert({
-        ...data,
-        empresa_id: id,
-        token,
-      }).select().single();
-      
+      const token = crypto.randomUUID() + "-" + crypto.randomUUID();
+
+      const { data: newToken, error } = await supabase
+        .from("api_tokens")
+        .insert({
+          ...data,
+          empresa_id: id,
+          token,
+        })
+        .select()
+        .single();
+
       if (error) throw error;
       return newToken;
     },
@@ -638,11 +633,7 @@ export default function EmpresaDetalhes() {
 
   const deleteApiTokenMutation = useMutation({
     mutationFn: async (tokenId: string) => {
-      const { error } = await supabase
-        .from("api_tokens")
-        .delete()
-        .eq("id", tokenId)
-        .eq("empresa_id", id);
+      const { error } = await supabase.from("api_tokens").delete().eq("id", tokenId).eq("empresa_id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -656,11 +647,7 @@ export default function EmpresaDetalhes() {
 
   const toggleApiTokenMutation = useMutation({
     mutationFn: async ({ tokenId, ativo }: { tokenId: string; ativo: boolean }) => {
-      const { error } = await supabase
-        .from("api_tokens")
-        .update({ ativo })
-        .eq("id", tokenId)
-        .eq("empresa_id", id);
+      const { error } = await supabase.from("api_tokens").update({ ativo }).eq("id", tokenId).eq("empresa_id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -712,11 +699,7 @@ export default function EmpresaDetalhes() {
 
   const updateMercadoPagoConfigMutation = useMutation({
     mutationFn: async ({ configId, data }: { configId: string; data: any }) => {
-      const { error } = await supabase
-        .from("mercadopago_config")
-        .update(data)
-        .eq("id", configId)
-        .eq("empresa_id", id);
+      const { error } = await supabase.from("mercadopago_config").update(data).eq("id", configId).eq("empresa_id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -730,14 +713,12 @@ export default function EmpresaDetalhes() {
   });
 
   const handleSaveMercadoPagoConfig = async (data: any) => {
-    const existingConfig = mercadoPagoConfigs?.find(
-      (c: any) => c.tipo === selectedMercadoPagoTipo
-    );
-    
+    const existingConfig = mercadoPagoConfigs?.find((c: any) => c.tipo === selectedMercadoPagoTipo);
+
     if (existingConfig) {
-      await updateMercadoPagoConfigMutation.mutateAsync({ 
-        configId: existingConfig.id, 
-        data 
+      await updateMercadoPagoConfigMutation.mutateAsync({
+        configId: existingConfig.id,
+        data,
       });
     } else {
       await createMercadoPagoConfigMutation.mutateAsync(data);
@@ -799,7 +780,7 @@ export default function EmpresaDetalhes() {
 
     for (let i = 0; i < produtos.length; i += chunkSize) {
       const chunk = produtos.slice(i, i + chunkSize);
-      const dataToInsert = chunk.map(p => ({
+      const dataToInsert = chunk.map((p) => ({
         empresa_id: id,
         descricao: p.descricao,
         sku: p.sku || null,
@@ -816,7 +797,7 @@ export default function EmpresaDetalhes() {
       }));
 
       const { error } = await supabase.from("produtos").insert(dataToInsert);
-      
+
       if (error) throw error;
     }
 
@@ -847,9 +828,7 @@ export default function EmpresaDetalhes() {
       if (error) throw error;
 
       // Importar endereços se houver
-      const clientesComEndereco = clientes.filter(
-        (c) => c.endereco || c.bairro || c.cidade || c.cep
-      );
+      const clientesComEndereco = clientes.filter((c) => c.endereco || c.bairro || c.cidade || c.cep);
 
       if (clientesComEndereco.length > 0) {
         const { data: pessoasInseridas } = await supabase
@@ -935,18 +914,12 @@ export default function EmpresaDetalhes() {
               </BreadcrumbList>
             </Breadcrumb>
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/admin/empresas")}
-              >
+              <Button variant="ghost" size="sm" onClick={() => navigate("/admin/empresas")}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
               </Button>
               <h1 className="text-3xl font-bold">{empresa.fantasia}</h1>
-              <Badge variant={empresa.ativo ? "default" : "secondary"}>
-                {empresa.ativo ? "Ativa" : "Inativa"}
-              </Badge>
+              <Badge variant={empresa.ativo ? "default" : "secondary"}>{empresa.ativo ? "Ativa" : "Inativa"}</Badge>
             </div>
           </div>
         </div>
@@ -955,66 +928,42 @@ export default function EmpresaDetalhes() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total de Clientes
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Total de Clientes</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {pessoas?.length || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Clientes cadastrados
-              </p>
+              <div className="text-2xl font-bold">{pessoas?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Clientes cadastrados</p>
             </CardContent>
           </Card>
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total de Produtos
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {produtos?.length || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Produtos ativos
-              </p>
+              <div className="text-2xl font-bold">{produtos?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Produtos ativos</p>
             </CardContent>
           </Card>
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total de Pedidos
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Total de Pedidos</CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {pedidos?.length || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Pedidos realizados
-              </p>
+              <div className="text-2xl font-bold">{pedidos?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Pedidos realizados</p>
             </CardContent>
           </Card>
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Conversas Ativas
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Conversas Ativas</CardTitle>
               <MessageSquare className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {conversasAtivasCount || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Contatos com status ativo
-              </p>
+              <div className="text-2xl font-bold">{conversasAtivasCount || 0}</div>
+              <p className="text-xs text-muted-foreground">Contatos com status ativo</p>
             </CardContent>
           </Card>
         </div>
@@ -1023,21 +972,17 @@ export default function EmpresaDetalhes() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Vendas do Mês
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Vendas do Mês</CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
                 }).format(vendasMesAtual || 0)}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Total de vendas no mês atual
-              </p>
+              <p className="text-xs text-muted-foreground">Total de vendas no mês atual</p>
             </CardContent>
           </Card>
         </div>
@@ -1079,11 +1024,7 @@ export default function EmpresaDetalhes() {
             <Card className="shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Dados Cadastrais</CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEmpresaDialogOpen(true)}
-                >
+                <Button variant="outline" size="sm" onClick={() => setIsEmpresaDialogOpen(true)}>
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </Button>
@@ -1109,8 +1050,8 @@ export default function EmpresaDetalhes() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">WhatsApp</p>
                     {empresa.whatsapp ? (
-                      <a 
-                        href={`https://wa.me/${empresa.whatsapp.replace(/\D/g, '')}`}
+                      <a
+                        href={`https://wa.me/${empresa.whatsapp.replace(/\D/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-base text-primary hover:underline cursor-pointer"
@@ -1124,8 +1065,8 @@ export default function EmpresaDetalhes() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Celular</p>
                     {empresa.celular ? (
-                      <a 
-                        href={`https://wa.me/${empresa.celular.replace(/\D/g, '')}`}
+                      <a
+                        href={`https://wa.me/${empresa.celular.replace(/\D/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-base text-primary hover:underline cursor-pointer"
@@ -1177,23 +1118,15 @@ export default function EmpresaDetalhes() {
                         <TableRow key={aplicativo.id}>
                           <TableCell className="font-medium">{aplicativo.nome}</TableCell>
                           <TableCell>{aplicativo.contato || "-"}</TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {aplicativo.meta_id || "-"}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {aplicativo.whatsapp_id || "-"}
-                          </TableCell>
+                          <TableCell className="font-mono text-xs">{aplicativo.meta_id || "-"}</TableCell>
+                          <TableCell className="font-mono text-xs">{aplicativo.whatsapp_id || "-"}</TableCell>
                           <TableCell>
                             <Badge variant={aplicativo.ativo ? "default" : "secondary"}>
                               {aplicativo.ativo ? "Ativo" : "Inativo"}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditAplicativo(aplicativo)}
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => handleEditAplicativo(aplicativo)}>
                               Editar
                             </Button>
                           </TableCell>
@@ -1202,9 +1135,7 @@ export default function EmpresaDetalhes() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    Nenhum aplicativo cadastrado
-                  </div>
+                  <div className="py-8 text-center text-muted-foreground">Nenhum aplicativo cadastrado</div>
                 )}
               </CardContent>
             </Card>
@@ -1271,11 +1202,7 @@ export default function EmpresaDetalhes() {
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditProduto(produto)}
-                              >
+                              <Button variant="ghost" size="sm" onClick={() => handleEditProduto(produto)}>
                                 Editar
                               </Button>
                             </TableCell>
@@ -1285,9 +1212,7 @@ export default function EmpresaDetalhes() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    Nenhum produto cadastrado
-                  </div>
+                  <div className="py-8 text-center text-muted-foreground">Nenhum produto cadastrado</div>
                 )}
               </CardContent>
             </Card>
@@ -1337,11 +1262,7 @@ export default function EmpresaDetalhes() {
                           <TableCell>{pessoa.celular || "-"}</TableCell>
                           <TableCell>{pessoa.cnpjf || "-"}</TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditPessoa(pessoa)}
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => handleEditPessoa(pessoa)}>
                               Editar
                             </Button>
                           </TableCell>
@@ -1350,9 +1271,7 @@ export default function EmpresaDetalhes() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    Nenhum cliente cadastrado
-                  </div>
+                  <div className="py-8 text-center text-muted-foreground">Nenhum cliente cadastrado</div>
                 )}
               </CardContent>
             </Card>
@@ -1407,37 +1326,21 @@ export default function EmpresaDetalhes() {
 
                         return (
                           <TableRow key={pedido.id}>
-                            <TableCell className="font-medium">
-                              #{pedido.numero}
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              {(pedido.pessoas as any)?.nome || "-"}
-                            </TableCell>
-                            <TableCell>
-                              {formatDateFromDB(pedido.created_at)}
-                            </TableCell>
+                            <TableCell className="font-medium">#{pedido.numero}</TableCell>
+                            <TableCell className="font-medium">{(pedido.pessoas as any)?.nome || "-"}</TableCell>
+                            <TableCell>{formatDateFromDB(pedido.created_at)}</TableCell>
                             <TableCell>
                               R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                             </TableCell>
                             <TableCell>
-                              <Badge variant={getStatusColor(pedido.status)}>
-                                {getStatusLabel(pedido.status)}
-                              </Badge>
+                              <Badge variant={getStatusColor(pedido.status)}>{getStatusLabel(pedido.status)}</Badge>
                             </TableCell>
                             <TableCell>
                               {(pedido as any).etapa?.nome || (pedido as any).etapa?.descricao || "-"}
                             </TableCell>
-                            <TableCell>
-                              {pedido.finalizado_em
-                                ? {formatDateFromDB(pedido.finalizado_em)}
-                                : "-"}
-                            </TableCell>
+                            <TableCell>{pedido.finalizado_em ? formatDateFromDB(pedido.finalizado_em) : "-"}</TableCell>
                             <TableCell className="text-right">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSelectedPedidoId(pedido.id)}
-                              >
+                              <Button variant="ghost" size="sm" onClick={() => setSelectedPedidoId(pedido.id)}>
                                 <Eye className="h-4 w-4 mr-2" />
                                 Ver Detalhes
                               </Button>
@@ -1448,9 +1351,7 @@ export default function EmpresaDetalhes() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    Nenhum pedido cadastrado
-                  </div>
+                  <div className="py-8 text-center text-muted-foreground">Nenhum pedido cadastrado</div>
                 )}
               </CardContent>
             </Card>
@@ -1505,9 +1406,7 @@ export default function EmpresaDetalhes() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    Nenhum usuário vinculado
-                  </div>
+                  <div className="py-8 text-center text-muted-foreground">Nenhum usuário vinculado</div>
                 )}
               </CardContent>
             </Card>
@@ -1543,21 +1442,27 @@ export default function EmpresaDetalhes() {
                   <div className="space-y-4">
                     <div className="bg-muted/50 border border-muted rounded-lg p-4 space-y-3">
                       <h4 className="font-semibold text-sm">Endpoints Disponíveis:</h4>
-                      
+
                       <div className="space-y-3">
                         <div>
                           <p className="text-xs text-muted-foreground mb-2">Produtos:</p>
                           <div className="space-y-1 text-sm font-mono pl-2">
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
+                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">
+                                GET
+                              </Badge>
                               <code className="text-xs">https://flum.ia/api/v1/produtos</code>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
+                              <Badge variant="outline" className="bg-green-500/10 text-green-700">
+                                POST
+                              </Badge>
                               <code className="text-xs">https://flum.ia/api/v1/produtos</code>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
+                              <Badge variant="outline" className="bg-blue-500/10 text-blue-700">
+                                PUT
+                              </Badge>
                               <code className="text-xs">https://flum.ia/api/v1/produtos</code>
                             </div>
                           </div>
@@ -1567,15 +1472,21 @@ export default function EmpresaDetalhes() {
                           <p className="text-xs text-muted-foreground mb-2">Pessoas:</p>
                           <div className="space-y-1 text-sm font-mono pl-2">
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
+                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">
+                                GET
+                              </Badge>
                               <code className="text-xs">https://flum.ia/api/v1/pessoas</code>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-green-500/10 text-green-700">POST</Badge>
+                              <Badge variant="outline" className="bg-green-500/10 text-green-700">
+                                POST
+                              </Badge>
                               <code className="text-xs">https://flum.ia/api/v1/pessoas</code>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-blue-500/10 text-blue-700">PUT</Badge>
+                              <Badge variant="outline" className="bg-blue-500/10 text-blue-700">
+                                PUT
+                              </Badge>
                               <code className="text-xs">https://flum.ia/api/v1/pessoas</code>
                             </div>
                           </div>
@@ -1585,14 +1496,16 @@ export default function EmpresaDetalhes() {
                           <p className="text-xs text-muted-foreground mb-2">Pedidos:</p>
                           <div className="space-y-1 text-sm font-mono pl-2">
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">GET</Badge>
+                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700">
+                                GET
+                              </Badge>
                               <code className="text-xs">https://flum.ia/api/v1/pedidos</code>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -1612,11 +1525,7 @@ export default function EmpresaDetalhes() {
                                 <code className="text-xs bg-muted px-2 py-1 rounded">
                                   {token.token.substring(0, 20)}...
                                 </code>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleCopyToken(token.token)}
-                                >
+                                <Button variant="ghost" size="sm" onClick={() => handleCopyToken(token.token)}>
                                   <Copy className="h-3 w-3" />
                                 </Button>
                               </div>
@@ -1626,9 +1535,7 @@ export default function EmpresaDetalhes() {
                                 {token.ativo ? "Ativo" : "Inativo"}
                               </Badge>
                             </TableCell>
-                            <TableCell>
-                              {new Date(token.created_at).toLocaleDateString("pt-BR")}
-                            </TableCell>
+                            <TableCell>{new Date(token.created_at).toLocaleDateString("pt-BR")}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
                                 <Button
@@ -1638,11 +1545,7 @@ export default function EmpresaDetalhes() {
                                 >
                                   {token.ativo ? "Desativar" : "Ativar"}
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDeleteToken(token.id)}
-                                >
+                                <Button variant="ghost" size="sm" onClick={() => handleDeleteToken(token.id)}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                               </div>
@@ -1653,9 +1556,7 @@ export default function EmpresaDetalhes() {
                     </Table>
                   </div>
                 ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    Nenhum token criado ainda
-                  </div>
+                  <div className="py-8 text-center text-muted-foreground">Nenhum token criado ainda</div>
                 )}
               </CardContent>
             </Card>
@@ -1667,9 +1568,7 @@ export default function EmpresaDetalhes() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>Contatos da Empresa</CardTitle>
-                  <CardDescription>
-                    Histórico de contatos registrados
-                  </CardDescription>
+                  <CardDescription>Histórico de contatos registrados</CardDescription>
                 </div>
                 <Button
                   variant="outline"
@@ -1719,11 +1618,7 @@ export default function EmpresaDetalhes() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Criado em</label>
-                    <Input
-                      type="date"
-                      value={filterCriadoEm}
-                      onChange={(e) => setFilterCriadoEm(e.target.value)}
-                    />
+                    <Input type="date" value={filterCriadoEm} onChange={(e) => setFilterCriadoEm(e.target.value)} />
                   </div>
 
                   <div className="space-y-2">
@@ -1759,32 +1654,18 @@ export default function EmpresaDetalhes() {
                         <TableRow key={contato.id}>
                           <TableCell className="font-medium">{contato.name || "-"}</TableCell>
                           <TableCell className="font-mono text-xs">{contato.whatsapp_from}</TableCell>
-                          <TableCell>
-                            {contato.pessoas?.nome || "-"}
-                          </TableCell>
-                          <TableCell>
-                            {contato.etapa_atual?.nome || "-"}
-                          </TableCell>
-                          <TableCell>
-                            {contato.etapa_anterior?.nome || "-"}
-                          </TableCell>
-                          <TableCell>
-                            {contato.status || "-"}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(contato.created_at).toLocaleString("pt-BR")}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(contato.updated_at).toLocaleString("pt-BR")}
-                          </TableCell>
+                          <TableCell>{contato.pessoas?.nome || "-"}</TableCell>
+                          <TableCell>{contato.etapa_atual?.nome || "-"}</TableCell>
+                          <TableCell>{contato.etapa_anterior?.nome || "-"}</TableCell>
+                          <TableCell>{contato.status || "-"}</TableCell>
+                          <TableCell>{new Date(contato.created_at).toLocaleString("pt-BR")}</TableCell>
+                          <TableCell>{new Date(contato.updated_at).toLocaleString("pt-BR")}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    Nenhum contato registrado
-                  </div>
+                  <div className="py-8 text-center text-muted-foreground">Nenhum contato registrado</div>
                 )}
               </CardContent>
             </Card>
@@ -1798,9 +1679,7 @@ export default function EmpresaDetalhes() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>Ambiente de Teste</CardTitle>
-                    <CardDescription>
-                      Configurações para testes do Mercado Pago
-                    </CardDescription>
+                    <CardDescription>Configurações para testes do Mercado Pago</CardDescription>
                   </div>
                   <Badge variant="secondary">Test</Badge>
                 </CardHeader>
@@ -1835,13 +1714,8 @@ export default function EmpresaDetalhes() {
                     </div>
                   ) : (
                     <div className="py-8 text-center">
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Nenhuma configuração de teste cadastrada
-                      </p>
-                      <Button
-                        size="sm"
-                        onClick={() => handleEditMercadoPagoConfig("test")}
-                      >
+                      <p className="text-sm text-muted-foreground mb-4">Nenhuma configuração de teste cadastrada</p>
+                      <Button size="sm" onClick={() => handleEditMercadoPagoConfig("test")}>
                         <Plus className="h-4 w-4 mr-2" />
                         Configurar
                       </Button>
@@ -1855,9 +1729,7 @@ export default function EmpresaDetalhes() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>Ambiente de Produção</CardTitle>
-                    <CardDescription>
-                      Configurações para produção do Mercado Pago
-                    </CardDescription>
+                    <CardDescription>Configurações para produção do Mercado Pago</CardDescription>
                   </div>
                   <Badge>Prod</Badge>
                 </CardHeader>
@@ -1892,13 +1764,8 @@ export default function EmpresaDetalhes() {
                     </div>
                   ) : (
                     <div className="py-8 text-center">
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Nenhuma configuração de produção cadastrada
-                      </p>
-                      <Button
-                        size="sm"
-                        onClick={() => handleEditMercadoPagoConfig("prod")}
-                      >
+                      <p className="text-sm text-muted-foreground mb-4">Nenhuma configuração de produção cadastrada</p>
+                      <Button size="sm" onClick={() => handleEditMercadoPagoConfig("prod")}>
                         <Plus className="h-4 w-4 mr-2" />
                         Configurar
                       </Button>
@@ -1920,9 +1787,7 @@ export default function EmpresaDetalhes() {
               <Card className="shadow-soft">
                 <CardHeader>
                   <CardTitle>Parâmetros</CardTitle>
-                  <CardDescription>
-                    Configure o plano da empresa
-                  </CardDescription>
+                  <CardDescription>Configure o plano da empresa</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form
@@ -1957,7 +1822,11 @@ export default function EmpresaDetalhes() {
                           {planos && planos.length > 0 ? (
                             planos.map((plano: any) => (
                               <SelectItem key={plano.id} value={plano.id}>
-                                {plano.nome} - R$ {Number(plano.valor_recorrente || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({plano.qtd_pedidos} pedidos)
+                                {plano.nome} - R${" "}
+                                {Number(plano.valor_recorrente || 0).toLocaleString("pt-BR", {
+                                  minimumFractionDigits: 2,
+                                })}{" "}
+                                ({plano.qtd_pedidos} pedidos)
                               </SelectItem>
                             ))
                           ) : (
@@ -1967,9 +1836,7 @@ export default function EmpresaDetalhes() {
                           )}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-muted-foreground">
-                        Selecione o plano de assinatura da empresa
-                      </p>
+                      <p className="text-xs text-muted-foreground">Selecione o plano de assinatura da empresa</p>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4">
@@ -2028,11 +1895,7 @@ export default function EmpresaDetalhes() {
         onImport={handleImportClientes}
       />
 
-      <UsuarioDialog
-        open={isUsuarioDialogOpen}
-        onOpenChange={setIsUsuarioDialogOpen}
-        empresaId={id}
-      />
+      <UsuarioDialog open={isUsuarioDialogOpen} onOpenChange={setIsUsuarioDialogOpen} empresaId={id} />
 
       <AplicativoDialog
         open={isAplicativoDialogOpen}
@@ -2042,11 +1905,7 @@ export default function EmpresaDetalhes() {
         isLoading={createAplicativoMutation.isPending || updateAplicativoMutation.isPending}
       />
 
-      <ApiTokenDialog
-        open={isApiTokenDialogOpen}
-        onOpenChange={setIsApiTokenDialogOpen}
-        onSave={handleSaveApiToken}
-      />
+      <ApiTokenDialog open={isApiTokenDialogOpen} onOpenChange={setIsApiTokenDialogOpen} onSave={handleSaveApiToken} />
 
       <ApiDocumentation
         open={isApiDocOpen}
@@ -2061,275 +1920,291 @@ export default function EmpresaDetalhes() {
             <DialogTitle>Detalhes do Pedido #{pedidos?.find((p) => p.id === selectedPedidoId)?.numero}</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
-            {selectedPedidoId && pedidos && (() => {
-              const pedido = pedidos.find((p) => p.id === selectedPedidoId);
-              if (!pedido) return null;
+            {selectedPedidoId &&
+              pedidos &&
+              (() => {
+                const pedido = pedidos.find((p) => p.id === selectedPedidoId);
+                if (!pedido) return null;
 
-              const getStatusLabel = (status: string) => {
-                const labelMap: Record<string, string> = {
-                  pending: "Pendente",
-                  processing: "Em Processamento",
-                  completed: "Concluído",
-                  cancelled: "Cancelado",
+                const getStatusLabel = (status: string) => {
+                  const labelMap: Record<string, string> = {
+                    pending: "Pendente",
+                    processing: "Em Processamento",
+                    completed: "Concluído",
+                    cancelled: "Cancelado",
+                  };
+                  return labelMap[status] || status;
                 };
-                return labelMap[status] || status;
-              };
 
-              const getStatusColor = (status: string) => {
-                const statusMap: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-                  pending: "secondary",
-                  processing: "default",
-                  completed: "outline",
-                  cancelled: "destructive",
+                const getStatusColor = (status: string) => {
+                  const statusMap: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+                    pending: "secondary",
+                    processing: "default",
+                    completed: "outline",
+                    cancelled: "destructive",
+                  };
+                  return statusMap[status] || "secondary";
                 };
-                return statusMap[status] || "secondary";
-              };
 
-              return (
-                <div className="space-y-6">
-                  {/* Informações do Cliente */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Cliente</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Nome</p>
-                        <p className="font-medium">{(pedido.pessoas as any)?.nome || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">CPF/CNPJ</p>
-                        <p className="font-medium">{(pedido.pessoas as any)?.cnpjf || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{(pedido.pessoas as any)?.email || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Celular</p>
-                        <p className="font-medium">{(pedido.pessoas as any)?.celular || "-"}</p>
+                return (
+                  <div className="space-y-6">
+                    {/* Informações do Cliente */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Cliente</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Nome</p>
+                          <p className="font-medium">{(pedido.pessoas as any)?.nome || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">CPF/CNPJ</p>
+                          <p className="font-medium">{(pedido.pessoas as any)?.cnpjf || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium">{(pedido.pessoas as any)?.email || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Celular</p>
+                          <p className="font-medium">{(pedido.pessoas as any)?.celular || "-"}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Informações do Contato */}
-                  {pedido.contatos && (
-                    <>
-                      <Separator />
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Contato</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Nome</p>
-                            <p className="font-medium">{(pedido.contatos as any)?.name || "-"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Celular</p>
-                            <p className="font-medium">{(pedido.contatos as any)?.whatsapp_from || "-"}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  <Separator />
-
-                  {/* Informações do Pedido */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Pedido</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Data do Pedido</p>
-                        <p className="font-medium">
-                          {formatDateFromDB(pedido.created_at)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Status</p>
-                        <Badge variant={getStatusColor(pedido.status)}>
-                          {getStatusLabel(pedido.status)}
-                        </Badge>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Valor Total</p>
-                        <p className="text-xl font-bold text-primary">
-                          R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Endereço de Entrega */}
-                  {pedido.pessoa_enderecos && (
-                    <>
-                      <Separator />
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Endereço de Entrega</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="col-span-2">
-                            <p className="text-sm text-muted-foreground">Endereço</p>
-                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.endereco || "-"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Complemento</p>
-                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.complemento || "-"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Bairro</p>
-                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.bairro || "-"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Cidade</p>
-                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.cidade || "-"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">CEP</p>
-                            <p className="font-medium">{(pedido.pessoa_enderecos as any)?.cep || "-"}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Informações de Pagamento */}
-                  {pedido.pagamentos && pedido.pagamentos.length > 0 && (
-                    <>
-                      <Separator />
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Pagamento</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Status</p>
-                            <Badge variant={
-                              (pedido.pagamentos[0] as any).status === 'approved' ? 'default' :
-                              (pedido.pagamentos[0] as any).status === 'cancelled' ? 'destructive' :
-                              (pedido.pagamentos[0] as any).status === 'rejected' ? 'destructive' :
-                              'secondary'
-                            }>
-                              {(pedido.pagamentos[0] as any).status === 'pending' ? 'Pendente' :
-                               (pedido.pagamentos[0] as any).status === 'approved' ? 'Aprovado' :
-                               (pedido.pagamentos[0] as any).status === 'cancelled' ? 'Cancelado' :
-                               (pedido.pagamentos[0] as any).status === 'rejected' ? 'Rejeitado' :
-                               (pedido.pagamentos[0] as any).status}
-                            </Badge>
-                          </div>
-                          {(pedido.pagamentos[0] as any).date_created && (
+                    {/* Informações do Contato */}
+                    {pedido.contatos && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Contato</h3>
+                          <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <p className="text-sm text-muted-foreground">Data de Criação</p>
-                              <p className="font-medium">
-                                {formatDateFromDB((pedido.pagamentos[0] as any).date_created)}
-                              </p>
+                              <p className="text-sm text-muted-foreground">Nome</p>
+                              <p className="font-medium">{(pedido.contatos as any)?.name || "-"}</p>
                             </div>
-                          )}
-                          {(pedido.pagamentos[0] as any).date_approved && (
                             <div>
-                              <p className="text-sm text-muted-foreground">Data de Aprovação</p>
-                              <p className="font-medium">
-                                {formatDateFromDB((pedido.pagamentos[0] as any).date_approved)}
-                              </p>
+                              <p className="text-sm text-muted-foreground">Celular</p>
+                              <p className="font-medium">{(pedido.contatos as any)?.whatsapp_from || "-"}</p>
                             </div>
-                          )}
-                          {(pedido.pagamentos[0] as any).date_last_updated && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">Última Atualização</p>
-                              <p className="font-medium">
-                                {formatDateFromDB((pedido.pagamentos[0] as any).date_last_updated)}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Observações */}
-                  {pedido.observacoes && (
-                    <>
-                      <Separator />
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Observações</h3>
-                        <p className="text-sm">{pedido.observacoes}</p>
-                      </div>
-                    </>
-                  )}
-
-                  <Separator />
-
-                  {/* Itens do Pedido */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Itens do Pedido</h3>
-                    {pedidoItens && pedidoItens.length > 0 ? (
-                      <div className="space-y-4">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Produto</TableHead>
-                              <TableHead>SKU</TableHead>
-                              <TableHead className="text-right">Qtd</TableHead>
-                              <TableHead className="text-right">Valor Unit.</TableHead>
-                              <TableHead className="text-right">Total</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {pedidoItens.map((item) => (
-                              <TableRow key={item.id}>
-                                <TableCell>
-                                  <div>
-                                    <p className="font-medium">{(item.produtos as any)?.descricao || "-"}</p>
-                                    {(item.produtos as any)?.unidade && (
-                                      <p className="text-xs text-muted-foreground">
-                                        Unidade: {(item.produtos as any).unidade}
-                                      </p>
-                                    )}
-                                  </div>
-                                </TableCell>
-                                <TableCell className="text-sm text-muted-foreground">
-                                  {(item.produtos as any)?.sku || "-"}
-                                </TableCell>
-                                <TableCell className="text-right font-medium">
-                                  {Number(item.quantidade).toLocaleString("pt-BR")}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  R$ {Number(item.valor_unitario || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                                </TableCell>
-                                <TableCell className="text-right font-semibold">
-                                  R$ {Number(item.valor_total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                        
-                        {/* Resumo Financeiro */}
-                        <div className="space-y-3 rounded-lg border p-4 bg-muted/30">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Subtotal (Produtos):</span>
-                            <span className="font-medium">
-                              R$ {pedidoItens.reduce((sum, item) => sum + Number(item.valor_total || 0), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Frete:</span>
-                            <span className="font-medium">
-                              R$ {Number(pedido.vlr_frete || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </span>
-                          </div>
-                          <Separator />
-                          <div className="flex justify-between text-lg font-bold">
-                            <span>Total:</span>
-                            <span className="text-primary">
-                              R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </span>
                           </div>
                         </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        Nenhum item encontrado para este pedido
-                      </p>
+                      </>
                     )}
+
+                    <Separator />
+
+                    {/* Informações do Pedido */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Pedido</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Data do Pedido</p>
+                          <p className="font-medium">{formatDateFromDB(pedido.created_at)}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Status</p>
+                          <Badge variant={getStatusColor(pedido.status)}>{getStatusLabel(pedido.status)}</Badge>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Valor Total</p>
+                          <p className="text-xl font-bold text-primary">
+                            R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Endereço de Entrega */}
+                    {pedido.pessoa_enderecos && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Endereço de Entrega</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="col-span-2">
+                              <p className="text-sm text-muted-foreground">Endereço</p>
+                              <p className="font-medium">{(pedido.pessoa_enderecos as any)?.endereco || "-"}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Complemento</p>
+                              <p className="font-medium">{(pedido.pessoa_enderecos as any)?.complemento || "-"}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Bairro</p>
+                              <p className="font-medium">{(pedido.pessoa_enderecos as any)?.bairro || "-"}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Cidade</p>
+                              <p className="font-medium">{(pedido.pessoa_enderecos as any)?.cidade || "-"}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">CEP</p>
+                              <p className="font-medium">{(pedido.pessoa_enderecos as any)?.cep || "-"}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Informações de Pagamento */}
+                    {pedido.pagamentos && pedido.pagamentos.length > 0 && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Pagamento</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Status</p>
+                              <Badge
+                                variant={
+                                  (pedido.pagamentos[0] as any).status === "approved"
+                                    ? "default"
+                                    : (pedido.pagamentos[0] as any).status === "cancelled"
+                                      ? "destructive"
+                                      : (pedido.pagamentos[0] as any).status === "rejected"
+                                        ? "destructive"
+                                        : "secondary"
+                                }
+                              >
+                                {(pedido.pagamentos[0] as any).status === "pending"
+                                  ? "Pendente"
+                                  : (pedido.pagamentos[0] as any).status === "approved"
+                                    ? "Aprovado"
+                                    : (pedido.pagamentos[0] as any).status === "cancelled"
+                                      ? "Cancelado"
+                                      : (pedido.pagamentos[0] as any).status === "rejected"
+                                        ? "Rejeitado"
+                                        : (pedido.pagamentos[0] as any).status}
+                              </Badge>
+                            </div>
+                            {(pedido.pagamentos[0] as any).date_created && (
+                              <div>
+                                <p className="text-sm text-muted-foreground">Data de Criação</p>
+                                <p className="font-medium">
+                                  {formatDateFromDB((pedido.pagamentos[0] as any).date_created)}
+                                </p>
+                              </div>
+                            )}
+                            {(pedido.pagamentos[0] as any).date_approved && (
+                              <div>
+                                <p className="text-sm text-muted-foreground">Data de Aprovação</p>
+                                <p className="font-medium">
+                                  {formatDateFromDB((pedido.pagamentos[0] as any).date_approved)}
+                                </p>
+                              </div>
+                            )}
+                            {(pedido.pagamentos[0] as any).date_last_updated && (
+                              <div>
+                                <p className="text-sm text-muted-foreground">Última Atualização</p>
+                                <p className="font-medium">
+                                  {formatDateFromDB((pedido.pagamentos[0] as any).date_last_updated)}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Observações */}
+                    {pedido.observacoes && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Observações</h3>
+                          <p className="text-sm">{pedido.observacoes}</p>
+                        </div>
+                      </>
+                    )}
+
+                    <Separator />
+
+                    {/* Itens do Pedido */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Itens do Pedido</h3>
+                      {pedidoItens && pedidoItens.length > 0 ? (
+                        <div className="space-y-4">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Produto</TableHead>
+                                <TableHead>SKU</TableHead>
+                                <TableHead className="text-right">Qtd</TableHead>
+                                <TableHead className="text-right">Valor Unit.</TableHead>
+                                <TableHead className="text-right">Total</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {pedidoItens.map((item) => (
+                                <TableRow key={item.id}>
+                                  <TableCell>
+                                    <div>
+                                      <p className="font-medium">{(item.produtos as any)?.descricao || "-"}</p>
+                                      {(item.produtos as any)?.unidade && (
+                                        <p className="text-xs text-muted-foreground">
+                                          Unidade: {(item.produtos as any).unidade}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">
+                                    {(item.produtos as any)?.sku || "-"}
+                                  </TableCell>
+                                  <TableCell className="text-right font-medium">
+                                    {Number(item.quantidade).toLocaleString("pt-BR")}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    R${" "}
+                                    {Number(item.valor_unitario || 0).toLocaleString("pt-BR", {
+                                      minimumFractionDigits: 2,
+                                    })}
+                                  </TableCell>
+                                  <TableCell className="text-right font-semibold">
+                                    R${" "}
+                                    {Number(item.valor_total || 0).toLocaleString("pt-BR", {
+                                      minimumFractionDigits: 2,
+                                    })}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+
+                          {/* Resumo Financeiro */}
+                          <div className="space-y-3 rounded-lg border p-4 bg-muted/30">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Subtotal (Produtos):</span>
+                              <span className="font-medium">
+                                R${" "}
+                                {pedidoItens
+                                  .reduce((sum, item) => sum + Number(item.valor_total || 0), 0)
+                                  .toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Frete:</span>
+                              <span className="font-medium">
+                                R$ {Number(pedido.vlr_frete || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                            <Separator />
+                            <div className="flex justify-between text-lg font-bold">
+                              <span>Total:</span>
+                              <span className="text-primary">
+                                R$ {Number(pedido.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          Nenhum item encontrado para este pedido
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })()}
+                );
+              })()}
           </ScrollArea>
         </DialogContent>
       </Dialog>
