@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users } from "lucide-react";
+import { Loader2, Users, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface SalesFunnelWidgetProps {
   empresaId: string;
@@ -27,6 +31,7 @@ interface Etapa {
 }
 
 export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
+  const [selectedContato, setSelectedContato] = useState<string | null>(null);
   const { data: etapas, isLoading } = useQuery({
     queryKey: ["kanban-etapas", empresaId],
     queryFn: async () => {
@@ -69,6 +74,38 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
       return etapasComContatos;
     },
     enabled: !!empresaId,
+  });
+
+  // Query para buscar detalhes do contato selecionado e suas mensagens
+  const { data: contatoDetalhes } = useQuery({
+    queryKey: ["contato-detalhes", selectedContato],
+    queryFn: async () => {
+      if (!selectedContato) return null;
+
+      // Buscar dados do contato com pessoa relacionada
+      const { data: contato, error: contatoError } = await supabase
+        .from("contatos")
+        .select("*, pessoas(*), etapas!contatos_etapa_fk(*)")
+        .eq("id", selectedContato)
+        .single() as any;
+
+      if (contatoError) throw contatoError;
+
+      // Buscar mensagens do contato
+      const { data: mensagens, error: mensagensError } = await supabase
+        .from("mensagens")
+        .select("*")
+        .eq("contato_id", selectedContato)
+        .order("created_at", { ascending: true }) as any;
+
+      if (mensagensError) throw mensagensError;
+
+      return {
+        contato,
+        mensagens: mensagens || []
+      };
+    },
+    enabled: !!selectedContato,
   });
 
   if (isLoading) {
@@ -126,7 +163,11 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
                         </p>
                       ) : (
                         etapa.contatos.map((contato) => (
-                          <Card key={contato.id} className="p-3 hover:shadow-md transition-shadow cursor-pointer">
+                          <Card 
+                            key={contato.id} 
+                            className="p-3 hover:shadow-md transition-shadow cursor-pointer"
+                            onClick={() => setSelectedContato(contato.id)}
+                          >
                             <div className="space-y-2">
                               <div className="flex items-start justify-between gap-2">
                                 <p className="font-medium text-sm line-clamp-1">
@@ -159,6 +200,135 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
           </ScrollArea>
         )}
       </CardContent>
+
+      {/* Dialog com detalhes do contato */}
+      <Dialog open={!!selectedContato} onOpenChange={() => setSelectedContato(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Detalhes da Conversa
+            </DialogTitle>
+          </DialogHeader>
+          
+          {contatoDetalhes && (
+            <div className="space-y-4">
+              {/* Informações do Contato */}
+              <Card className="p-4 bg-muted/50">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nome</p>
+                    <p className="font-medium">
+                      {contatoDetalhes.contato.name || contatoDetalhes.contato.wa_id}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">WhatsApp</p>
+                    <p className="font-medium">{contatoDetalhes.contato.wa_id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Status</p>
+                    <Badge variant={contatoDetalhes.contato.status === 'ativo' ? 'default' : 'secondary'}>
+                      {contatoDetalhes.contato.status || 'N/A'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Etapa</p>
+                    <p className="font-medium">{contatoDetalhes.contato.etapas?.nome || 'N/A'}</p>
+                  </div>
+                  {contatoDetalhes.contato.ultima_interacao && (
+                    <div className="col-span-2">
+                      <p className="text-sm text-muted-foreground">Última Interação</p>
+                      <p className="font-medium">
+                        {format(new Date(contatoDetalhes.contato.ultima_interacao), 'dd/MM/yyyy HH:mm')}
+                      </p>
+                    </div>
+                  )}
+                  {contatoDetalhes.contato.pessoas && (
+                    <>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Cliente</p>
+                        <p className="font-medium">{contatoDetalhes.contato.pessoas.nome}</p>
+                      </div>
+                      {contatoDetalhes.contato.pessoas.celular && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Celular</p>
+                          <p className="font-medium">{contatoDetalhes.contato.pessoas.celular}</p>
+                        </div>
+                      )}
+                      {contatoDetalhes.contato.pessoas.email && (
+                        <div className="col-span-2">
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium">{contatoDetalhes.contato.pessoas.email}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </Card>
+
+              <Separator />
+
+              {/* Histórico de Mensagens */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-lg">
+                    Histórico de Mensagens ({contatoDetalhes.mensagens.length})
+                  </h3>
+                  <Button
+                    onClick={() => {
+                      window.open(`https://wa.me/${contatoDetalhes.contato.wa_id}`, '_blank');
+                    }}
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Abrir no WhatsApp
+                  </Button>
+                </div>
+                
+                <ScrollArea className="h-[400px] rounded-lg border p-4">
+                  {contatoDetalhes.mensagens.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">
+                      Nenhuma mensagem registrada
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {contatoDetalhes.mensagens.map((msg: any) => (
+                        <div 
+                          key={msg.id} 
+                          className={`flex ${msg.message_type === 'sent' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-[70%] rounded-lg p-3 ${
+                              msg.message_type === 'sent'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
+                            }`}
+                          >
+                            {msg.message_body && (
+                              <p className="text-sm whitespace-pre-wrap break-words">
+                                {msg.message_body}
+                              </p>
+                            )}
+                            {msg.image_data && (
+                              <p className="text-xs mt-1 opacity-70">📷 Imagem</p>
+                            )}
+                            {msg.audio_data && (
+                              <p className="text-xs mt-1 opacity-70">🎤 Áudio</p>
+                            )}
+                            <p className="text-xs mt-1 opacity-70">
+                              {format(new Date(msg.created_at), 'dd/MM/yyyy HH:mm')}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
