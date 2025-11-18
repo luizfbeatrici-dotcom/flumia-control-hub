@@ -1,10 +1,10 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, ShoppingCart, TrendingUp } from "lucide-react";
+import { Package, Users, ShoppingCart, MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 
@@ -18,88 +18,149 @@ export default function CompanyDashboard() {
     }
   }, [authLoading, isAdminMaster, navigate]);
 
-  const { data: stats } = useQuery({
-    queryKey: ["company-stats", profile?.empresa_id],
+  const { data: pessoas } = useQuery({
+    queryKey: ["pessoas", profile?.empresa_id],
     queryFn: async () => {
-      if (!profile?.empresa_id) return null;
-
-      const [produtos, pessoas, pedidos] = await Promise.all([
-        supabase
-          .from("produtos")
-          .select("id", { count: "exact", head: true })
-          .eq("empresa_id", profile.empresa_id),
-        supabase
-          .from("pessoas")
-          .select("id", { count: "exact", head: true })
-          .eq("empresa_id", profile.empresa_id),
-        supabase
-          .from("pedidos")
-          .select("total")
-          .eq("empresa_id", profile.empresa_id),
-      ]);
-
-      const totalVendas = pedidos.data?.reduce((sum, p) => sum + (Number(p.total) || 0), 0) || 0;
-
-      return {
-        produtos: produtos.count || 0,
-        clientes: pessoas.count || 0,
-        pedidos: pedidos.data?.length || 0,
-        vendas: totalVendas,
-      };
+      const { data, error } = await supabase
+        .from("pessoas")
+        .select("*")
+        .eq("empresa_id", profile?.empresa_id || "");
+      if (error) throw error;
+      return data;
     },
     enabled: !!profile?.empresa_id,
   });
 
-  const cards = [
-    {
-      title: "Produtos Cadastrados",
-      value: stats?.produtos || 0,
-      icon: Package,
-      gradient: "from-primary to-primary-hover",
+  const { data: produtos } = useQuery({
+    queryKey: ["produtos", profile?.empresa_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("produtos")
+        .select("*")
+        .eq("empresa_id", profile?.empresa_id || "")
+        .eq("ativo", true);
+      if (error) throw error;
+      return data;
     },
-    {
-      title: "Clientes Ativos",
-      value: stats?.clientes || 0,
-      icon: Users,
-      gradient: "from-secondary to-accent",
+    enabled: !!profile?.empresa_id,
+  });
+
+  const { data: pedidos } = useQuery({
+    queryKey: ["pedidos", profile?.empresa_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pedidos")
+        .select("*")
+        .eq("empresa_id", profile?.empresa_id || "");
+      if (error) throw error;
+      return data;
     },
-    {
-      title: "Pedidos Realizados",
-      value: stats?.pedidos || 0,
-      icon: ShoppingCart,
-      gradient: "from-accent to-primary",
+    enabled: !!profile?.empresa_id,
+  });
+
+  const { data: contatos } = useQuery({
+    queryKey: ["contatos", profile?.empresa_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contatos")
+        .select("*")
+        .eq("empresa_id", profile?.empresa_id || "")
+        .eq("status", "ativo");
+      if (error) throw error;
+      return data;
     },
-    {
-      title: "Total de Vendas",
-      value: `R$ ${(stats?.vendas || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-      icon: TrendingUp,
-      gradient: "from-primary to-secondary",
-    },
-  ];
+    enabled: !!profile?.empresa_id,
+  });
+
+  const conversasAtivasCount = contatos?.length || 0;
+
+  const vendasMesAtual = useMemo(() => {
+    if (!pedidos) return 0;
+    const mesAtual = new Date().getMonth();
+    const anoAtual = new Date().getFullYear();
+    
+    return pedidos
+      .filter((p) => {
+        const dataPedido = new Date(p.created_at || "");
+        return dataPedido.getMonth() === mesAtual && dataPedido.getFullYear() === anoAtual;
+      })
+      .reduce((sum, p) => sum + (Number(p.total) || 0), 0);
+  }, [pedidos]);
+
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+          <p className="text-muted-foreground">Indicadores e métricas da empresa</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {cards.map((card) => (
-            <Card key={card.title} className="overflow-hidden shadow-soft">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                <div className={`rounded-lg bg-gradient-to-br ${card.gradient} p-2`}>
-                  <card.icon className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{card.value}</div>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Cards de Estatísticas - Primeira linha */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total de Clientes</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{pessoas?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Clientes cadastrados</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{produtos?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Produtos ativos</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total de Pedidos</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{pedidos?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Pedidos realizados</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Conversas Ativas</CardTitle>
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{conversasAtivasCount || 0}</div>
+              <p className="text-xs text-muted-foreground">Contatos com status ativo</p>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Cards de Estatísticas - Segunda linha */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Vendas do Mês</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(vendasMesAtual || 0)}
+              </div>
+              <p className="text-xs text-muted-foreground">Total de vendas no mês atual</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Widget de Funil de Vendas */}
+        <SalesFunnelWidget empresaId={profile?.empresa_id || ""} />
       </div>
     </DashboardLayout>
   );
