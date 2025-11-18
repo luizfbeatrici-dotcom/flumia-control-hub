@@ -50,7 +50,6 @@ import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClie
 import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
 import { MercadoPagoDialog } from "@/components/admin/MercadoPagoDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { addConstructionProducts } from "@/scripts/addConstructionProducts";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -77,7 +76,6 @@ export default function EmpresaDetalhes() {
   const [isApiTokenDialogOpen, setIsApiTokenDialogOpen] = useState(false);
   const [isApiDocOpen, setIsApiDocOpen] = useState(false);
   const [isMercadoPagoDialogOpen, setIsMercadoPagoDialogOpen] = useState(false);
-  const [isAddingProducts, setIsAddingProducts] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
   const [selectedAplicativo, setSelectedAplicativo] = useState<any>(null);
@@ -811,24 +809,6 @@ export default function EmpresaDetalhes() {
     toast.success("Download iniciado. O arquivo template foi baixado com sucesso!");
   };
 
-  const handleAddConstructionProducts = async () => {
-    setIsAddingProducts(true);
-    try {
-      await addConstructionProducts();
-      toast.success("Produtos adicionados com sucesso!", {
-        description: "50 produtos foram adicionados à empresa.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["produtos", id] });
-    } catch (error) {
-      console.error('Erro:', error);
-      toast.error("Erro ao adicionar produtos", {
-        description: "Ocorreu um erro ao adicionar os produtos.",
-      });
-    } finally {
-      setIsAddingProducts(false);
-    }
-  };
-
   const handleImportClientes = async (clientes: ClienteImportRow[]) => {
     if (!id) {
       throw new Error("Empresa não identificada");
@@ -1060,23 +1040,10 @@ export default function EmpresaDetalhes() {
             <Card className="shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Dados Cadastrais</CardTitle>
-                <div className="flex gap-2">
-                  {empresa?.fantasia === "Construção Materiais" && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleAddConstructionProducts}
-                      disabled={isAddingProducts}
-                    >
-                      <Package className="h-4 w-4 mr-2" />
-                      {isAddingProducts ? "Adicionando..." : "Adicionar 50 Produtos"}
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm" onClick={() => setIsEmpresaDialogOpen(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                </div>
+                <Button variant="outline" size="sm" onClick={() => setIsEmpresaDialogOpen(true)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
