@@ -45,6 +45,7 @@ interface Etapa {
 
 export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
   const [selectedPedido, setSelectedPedido] = useState<string | null>(null);
+  const [conversaAberta, setConversaAberta] = useState(false);
 
   const { data: etapas, isLoading } = useQuery({
     queryKey: ["kanban-pedidos-etapas", empresaId],
@@ -234,8 +235,8 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
       </CardContent>
 
       {/* Dialog com detalhes do pedido */}
-      <Dialog open={!!selectedPedido} onOpenChange={() => setSelectedPedido(null)}>
-        <DialogContent className="max-w-3xl max-h-[80vh]">
+      <Dialog open={!!selectedPedido && !conversaAberta} onOpenChange={() => setSelectedPedido(null)}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
@@ -306,66 +307,99 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
                 </div>
               </Card>
 
-              <Separator />
-
-              {/* Histórico de Mensagens */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-lg">
-                    Histórico de Mensagens ({pedidoDetalhes.mensagens.length})
-                  </h3>
-                  {pedidoDetalhes.pedido.contatos && (
-                    <Button
-                      onClick={() => {
-                        window.open(`https://wa.me/${pedidoDetalhes.pedido.contatos.wa_id}`, '_blank');
-                      }}
-                    >
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Abrir no WhatsApp
-                    </Button>
-                  )}
-                </div>
-                
-                <ScrollArea className="h-[400px] rounded-lg border p-4">
-                  {pedidoDetalhes.mensagens.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">
-                      Nenhuma mensagem registrada
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {pedidoDetalhes.mensagens.map((msg: any) => (
-                        <div 
-                          key={msg.id} 
-                          className={`flex ${msg.message_type === 'sent' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`max-w-[70%] rounded-lg p-3 ${
-                              msg.message_type === 'sent'
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted'
-                            }`}
-                          >
-                            {msg.message_body && (
-                              <p className="text-sm whitespace-pre-wrap break-words">
-                                {msg.message_body}
-                              </p>
-                            )}
-                            {msg.image_data && (
-                              <p className="text-xs mt-1 opacity-70">📷 Imagem</p>
-                            )}
-                            {msg.audio_data && (
-                              <p className="text-xs mt-1 opacity-70">🎤 Áudio</p>
-                            )}
-                            <p className="text-xs mt-1 opacity-70">
-                              {format(new Date(msg.created_at), 'dd/MM/yyyy HH:mm')}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ScrollArea>
+              {/* Botão para abrir conversa */}
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => setConversaAberta(true)}
+                  className="w-full sm:w-auto"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Abrir Conversa ({pedidoDetalhes.mensagens.length} mensagens)
+                </Button>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog com histórico de mensagens */}
+      <Dialog open={conversaAberta} onOpenChange={setConversaAberta}>
+        <DialogContent className="max-w-3xl max-h-[85vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Histórico de Conversa
+              {pedidoDetalhes?.pedido && ` - Pedido #${pedidoDetalhes.pedido.numero}`}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {pedidoDetalhes && (
+            <div className="space-y-4">
+              {/* Informação do contato */}
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="font-medium">
+                    {pedidoDetalhes.pedido.pessoas?.nome || pedidoDetalhes.pedido.contatos?.name || 'Cliente'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {pedidoDetalhes.pedido.contatos?.wa_id}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (pedidoDetalhes.pedido.contatos) {
+                      window.open(`https://wa.me/${pedidoDetalhes.pedido.contatos.wa_id}`, '_blank');
+                    }
+                  }}
+                >
+                  Abrir no WhatsApp
+                </Button>
+              </div>
+
+              <Separator />
+              
+              {/* Histórico de Mensagens */}
+              <ScrollArea className="h-[500px] rounded-lg border p-4">
+                {pedidoDetalhes.mensagens.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    Nenhuma mensagem registrada
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {pedidoDetalhes.mensagens.map((msg: any) => (
+                      <div 
+                        key={msg.id} 
+                        className={`flex ${msg.message_type === 'sent' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[70%] rounded-lg p-3 ${
+                            msg.message_type === 'sent'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          {msg.message_body && (
+                            <p className="text-sm whitespace-pre-wrap break-words">
+                              {msg.message_body}
+                            </p>
+                          )}
+                          {msg.image_data && (
+                            <p className="text-xs mt-1 opacity-70">📷 Imagem</p>
+                          )}
+                          {msg.audio_data && (
+                            <p className="text-xs mt-1 opacity-70">🎤 Áudio</p>
+                          )}
+                          <p className="text-xs mt-1 opacity-70">
+                            {format(new Date(msg.created_at), 'dd/MM/yyyy HH:mm')}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
             </div>
           )}
         </DialogContent>
