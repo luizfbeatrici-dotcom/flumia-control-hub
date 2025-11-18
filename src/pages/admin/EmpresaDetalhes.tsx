@@ -1429,7 +1429,7 @@ export default function EmpresaDetalhes() {
                             </TableCell>
                             <TableCell>
                               {pedido.finalizado_em
-                                ? `${new Date(pedido.finalizado_em).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(pedido.finalizado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                                ? {formatDateFromDB(pedido.finalizado_em)}
                                 : "-"}
                             </TableCell>
                             <TableCell className="text-right">
