@@ -368,35 +368,38 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
                   </p>
                 ) : (
                   <div className="space-y-3">
-                    {pedidoDetalhes.mensagens.map((msg: any) => (
-                      <div 
-                        key={msg.id} 
-                        className={`flex ${msg.message_type === 'sent' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[70%] rounded-lg p-3 ${
-                            msg.message_type === 'sent'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          }`}
+                    {pedidoDetalhes.mensagens.map((msg: any) => {
+                      const isReceived = msg.message_type === 'received';
+                      return (
+                        <div 
+                          key={msg.id} 
+                          className={`flex ${isReceived ? 'justify-start' : 'justify-end'}`}
                         >
-                          {msg.message_body && (
-                            <p className="text-sm whitespace-pre-wrap break-words">
-                              {msg.message_body}
+                          <div
+                            className={`max-w-[70%] rounded-lg p-3 ${
+                              isReceived
+                                ? 'bg-muted text-foreground'
+                                : 'bg-primary text-primary-foreground'
+                            }`}
+                          >
+                            {msg.message_body && (
+                              <p className="text-sm whitespace-pre-wrap break-words">
+                                {msg.message_body}
+                              </p>
+                            )}
+                            {msg.image_data && (
+                              <p className="text-xs mt-1 opacity-70">📷 Imagem</p>
+                            )}
+                            {msg.audio_data && (
+                              <p className="text-xs mt-1 opacity-70">🎤 Áudio</p>
+                            )}
+                            <p className={`text-xs mt-1 ${isReceived ? 'opacity-60' : 'opacity-90'}`}>
+                              {format(new Date(msg.created_at), 'dd/MM/yyyy HH:mm')}
                             </p>
-                          )}
-                          {msg.image_data && (
-                            <p className="text-xs mt-1 opacity-70">📷 Imagem</p>
-                          )}
-                          {msg.audio_data && (
-                            <p className="text-xs mt-1 opacity-70">🎤 Áudio</p>
-                          )}
-                          <p className="text-xs mt-1 opacity-70">
-                            {format(new Date(msg.created_at), 'dd/MM/yyyy HH:mm')}
-                          </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </ScrollArea>
