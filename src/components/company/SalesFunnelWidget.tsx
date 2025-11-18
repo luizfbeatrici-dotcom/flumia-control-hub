@@ -44,7 +44,7 @@ export function SalesFunnelWidget({ empresaId }: SalesFunnelWidgetProps) {
         .from("contatos")
         .select("id, name, wa_id, status, ultima_interacao, etapa_id")
         .eq("empresa_id", empresaId)
-        .eq("status", "active")
+        .in("status", ["active", "ativo"])
         .order("ultima_interacao", { ascending: false }) as any;
 
       if (contatosError) throw contatosError;
