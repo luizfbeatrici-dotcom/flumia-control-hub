@@ -29,6 +29,7 @@ import {
   Phone,
   CreditCard,
   RefreshCw,
+  FileText,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -36,6 +37,7 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { formatDateFromDB } from "@/lib/dateUtils";
+import { generateResumoPDF } from "@/utils/generateResumoPDF";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
 import { ProdutoDialog } from "@/components/company/ProdutoDialog";
 import { ImportProdutosDialog } from "@/components/company/ImportProdutosDialog";
@@ -913,6 +915,14 @@ export default function EmpresaDetalhes() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+            <Button 
+              onClick={generateResumoPDF}
+              size="sm"
+              variant="outline"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Gerar Resumo da Plataforma (PDF)
+            </Button>
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => navigate("/admin/empresas")}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
