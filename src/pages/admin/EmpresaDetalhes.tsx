@@ -991,33 +991,49 @@ export default function EmpresaDetalhes() {
         <SalesFunnelWidget empresaId={id!} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="info">Informações</TabsTrigger>
-            <TabsTrigger value="aplicativos">Aplicativos</TabsTrigger>
-            <TabsTrigger value="produtos">Produtos</TabsTrigger>
-            <TabsTrigger value="clientes">Clientes</TabsTrigger>
-            <TabsTrigger value="pedidos">Pedidos</TabsTrigger>
-            <TabsTrigger value="contatos">
-              <Phone className="h-4 w-4 mr-2" />
-              Contatos
-            </TabsTrigger>
-            <TabsTrigger value="usuarios">Usuários</TabsTrigger>
-            <TabsTrigger value="api-tokens">
-              <Key className="h-4 w-4 mr-2" />
-              API Tokens
-            </TabsTrigger>
-            <TabsTrigger value="mercadopago">
-              <CreditCard className="h-4 w-4 mr-2" />
-              Mercado Pago
-            </TabsTrigger>
-            <TabsTrigger value="entregas">Tipos de Entrega</TabsTrigger>
-            {isAdminMaster && (
-              <TabsTrigger value="parametros">
-                <Settings className="h-4 w-4 mr-2" />
-                Parâmetros
+          <ScrollArea className="w-full">
+            <TabsList className="inline-flex h-auto w-full justify-start gap-2 bg-transparent p-0">
+              <TabsTrigger value="info" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Informações
               </TabsTrigger>
-            )}
-          </TabsList>
+              <TabsTrigger value="aplicativos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Aplicativos
+              </TabsTrigger>
+              <TabsTrigger value="produtos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Produtos
+              </TabsTrigger>
+              <TabsTrigger value="clientes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Clientes
+              </TabsTrigger>
+              <TabsTrigger value="pedidos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Pedidos
+              </TabsTrigger>
+              <TabsTrigger value="contatos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Phone className="h-4 w-4 mr-2" />
+                Contatos
+              </TabsTrigger>
+              <TabsTrigger value="usuarios" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Usuários
+              </TabsTrigger>
+              <TabsTrigger value="api-tokens" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Key className="h-4 w-4 mr-2" />
+                API Tokens
+              </TabsTrigger>
+              <TabsTrigger value="mercadopago" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <CreditCard className="h-4 w-4 mr-2" />
+                Mercado Pago
+              </TabsTrigger>
+              <TabsTrigger value="entregas" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Tipos de Entrega
+              </TabsTrigger>
+              {isAdminMaster && (
+                <TabsTrigger value="parametros" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Parâmetros
+                </TabsTrigger>
+              )}
+            </TabsList>
+          </ScrollArea>
 
           {/* Aba Informações */}
           <TabsContent value="info">
