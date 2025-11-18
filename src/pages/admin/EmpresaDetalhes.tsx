@@ -59,7 +59,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
-import { BarChart3 } from "lucide-react";
+
 
 export default function EmpresaDetalhes() {
   const { id } = useParams<{ id: string }>();
@@ -923,10 +923,6 @@ export default function EmpresaDetalhes() {
                 <h1 className="text-3xl font-bold">{empresa.fantasia}</h1>
                 <Badge variant={empresa.ativo ? "default" : "secondary"}>{empresa.ativo ? "Ativa" : "Inativa"}</Badge>
               </div>
-              <Button onClick={() => navigate(`/admin/empresas/${id}/dashboard`)}>
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Ver Dashboard
-              </Button>
             </div>
           </div>
         </div>
