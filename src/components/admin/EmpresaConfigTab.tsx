@@ -84,7 +84,9 @@ export function EmpresaConfigTab({ empresaId }: EmpresaConfigTabProps) {
         <CardHeader>
           <CardTitle>Configurações de Mensagens do WhatsApp</CardTitle>
           <CardDescription>
-            Configure as mensagens que serão enviadas aos clientes durante as conversas.
+            Configure as mensagens que serão enviadas aos clientes durante as conversas. Você pode usar TAGs dentro das
+            mensagens para que certas informações sejam preenchidas automaticamente quando forem enviadas ao cliente.
+            TAGs Disponíveis: [NOME] → Será substituído pelo primeiro nome do cliente no momento da resposta.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
