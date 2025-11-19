@@ -45,6 +45,7 @@ import { AplicativoDialog } from "@/components/admin/AplicativoDialog";
 import { ApiTokenDialog } from "@/components/admin/ApiTokenDialog";
 import { ApiDocumentation } from "@/components/admin/ApiDocumentation";
 import { EmpresaTiposEntregaTab } from "@/components/admin/EmpresaTiposEntregaTab";
+import { EmpresaConfigTab } from "@/components/admin/EmpresaConfigTab";
 import { downloadProdutosTemplate, ProdutoImportRow } from "@/lib/excelUtils";
 import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClientes";
 import { ImportClientesDialog } from "@/components/company/ImportClientesDialog";
@@ -963,6 +964,10 @@ export default function EmpresaDetalhes() {
               <TabsTrigger value="entregas" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Tipos de Entrega
               </TabsTrigger>
+              <TabsTrigger value="configuracoes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Settings className="h-4 w-4 mr-2" />
+                Configurações
+              </TabsTrigger>
               {isAdminMaster && (
                 <TabsTrigger value="parametros" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Settings className="h-4 w-4 mr-2" />
@@ -1732,6 +1737,11 @@ export default function EmpresaDetalhes() {
           {/* Aba Tipos de Entrega */}
           <TabsContent value="entregas" className="space-y-4">
             <EmpresaTiposEntregaTab empresaId={id!} />
+          </TabsContent>
+
+          {/* Aba Configurações */}
+          <TabsContent value="configuracoes" className="space-y-4">
+            <EmpresaConfigTab empresaId={id!} />
           </TabsContent>
 
           {/* Aba Parâmetros - Visível apenas para Admin Master */}

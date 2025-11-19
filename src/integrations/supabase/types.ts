@@ -324,6 +324,41 @@ export type Database = {
         }
         Relationships: []
       }
+      empresa_config: {
+        Row: {
+          created_at: string | null
+          empresa_id: string
+          id: string
+          mensagem_inicial: string | null
+          mensagem_nao_cliente: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          mensagem_inicial?: string | null
+          mensagem_nao_cliente?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          mensagem_inicial?: string | null
+          mensagem_nao_cliente?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresa_config_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: true
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresa_tipos_entrega: {
         Row: {
           ativo: boolean
