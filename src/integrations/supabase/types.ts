@@ -743,6 +743,82 @@ export type Database = {
           },
         ]
       }
+      mensagens_enviadas: {
+        Row: {
+          aplicativo_id: string | null
+          audio_data: Json | null
+          contato_id: string
+          created_at: string
+          empresa_id: string
+          error_message: string | null
+          id: string
+          image_data: Json | null
+          interactive_data: Json | null
+          message_body: string | null
+          message_type: string
+          payload: Json | null
+          status: string | null
+          updated_at: string | null
+          wamid: string | null
+        }
+        Insert: {
+          aplicativo_id?: string | null
+          audio_data?: Json | null
+          contato_id: string
+          created_at?: string
+          empresa_id: string
+          error_message?: string | null
+          id?: string
+          image_data?: Json | null
+          interactive_data?: Json | null
+          message_body?: string | null
+          message_type: string
+          payload?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          wamid?: string | null
+        }
+        Update: {
+          aplicativo_id?: string | null
+          audio_data?: Json | null
+          contato_id?: string
+          created_at?: string
+          empresa_id?: string
+          error_message?: string | null
+          id?: string
+          image_data?: Json | null
+          interactive_data?: Json | null
+          message_body?: string | null
+          message_type?: string
+          payload?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          wamid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_enviadas_aplicativo_id_fkey"
+            columns: ["aplicativo_id"]
+            isOneToOne: false
+            referencedRelation: "aplicativos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_enviadas_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_enviadas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mercadopago_config: {
         Row: {
           access_token: string
