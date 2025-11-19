@@ -28,11 +28,66 @@ import { Plus, Edit, MapPin, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EnderecoDialog } from "./EnderecoDialog";
 
+// Função para validar CPF
+const validarCPF = (cpf: string): boolean => {
+  // Remove caracteres não numéricos
+  const cpfLimpo = cpf.replace(/\D/g, '');
+  
+  // Permite CPF 00000000000 (Consumidor Final)
+  if (cpfLimpo === '00000000000') return true;
+  
+  // Verifica se tem 11 dígitos
+  if (cpfLimpo.length !== 11) return false;
+  
+  // Verifica se todos os dígitos são iguais
+  if (/^(\d)\1+$/.test(cpfLimpo)) return false;
+  
+  // Validação dos dígitos verificadores
+  let soma = 0;
+  let resto;
+  
+  for (let i = 1; i <= 9; i++) {
+    soma += parseInt(cpfLimpo.substring(i - 1, i)) * (11 - i);
+  }
+  
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpfLimpo.substring(9, 10))) return false;
+  
+  soma = 0;
+  for (let i = 1; i <= 10; i++) {
+    soma += parseInt(cpfLimpo.substring(i - 1, i)) * (12 - i);
+  }
+  
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpfLimpo.substring(10, 11))) return false;
+  
+  return true;
+};
+
 const pessoaSchema = z.object({
-  nome: z.string().min(1, "Nome é obrigatório").max(255),
-  email: z.string().email("Email inválido").max(255).optional().nullable().or(z.literal("")),
-  celular: z.string().max(20).optional().nullable(),
-  cnpjf: z.string().max(18).optional().nullable(),
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(255, "Nome muito longo"),
+  email: z.string().trim().email("Email inválido").max(255, "Email muito longo").optional().nullable().or(z.literal("")),
+  celular: z.string().trim().max(20, "Celular muito longo").optional().nullable(),
+  cnpjf: z.string()
+    .trim()
+    .max(18, "CPF/CNPJ muito longo")
+    .optional()
+    .nullable()
+    .refine(
+      (val) => {
+        if (!val || val === '') return true;
+        const cpfLimpo = val.replace(/\D/g, '');
+        // Aceita CPF ou CNPJ (11 ou 14 dígitos)
+        if (cpfLimpo.length === 11) {
+          return validarCPF(cpfLimpo);
+        }
+        // Para CNPJ, apenas valida o tamanho
+        return cpfLimpo.length === 14;
+      },
+      { message: "CPF inválido" }
+    ),
 });
 
 type PessoaFormValues = z.infer<typeof pessoaSchema>;
