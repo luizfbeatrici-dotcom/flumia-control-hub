@@ -56,13 +56,11 @@ export function EmpresaConfigTab({ empresaId }: EmpresaConfigTabProps) {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("empresa_config")
-          .insert({
-            empresa_id: empresaId,
-            mensagem_inicial: mensagemInicial,
-            mensagem_nao_cliente: mensagemNaoCliente,
-          });
+        const { error } = await supabase.from("empresa_config").insert({
+          empresa_id: empresaId,
+          mensagem_inicial: mensagemInicial,
+          mensagem_nao_cliente: mensagemNaoCliente,
+        });
 
         if (error) throw error;
       }
@@ -86,7 +84,7 @@ export function EmpresaConfigTab({ empresaId }: EmpresaConfigTabProps) {
         <CardHeader>
           <CardTitle>Configurações de Mensagens do WhatsApp</CardTitle>
           <CardDescription>
-            Configure as mensagens que serão enviadas automaticamente aos clientes
+            Configure as mensagens que serão enviadas aos clientes durante as conversas.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -121,10 +119,7 @@ export function EmpresaConfigTab({ empresaId }: EmpresaConfigTabProps) {
           </div>
 
           <div className="flex justify-end">
-            <Button
-              onClick={handleSave}
-              disabled={saveMutation.isPending || isLoading}
-            >
+            <Button onClick={handleSave} disabled={saveMutation.isPending || isLoading}>
               <Save className="mr-2 h-4 w-4" />
               Salvar Configurações
             </Button>
