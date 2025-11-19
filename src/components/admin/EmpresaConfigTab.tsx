@@ -93,6 +93,7 @@ export function EmpresaConfigTab({ empresaId }: EmpresaConfigTabProps) {
             <br />
             <strong>TAGs disponíveis:</strong>
             <br />• <code>[NOME]</code> → será substituída pelo primeiro nome do cliente no momento da resposta.
+            <br />
             <strong>Além das TAGs, você também pode usar formatações de texto:</strong>
             <br />• \n → cria uma nova linha
             <br />• *texto* → deixa o texto em negrito
