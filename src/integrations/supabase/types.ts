@@ -163,6 +163,7 @@ export type Database = {
           created_at: string
           dados: Json
           empresa_id: string
+          etapa_id: string | null
           id: string
           sub_etapa_id: string
           updated_at: string
@@ -173,6 +174,7 @@ export type Database = {
           created_at?: string
           dados?: Json
           empresa_id: string
+          etapa_id?: string | null
           id?: string
           sub_etapa_id: string
           updated_at?: string
@@ -183,6 +185,7 @@ export type Database = {
           created_at?: string
           dados?: Json
           empresa_id?: string
+          etapa_id?: string | null
           id?: string
           sub_etapa_id?: string
           updated_at?: string
@@ -200,6 +203,13 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contato_sub_etapa_respostas_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
             referencedColumns: ["id"]
           },
           {
