@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Users, ShoppingCart, Activity, DollarSign, Package, UserCircle, TrendingUp } from "lucide-react";
+import { Building2, Users, ShoppingCart, Activity, DollarSign, Package, UserCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
@@ -60,27 +60,6 @@ export default function AdminDashboard() {
       // Calcular valor total dos pedidos
       const valorTotalPedidos = pedidos.data?.reduce((sum, p) => sum + (Number(p.total) || 0), 0) || 0;
 
-      // Calcular taxa de intermediação
-      let taxaIntermediacao = 0;
-      if (selectedEmpresaId && empresas.data && empresas.data.length > 0) {
-        // Empresa específica
-        const taxaTransacao = Number(empresas.data[0].taxa_transacao) || 0;
-        taxaIntermediacao = valorTotalPedidos * (taxaTransacao / 100);
-      } else if (!selectedEmpresaId && empresas.data) {
-        // Todas as empresas - calcular taxa ponderada
-        const empresasMap = new Map(empresas.data.map(e => [e.id, Number(e.taxa_transacao) || 0]));
-        
-        // Buscar pedidos com empresa_id para calcular taxa correta
-        const { data: pedidosComEmpresa } = await supabase
-          .from("pedidos")
-          .select("empresa_id, total");
-        
-        taxaIntermediacao = pedidosComEmpresa?.reduce((sum, p) => {
-          const taxa = empresasMap.get(p.empresa_id) || 0;
-          return sum + (Number(p.total) || 0) * (taxa / 100);
-        }, 0) || 0;
-      }
-
       return {
         empresas: empresas.count || 0,
         usuarios: profiles.count || 0,
@@ -89,7 +68,6 @@ export default function AdminDashboard() {
         produtos: produtos.count || 0,
         pessoas: pessoas.count || 0,
         valorTotalPedidos,
-        taxaIntermediacao,
       };
     },
     refetchOnMount: 'always',
@@ -146,13 +124,6 @@ export default function AdminDashboard() {
       icon: UserCircle,
       gradient: "from-accent to-secondary",
       format: "number",
-    },
-    {
-      title: "Taxa de Intermediação",
-      value: stats?.taxaIntermediacao || 0,
-      icon: TrendingUp,
-      gradient: "from-primary to-primary-hover",
-      format: "currency",
     },
   ];
 
