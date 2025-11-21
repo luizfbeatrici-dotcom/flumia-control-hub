@@ -4,77 +4,74 @@ import { Package, Users, ShoppingCart, MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 import { LostSalesWidget } from "@/components/company/LostSalesWidget";
 import { CustomerActivityWidget } from "@/components/company/CustomerActivityWidget";
+import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 
 export default function CompanyDashboard() {
-  const { profile, isAdminMaster, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { profile, isAdminMaster } = useAuth();
+  const { selectedEmpresaId } = useEmpresaSelector();
   const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(true);
   const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(true);
   const [isCustomerActivityMinimized, setIsCustomerActivityMinimized] = useState(true);
 
-  useEffect(() => {
-    if (!authLoading && isAdminMaster) {
-      navigate("/admin", { replace: true });
-    }
-  }, [authLoading, isAdminMaster, navigate]);
+  // Se admin master, usar a empresa selecionada; senão, usar a empresa do perfil
+  const empresaId = isAdminMaster ? selectedEmpresaId : profile?.empresa_id;
 
   const { data: pessoas } = useQuery({
-    queryKey: ["pessoas", profile?.empresa_id],
+    queryKey: ["pessoas", empresaId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pessoas")
         .select("*")
-        .eq("empresa_id", profile?.empresa_id || "");
+        .eq("empresa_id", empresaId || "");
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.empresa_id,
+    enabled: !!empresaId,
   });
 
   const { data: produtos } = useQuery({
-    queryKey: ["produtos", profile?.empresa_id],
+    queryKey: ["produtos", empresaId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("produtos")
         .select("*")
-        .eq("empresa_id", profile?.empresa_id || "")
+        .eq("empresa_id", empresaId || "")
         .eq("ativo", true);
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.empresa_id,
+    enabled: !!empresaId,
   });
 
   const { data: pedidos } = useQuery({
-    queryKey: ["pedidos", profile?.empresa_id],
+    queryKey: ["pedidos", empresaId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pedidos")
         .select("*")
-        .eq("empresa_id", profile?.empresa_id || "");
+        .eq("empresa_id", empresaId || "");
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.empresa_id,
+    enabled: !!empresaId,
   });
 
   const { data: contatos } = useQuery({
-    queryKey: ["contatos", profile?.empresa_id],
+    queryKey: ["contatos", empresaId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contatos")
         .select("*")
-        .eq("empresa_id", profile?.empresa_id || "")
+        .eq("empresa_id", empresaId || "")
         .eq("status", "ativo");
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.empresa_id,
+    enabled: !!empresaId,
   });
 
   const conversasAtivasCount = contatos?.length || 0;
@@ -166,21 +163,21 @@ export default function CompanyDashboard() {
 
         {/* Widget de Funil de Vendas */}
         <SalesFunnelWidget 
-          empresaId={profile?.empresa_id || ""} 
+          empresaId={empresaId || ""} 
           isMinimized={isSalesFunnelMinimized}
           onToggleMinimize={() => setIsSalesFunnelMinimized(!isSalesFunnelMinimized)}
         />
 
         {/* Widget de Vendas Perdidas */}
         <LostSalesWidget 
-          empresaId={profile?.empresa_id || ""}
+          empresaId={empresaId || ""}
           isMinimized={isLostSalesMinimized}
           onToggleMinimize={() => setIsLostSalesMinimized(!isLostSalesMinimized)}
         />
 
         {/* Widget de Atividades do Cliente */}
         <CustomerActivityWidget
-          empresaId={profile?.empresa_id || ""}
+          empresaId={empresaId || ""}
           isMinimized={isCustomerActivityMinimized}
           onToggleMinimize={() => setIsCustomerActivityMinimized(!isCustomerActivityMinimized)}
         />
