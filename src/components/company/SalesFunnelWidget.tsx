@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Users, MessageCircle, ChevronDown, ChevronUp, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface SalesFunnelWidgetProps {
   empresaId: string;
@@ -48,6 +49,7 @@ interface Etapa {
 export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: SalesFunnelWidgetProps) {
   const [selectedPedido, setSelectedPedido] = useState<string | null>(null);
   const [conversaAberta, setConversaAberta] = useState(false);
+  const [produtosAberto, setProdutosAberto] = useState(true);
 
   const { data: etapas, isLoading } = useQuery({
     queryKey: ["kanban-pedidos-etapas", empresaId],
@@ -322,6 +324,64 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
                   )}
                 </div>
               </Card>
+
+              {/* Produtos do Pedido */}
+              {pedidoDetalhes.pedido.pedido_itens && pedidoDetalhes.pedido.pedido_itens.length > 0 && (
+                <Collapsible open={produtosAberto} onOpenChange={setProdutosAberto}>
+                  <Card>
+                    <CollapsibleTrigger asChild>
+                      <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <Package className="h-4 w-4" />
+                            Produtos do Pedido ({pedidoDetalhes.pedido.pedido_itens.length})
+                          </CardTitle>
+                          {produtosAberto ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </div>
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent className="pt-0">
+                        <div className="space-y-3">
+                          {pedidoDetalhes.pedido.pedido_itens.map((item: any) => (
+                            <div 
+                              key={item.id}
+                              className="flex items-start justify-between p-3 rounded-lg border bg-muted/20"
+                            >
+                              <div className="flex-1">
+                                <p className="font-medium text-sm">
+                                  {item.produtos?.descricao || 'Produto sem descrição'}
+                                </p>
+                                <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                                  <span>Quantidade: {item.quantidade}</span>
+                                  <span>
+                                    Valor Unit.: {new Intl.NumberFormat('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    }).format(item.valor_unitario)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-sm">
+                                  {new Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                  }).format(item.valor_total)}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
+              )}
 
               {/* Botão para abrir conversa */}
               <div className="flex justify-end">
