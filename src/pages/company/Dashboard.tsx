@@ -4,13 +4,16 @@ import { Package, Users, ShoppingCart, MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
+import { LostSalesWidget } from "@/components/company/LostSalesWidget";
 
 export default function CompanyDashboard() {
   const { profile, isAdminMaster, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(false);
+  const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(false);
 
   useEffect(() => {
     if (!authLoading && isAdminMaster) {
@@ -160,7 +163,18 @@ export default function CompanyDashboard() {
         </div>
 
         {/* Widget de Funil de Vendas */}
-        <SalesFunnelWidget empresaId={profile?.empresa_id || ""} />
+        <SalesFunnelWidget 
+          empresaId={profile?.empresa_id || ""} 
+          isMinimized={isSalesFunnelMinimized}
+          onToggleMinimize={() => setIsSalesFunnelMinimized(!isSalesFunnelMinimized)}
+        />
+
+        {/* Widget de Vendas Perdidas */}
+        <LostSalesWidget 
+          empresaId={profile?.empresa_id || ""}
+          isMinimized={isLostSalesMinimized}
+          onToggleMinimize={() => setIsLostSalesMinimized(!isLostSalesMinimized)}
+        />
       </div>
     </DashboardLayout>
   );

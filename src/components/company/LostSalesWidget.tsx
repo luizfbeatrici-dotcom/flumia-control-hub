@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, XCircle, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-interface SalesFunnelWidgetProps {
+interface LostSalesWidgetProps {
   empresaId: string;
   isMinimized: boolean;
   onToggleMinimize: () => void;
@@ -45,12 +45,12 @@ interface Etapa {
   pedidos: Pedido[];
 }
 
-export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: SalesFunnelWidgetProps) {
+export function LostSalesWidget({ empresaId, isMinimized, onToggleMinimize }: LostSalesWidgetProps) {
   const [selectedPedido, setSelectedPedido] = useState<string | null>(null);
   const [conversaAberta, setConversaAberta] = useState(false);
 
   const { data: etapas, isLoading } = useQuery({
-    queryKey: ["kanban-pedidos-etapas", empresaId],
+    queryKey: ["kanban-pedidos-cancelados", empresaId],
     queryFn: async () => {
       // Buscar todas as etapas ativas ordenadas
       const { data: etapasData, error: etapasError } = await supabase
@@ -61,12 +61,12 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
 
       if (etapasError) throw etapasError;
 
-      // Buscar pedidos pendentes da empresa com seus contatos
+      // Buscar pedidos cancelados da empresa com seus contatos
       const { data: pedidos, error: pedidosError } = await supabase
         .from("pedidos")
         .select("id, numero, total, created_at, status, contato_id, pessoa_id, contatos!inner(id, name, wa_id, whatsapp_from, etapa_id), pessoas(nome, celular, email)")
         .eq("empresa_id", empresaId)
-        .eq("status", "pending")
+        .eq("status", "cancelled")
         .order("created_at", { ascending: false }) as any;
 
       if (pedidosError) throw pedidosError;
@@ -101,7 +101,7 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
 
   // Query para buscar detalhes do pedido selecionado e suas mensagens
   const { data: pedidoDetalhes } = useQuery({
-    queryKey: ["pedido-detalhes", selectedPedido],
+    queryKey: ["pedido-cancelado-detalhes", selectedPedido],
     queryFn: async () => {
       if (!selectedPedido) return null;
 
@@ -143,8 +143,8 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Funil de Vendas
+            <XCircle className="h-5 w-5" />
+            Vendas Perdidas
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center py-8">
@@ -161,8 +161,8 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Funil de Vendas - {totalPedidos} pedido(s) pendente(s)
+            <XCircle className="h-5 w-5 text-destructive" />
+            Vendas Perdidas - {totalPedidos} pedido(s) cancelado(s)
           </CardTitle>
           <Button
             variant="ghost"
@@ -180,73 +180,73 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
       </CardHeader>
       {!isMinimized && (
         <CardContent>
-        {!etapas || etapas.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            Nenhuma etapa disponível
-          </p>
-        ) : (
-          <ScrollArea className="w-full">
-            <div className="flex gap-4 pb-4" style={{ minWidth: `${etapas.length * 320}px` }}>
-              {etapas.map((etapa) => (
-                <div
-                  key={etapa.id}
-                  className="flex-shrink-0 w-80 rounded-lg border bg-card"
-                >
-                  <div className="p-4 border-b bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">{etapa.nome}</h3>
-                      <Badge variant="secondary">{etapa.pedidos.length}</Badge>
+          {!etapas || etapas.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              Nenhuma etapa disponível
+            </p>
+          ) : (
+            <ScrollArea className="w-full">
+              <div className="flex gap-4 pb-4" style={{ minWidth: `${etapas.length * 320}px` }}>
+                {etapas.map((etapa) => (
+                  <div
+                    key={etapa.id}
+                    className="flex-shrink-0 w-80 rounded-lg border bg-card"
+                  >
+                    <div className="p-4 border-b bg-muted/50">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold">{etapa.nome}</h3>
+                        <Badge variant="destructive">{etapa.pedidos.length}</Badge>
+                      </div>
                     </div>
-                  </div>
-                  <ScrollArea className="h-[500px]">
-                    <div className="p-3 space-y-3">
-                      {etapa.pedidos.length === 0 ? (
-                        <p className="text-center text-sm text-muted-foreground py-8">
-                          Nenhum pedido
-                        </p>
-                      ) : (
-                        etapa.pedidos.map((pedido) => (
-                          <Card 
-                            key={pedido.id} 
-                            className="p-3 hover:shadow-md transition-shadow cursor-pointer"
-                            onClick={() => setSelectedPedido(pedido.id)}
-                          >
-                            <div className="space-y-2">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1">
-                                  <p className="font-medium text-sm">
-                                    Pedido #{pedido.numero}
+                    <ScrollArea className="h-[500px]">
+                      <div className="p-3 space-y-3">
+                        {etapa.pedidos.length === 0 ? (
+                          <p className="text-center text-sm text-muted-foreground py-8">
+                            Nenhum pedido cancelado
+                          </p>
+                        ) : (
+                          etapa.pedidos.map((pedido) => (
+                            <Card 
+                              key={pedido.id} 
+                              className="p-3 hover:shadow-md transition-shadow cursor-pointer border-destructive/20"
+                              onClick={() => setSelectedPedido(pedido.id)}
+                            >
+                              <div className="space-y-2">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex-1">
+                                    <p className="font-medium text-sm">
+                                      Pedido #{pedido.numero}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground line-clamp-1">
+                                      {pedido.pessoas?.nome || pedido.contatos?.name || pedido.contatos?.wa_id}
+                                    </p>
+                                  </div>
+                                  <Badge variant="destructive" className="text-xs">
+                                    Cancelado
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(pedido.created_at), 'dd/MM/yyyy HH:mm')}
                                   </p>
-                                  <p className="text-xs text-muted-foreground line-clamp-1">
-                                    {pedido.pessoas?.nome || pedido.contatos?.name || pedido.contatos?.wa_id}
+                                  <p className="font-semibold text-sm">
+                                    {new Intl.NumberFormat('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    }).format(pedido.total || 0)}
                                   </p>
                                 </div>
-                                <Badge variant="secondary" className="text-xs">
-                                  {pedido.status || 'N/A'}
-                                </Badge>
                               </div>
-                              <div className="flex items-center justify-between">
-                                <p className="text-xs text-muted-foreground">
-                                  {format(new Date(pedido.created_at), 'dd/MM/yyyy HH:mm')}
-                                </p>
-                                <p className="font-semibold text-sm">
-                                  {new Intl.NumberFormat('pt-BR', {
-                                    style: 'currency',
-                                    currency: 'BRL',
-                                  }).format(pedido.total || 0)}
-                                </p>
-                              </div>
-                            </div>
-                          </Card>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        )}
+                            </Card>
+                          ))
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </CardContent>
       )}
 
@@ -256,7 +256,7 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              Detalhes do Pedido
+              Detalhes do Pedido Cancelado
             </DialogTitle>
           </DialogHeader>
           
@@ -280,8 +280,8 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Status</p>
-                    <Badge variant={pedidoDetalhes.pedido.status === 'pending' ? 'secondary' : 'default'}>
-                      {pedidoDetalhes.pedido.status || 'N/A'}
+                    <Badge variant="destructive">
+                      Cancelado
                     </Badge>
                   </div>
                   <div>
