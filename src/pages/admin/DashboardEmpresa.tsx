@@ -10,8 +10,8 @@ import { useMemo, useState } from "react";
 
 export default function DashboardEmpresa() {
   const { id } = useParams<{ id: string }>();
-  const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(false);
-  const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(false);
+  const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(true);
+  const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(true);
 
   const { data: empresa } = useQuery({
     queryKey: ["empresa", id],
