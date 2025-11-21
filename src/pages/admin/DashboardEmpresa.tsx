@@ -5,9 +5,13 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Package, ShoppingCart, MessageSquare } from "lucide-react";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
+import { LostSalesWidget } from "@/components/company/LostSalesWidget";
+import { useMemo, useState } from "react";
 
 export default function DashboardEmpresa() {
   const { id } = useParams<{ id: string }>();
+  const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(false);
+  const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(false);
 
   const { data: empresa } = useQuery({
     queryKey: ["empresa", id],
@@ -164,12 +168,19 @@ export default function DashboardEmpresa() {
         </div>
 
         {/* Widget de Funil de Vendas */}
-        <SalesFunnelWidget empresaId={id!} />
+        <SalesFunnelWidget 
+          empresaId={id!} 
+          isMinimized={isSalesFunnelMinimized}
+          onToggleMinimize={() => setIsSalesFunnelMinimized(!isSalesFunnelMinimized)}
+        />
+
+        {/* Widget de Vendas Perdidas */}
+        <LostSalesWidget 
+          empresaId={id!}
+          isMinimized={isLostSalesMinimized}
+          onToggleMinimize={() => setIsLostSalesMinimized(!isLostSalesMinimized)}
+        />
       </div>
     </DashboardLayout>
   );
-}
-
-function useMemo(arg0: () => number, arg1: any[]): number {
-  return arg0();
 }
