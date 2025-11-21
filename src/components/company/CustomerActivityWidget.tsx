@@ -9,8 +9,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface CustomerActivityWidgetProps {
   empresaId: string;
@@ -22,7 +22,8 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
   const [selectedClienteId, setSelectedClienteId] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [expandedPedidos, setExpandedPedidos] = useState<Record<string, boolean>>({});
+  const [selectedPedido, setSelectedPedido] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Buscar clientes
   const { data: clientes } = useQuery({
@@ -139,11 +140,9 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
     enabled: !!selectedClienteId,
   });
 
-  const togglePedido = (pedidoId: string) => {
-    setExpandedPedidos(prev => ({
-      ...prev,
-      [pedidoId]: !prev[pedidoId]
-    }));
+  const togglePedido = (pedido: any) => {
+    setSelectedPedido(pedido);
+    setDialogOpen(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -306,122 +305,29 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
                         </TableHeader>
                         <TableBody>
                           {pedidos.map((pedido) => (
-                            <Collapsible
-                              key={pedido.id}
-                              open={expandedPedidos[pedido.id]}
-                              onOpenChange={() => togglePedido(pedido.id)}
-                              asChild
-                            >
-                              <>
-                                <TableRow className="cursor-pointer">
-                                  <TableCell className="font-medium">#{pedido.numero}</TableCell>
-                                  <TableCell>
-                                    {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                                  </TableCell>
-                                  <TableCell>{getStatusBadge(pedido.status)}</TableCell>
-                                  <TableCell>
-                                    {pedido.contatos?.etapas?.nome || "-"}
-                                  </TableCell>
-                                  <TableCell>
-                                    {Number(pedido.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                  </TableCell>
-                                  <TableCell>
-                                    <CollapsibleTrigger asChild>
-                                      <Button variant="ghost" size="sm">
-                                        <Info className="h-4 w-4 mr-1" />
-                                        {expandedPedidos[pedido.id] ? "Ocultar" : "Detalhes"}
-                                      </Button>
-                                    </CollapsibleTrigger>
-                                  </TableCell>
-                                </TableRow>
-                                
-                                <CollapsibleContent asChild>
-                                  <TableRow>
-                                    <TableCell colSpan={6} className="bg-muted/50">
-                                      <div className="space-y-4 p-4">
-                                        {/* Produtos */}
-                                        {pedido.pedido_itens && pedido.pedido_itens.length > 0 && (
-                                          <div>
-                                            <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                              <Package className="h-4 w-4" />
-                                              Produtos
-                                            </h4>
-                                            <div className="bg-background rounded-md p-3 space-y-2">
-                                              {pedido.pedido_itens.map((item: any) => (
-                                                <div key={item.id} className="flex justify-between text-sm">
-                                                  <span>{item.produtos?.descricao}</span>
-                                                  <span className="text-muted-foreground">
-                                                    Qtd: {item.quantidade} × {Number(item.valor_unitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} = {" "}
-                                                    <span className="font-medium text-foreground">
-                                                      {Number(item.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                                    </span>
-                                                  </span>
-                                                </div>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* Informações da Conversa */}
-                                        {pedido.contatos && (
-                                          <div>
-                                            <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                              <MessageSquare className="h-4 w-4" />
-                                              Conversa
-                                            </h4>
-                                            <div className="bg-background rounded-md p-3 space-y-1 text-sm">
-                                              <div><span className="font-medium">WhatsApp:</span> {pedido.contatos.whatsapp_from}</div>
-                                              {pedido.contatos.ultima_interacao && (
-                                                <div>
-                                                  <span className="font-medium">Última interação:</span>{" "}
-                                                  {format(new Date(pedido.contatos.ultima_interacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* Informações de Entrega */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                          {pedido.pessoa_enderecos && (
-                                            <div>
-                                              <h4 className="font-semibold mb-2 text-sm">Endereço de Entrega</h4>
-                                              <div className="bg-background rounded-md p-3 text-sm">
-                                                <div>{pedido.pessoa_enderecos.endereco}</div>
-                                                <div>{pedido.pessoa_enderecos.cidade}</div>
-                                              </div>
-                                            </div>
-                                          )}
-                                          
-                                          {pedido.empresa_tipos_entrega && (
-                                            <div>
-                                              <h4 className="font-semibold mb-2 text-sm">Tipo de Entrega</h4>
-                                              <div className="bg-background rounded-md p-3 text-sm">
-                                                {pedido.empresa_tipos_entrega.tipos_entrega?.nome}
-                                                {pedido.vlr_frete > 0 && (
-                                                  <div className="text-muted-foreground">
-                                                    Frete: {Number(pedido.vlr_frete).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-
-                                        {pedido.observacoes && (
-                                          <div>
-                                            <h4 className="font-semibold mb-2 text-sm">Observações</h4>
-                                            <div className="bg-background rounded-md p-3 text-sm">
-                                              {pedido.observacoes}
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </TableCell>
-                                  </TableRow>
-                                </CollapsibleContent>
-                              </>
-                            </Collapsible>
+                            <TableRow key={pedido.id}>
+                              <TableCell className="font-medium">#{pedido.numero}</TableCell>
+                              <TableCell>
+                                {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                              </TableCell>
+                              <TableCell>{getStatusBadge(pedido.status)}</TableCell>
+                              <TableCell>
+                                {pedido.contatos?.etapas?.nome || "-"}
+                              </TableCell>
+                              <TableCell>
+                                {Number(pedido.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                              </TableCell>
+                              <TableCell>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => togglePedido(pedido)}
+                                >
+                                  <Info className="h-4 w-4 mr-1" />
+                                  Detalhes
+                                </Button>
+                              </TableCell>
+                            </TableRow>
                           ))}
                         </TableBody>
                       </Table>
@@ -432,6 +338,124 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
                     </div>
                   )}
                 </div>
+
+                {/* Dialog de Detalhes do Pedido */}
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                    {selectedPedido && (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center justify-between">
+                            <span>Pedido #{selectedPedido.numero}</span>
+                            {getStatusBadge(selectedPedido.status)}
+                          </DialogTitle>
+                          <DialogDescription>
+                            {format(new Date(selectedPedido.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4 mt-4">
+                          {/* Produtos */}
+                          {selectedPedido.pedido_itens && selectedPedido.pedido_itens.length > 0 && (
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-base flex items-center gap-2">
+                                  <Package className="h-4 w-4" />
+                                  Produtos
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-2">
+                                {selectedPedido.pedido_itens.map((item: any) => (
+                                  <div key={item.id} className="flex justify-between text-sm pb-2 border-b last:border-0">
+                                    <span className="font-medium">{item.produtos?.descricao}</span>
+                                    <span className="text-muted-foreground">
+                                      Qtd: {item.quantidade} × {Number(item.valor_unitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} = {" "}
+                                      <span className="font-medium text-foreground">
+                                        {Number(item.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                      </span>
+                                    </span>
+                                  </div>
+                                ))}
+                                <div className="flex justify-between font-bold text-base pt-2">
+                                  <span>Total</span>
+                                  <span>{Number(selectedPedido.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {/* Informações da Conversa */}
+                          {selectedPedido.contatos && (
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-base flex items-center gap-2">
+                                  <MessageSquare className="h-4 w-4" />
+                                  Conversa
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-2 text-sm">
+                                <div>
+                                  <span className="font-medium">WhatsApp:</span> {selectedPedido.contatos.whatsapp_from}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Etapa:</span> {selectedPedido.contatos.etapas?.nome || "-"}
+                                </div>
+                                {selectedPedido.contatos.ultima_interacao && (
+                                  <div>
+                                    <span className="font-medium">Última interação:</span>{" "}
+                                    {format(new Date(selectedPedido.contatos.ultima_interacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {/* Informações de Entrega */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {selectedPedido.pessoa_enderecos && (
+                              <Card>
+                                <CardHeader>
+                                  <CardTitle className="text-base">Endereço de Entrega</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-sm">
+                                  <div>{selectedPedido.pessoa_enderecos.endereco}</div>
+                                  <div>{selectedPedido.pessoa_enderecos.cidade}</div>
+                                </CardContent>
+                              </Card>
+                            )}
+                            
+                            {selectedPedido.empresa_tipos_entrega && (
+                              <Card>
+                                <CardHeader>
+                                  <CardTitle className="text-base">Tipo de Entrega</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-sm">
+                                  <div>{selectedPedido.empresa_tipos_entrega.tipos_entrega?.nome}</div>
+                                  {selectedPedido.vlr_frete > 0 && (
+                                    <div className="text-muted-foreground">
+                                      Frete: {Number(selectedPedido.vlr_frete).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                            )}
+                          </div>
+
+                          {selectedPedido.observacoes && (
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-base">Observações</CardTitle>
+                              </CardHeader>
+                              <CardContent className="text-sm">
+                                {selectedPedido.observacoes}
+                              </CardContent>
+                            </Card>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </DialogContent>
+                </Dialog>
               </>
             )}
 
