@@ -27,7 +27,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
 
   const adminMasterItems = [
-    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+    { title: "Dashboard Master", url: "/admin", icon: LayoutDashboard },
     { title: "Empresas", url: "/admin/empresas", icon: Building2 },
     { title: "Usuários", url: "/admin/usuarios", icon: Users },
     { title: "Bilhetagem", url: "/admin/bilhetagem", icon: DollarSign },

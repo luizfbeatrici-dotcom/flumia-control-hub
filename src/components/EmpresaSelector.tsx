@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/select";
 import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 import { Building2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function EmpresaSelector() {
   const { selectedEmpresaId, setSelectedEmpresaId } = useEmpresaSelector();
+  const navigate = useNavigate();
 
   const { data: empresas } = useQuery({
     queryKey: ["empresas-selector"],
@@ -31,7 +33,17 @@ export function EmpresaSelector() {
       <Building2 className="h-4 w-4 text-muted-foreground" />
       <Select
         value={selectedEmpresaId || "all"}
-        onValueChange={(value) => setSelectedEmpresaId(value === "all" ? null : value)}
+        onValueChange={(value) => {
+          const newEmpresaId = value === "all" ? null : value;
+          setSelectedEmpresaId(newEmpresaId);
+          
+          // Navegar para o dashboard da empresa quando selecionar uma empresa
+          if (newEmpresaId) {
+            navigate("/dashboard");
+          } else {
+            navigate("/admin");
+          }
+        }}
       >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Selecione uma empresa" />
