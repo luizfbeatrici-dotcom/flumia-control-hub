@@ -165,6 +165,7 @@ export type Database = {
           empresa_id: string
           etapa_id: string | null
           id: string
+          processado: boolean
           sub_etapa_id: string
           updated_at: string
         }
@@ -176,6 +177,7 @@ export type Database = {
           empresa_id: string
           etapa_id?: string | null
           id?: string
+          processado?: boolean
           sub_etapa_id: string
           updated_at?: string
         }
@@ -187,6 +189,7 @@ export type Database = {
           empresa_id?: string
           etapa_id?: string | null
           id?: string
+          processado?: boolean
           sub_etapa_id?: string
           updated_at?: string
         }
@@ -1231,10 +1234,15 @@ export type Database = {
           cidade: string | null
           complemento: string | null
           created_at: string | null
+          ddd: string | null
           endereco: string
+          estado: string | null
+          ibge: string | null
           id: string
           pessoa_id: string
           principal: boolean | null
+          regiao: string | null
+          siafi: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1243,10 +1251,15 @@ export type Database = {
           cidade?: string | null
           complemento?: string | null
           created_at?: string | null
+          ddd?: string | null
           endereco: string
+          estado?: string | null
+          ibge?: string | null
           id?: string
           pessoa_id: string
           principal?: boolean | null
+          regiao?: string | null
+          siafi?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1255,10 +1268,15 @@ export type Database = {
           cidade?: string | null
           complemento?: string | null
           created_at?: string | null
+          ddd?: string | null
           endereco?: string
+          estado?: string | null
+          ibge?: string | null
           id?: string
           pessoa_id?: string
           principal?: boolean | null
+          regiao?: string | null
+          siafi?: string | null
           updated_at?: string | null
         }
         Relationships: [
