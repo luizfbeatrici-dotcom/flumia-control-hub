@@ -69,21 +69,22 @@ export default function DashboardEmpresa() {
     enabled: !!id,
   });
 
-  const { data: contatos } = useQuery({
-    queryKey: ["contatos", id],
+  // Buscar pedidos pendentes para o widget de Conversas Ativas
+  const { data: pedidosPendentes } = useQuery({
+    queryKey: ["pedidos-pendentes", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contatos")
-        .select("*")
+      const { count, error } = await supabase
+        .from("pedidos")
+        .select("*", { count: "exact", head: true })
         .eq("empresa_id", id)
-        .eq("status", "ativo");
+        .eq("status", "pending");
       if (error) throw error;
-      return data;
+      return count;
     },
     enabled: !!id,
   });
 
-  const conversasAtivasCount = contatos?.length || 0;
+  const conversasAtivasCount = pedidosPendentes || 0;
 
   const vendasMesAtual = useMemo(() => {
     if (!pedidos) return 0;
@@ -145,7 +146,7 @@ export default function DashboardEmpresa() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{conversasAtivasCount || 0}</div>
-              <p className="text-xs text-muted-foreground">Contatos com status ativo</p>
+              <p className="text-xs text-muted-foreground">Pedidos pendentes</p>
             </CardContent>
           </Card>
         </div>

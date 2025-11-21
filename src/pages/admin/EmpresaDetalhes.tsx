@@ -343,15 +343,15 @@ export default function EmpresaDetalhes() {
     },
   });
 
-  // Fetch conversas ativas (contatos com status ativo)
+  // Fetch conversas ativas (pedidos pendentes)
   const { data: conversasAtivasCount } = useQuery({
     queryKey: ["conversas-ativas", id],
     queryFn: async () => {
       const { count, error } = await supabase
-        .from("contatos")
+        .from("pedidos")
         .select("*", { count: "exact", head: true })
         .eq("empresa_id", id)
-        .eq("status", "ativo");
+        .eq("status", "pending");
       if (error) throw error;
       return count;
     },
