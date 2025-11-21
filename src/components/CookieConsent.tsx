@@ -63,7 +63,7 @@ export const CookieConsent = ({ onAccept, onDecline }: CookieConsentProps) => {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-md animate-in slide-in-from-bottom-5">
+    <div className="fixed bottom-4 right-4 z-[60] max-w-md animate-in slide-in-from-bottom-5">
       <Card className="border-2 shadow-2xl">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
@@ -144,15 +144,15 @@ export const CookieConsent = ({ onAccept, onDecline }: CookieConsentProps) => {
             </div>
           )}
         </CardContent>
-        <CardFooter className="gap-2 flex-col sm:flex-row">
+        <CardFooter className="gap-2 flex-col sm:flex-row relative z-10">
           <Button 
             onClick={handleAccept} 
-            className="w-full sm:flex-1"
+            className="w-full sm:flex-1 relative z-10 pointer-events-auto"
             disabled={isSubmitting}
           >
             {showForm ? (isSubmitting ? "Enviando..." : "Enviar e Aceitar") : "Aceitar Cookies"}
           </Button>
-          <Button onClick={handleDecline} variant="outline" className="w-full sm:flex-1">
+          <Button onClick={handleDecline} variant="outline" className="w-full sm:flex-1 relative z-10 pointer-events-auto">
             {showForm ? "Voltar" : "Recusar"}
           </Button>
         </CardFooter>
