@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import {
@@ -29,12 +30,16 @@ import { useState } from "react";
 
 export default function Pedidos() {
   const { profile } = useAuth();
+  const { selectedEmpresaId } = useEmpresaSelector();
   const [selectedPedidoId, setSelectedPedidoId] = useState<string | null>(null);
 
+  // Usa selectedEmpresaId se disponível (admin master), senão usa empresa_id do profile
+  const empresaId = selectedEmpresaId || profile?.empresa_id;
+
   const { data: pedidos = [], isLoading } = useQuery({
-    queryKey: ["pedidos", profile?.empresa_id],
+    queryKey: ["pedidos", empresaId],
     queryFn: async () => {
-      if (!profile?.empresa_id) return [];
+      if (!empresaId) return [];
 
       const { data, error } = await supabase
         .from("pedidos")
@@ -45,7 +50,7 @@ export default function Pedidos() {
           pagamentos (status, date_approved, date_last_updated, date_created),
           contatos:contato_id (name, whatsapp_from)
         `)
-        .eq("empresa_id", profile.empresa_id)
+        .eq("empresa_id", empresaId)
         .order("numero", { ascending: false });
 
       if (error) throw error;
