@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, ShoppingCart, MessageSquare, TrendingUp } from "lucide-react";
+import { Package, Users, ShoppingCart, MessageSquare, TrendingUp, CheckCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -87,6 +87,21 @@ export default function CompanyDashboard() {
         return dataPedido.getMonth() === mesAtual && dataPedido.getFullYear() === anoAtual;
       })
       .reduce((sum, p) => sum + (Number(p.total) || 0), 0);
+  }, [pedidos]);
+
+  const vendasFinalizadasMes = useMemo(() => {
+    if (!pedidos) return 0;
+    const mesAtual = new Date().getMonth();
+    const anoAtual = new Date().getFullYear();
+    
+    return pedidos.filter((p) => {
+      const dataPedido = new Date(p.created_at || "");
+      return (
+        dataPedido.getMonth() === mesAtual &&
+        dataPedido.getFullYear() === anoAtual &&
+        p.status === "completed"
+      );
+    }).length;
   }, [pedidos]);
 
   const ticketMedio = useMemo(() => {
@@ -177,6 +192,16 @@ export default function CompanyDashboard() {
                 }).format(vendasMesAtual || 0)}
               </div>
               <p className="text-xs text-muted-foreground">Total de vendas no mês atual</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Vendas Finalizadas</CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{vendasFinalizadasMes}</div>
+              <p className="text-xs text-muted-foreground">Pedidos finalizados no mês</p>
             </CardContent>
           </Card>
           <Card className="shadow-soft">
