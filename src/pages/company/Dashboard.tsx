@@ -12,8 +12,8 @@ import { LostSalesWidget } from "@/components/company/LostSalesWidget";
 export default function CompanyDashboard() {
   const { profile, isAdminMaster, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(false);
-  const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(false);
+  const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(true);
+  const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(true);
 
   useEffect(() => {
     if (!authLoading && isAdminMaster) {
