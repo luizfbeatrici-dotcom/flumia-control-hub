@@ -27,6 +27,11 @@ const enderecoSchema = z.object({
   bairro: z.string().max(100).optional().nullable(),
   cidade: z.string().max(100).optional().nullable(),
   cep: z.string().max(10).optional().nullable(),
+  estado: z.string().max(2).optional().nullable(),
+  regiao: z.string().max(100).optional().nullable(),
+  ddd: z.string().max(3).optional().nullable(),
+  ibge: z.string().max(10).optional().nullable(),
+  siafi: z.string().max(10).optional().nullable(),
   principal: z.boolean().default(false),
 });
 
@@ -55,6 +60,11 @@ export function EnderecoDialog({
       bairro: "",
       cidade: "",
       cep: "",
+      estado: "",
+      regiao: "",
+      ddd: "",
+      ibge: "",
+      siafi: "",
       principal: false,
     },
   });
@@ -67,6 +77,11 @@ export function EnderecoDialog({
         bairro: endereco.bairro || "",
         cidade: endereco.cidade || "",
         cep: endereco.cep || "",
+        estado: endereco.estado || "",
+        regiao: endereco.regiao || "",
+        ddd: endereco.ddd || "",
+        ibge: endereco.ibge || "",
+        siafi: endereco.siafi || "",
         principal: endereco.principal || false,
       });
     } else {
@@ -76,6 +91,11 @@ export function EnderecoDialog({
         bairro: "",
         cidade: "",
         cep: "",
+        estado: "",
+        regiao: "",
+        ddd: "",
+        ibge: "",
+        siafi: "",
         principal: false,
       });
     }
@@ -187,6 +207,102 @@ export function EnderecoDialog({
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="estado"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estado</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="UF"
+                        maxLength={2}
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="regiao"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Região</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Região"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="ddd"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>DDD</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="DDD"
+                        maxLength={3}
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="ibge"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>IBGE</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Código IBGE"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="siafi"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SIAFI</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Código SIAFI"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
