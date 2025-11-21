@@ -3,12 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, User, Package, ShoppingCart, MessageSquare, Calendar } from "lucide-react";
+import { ChevronDown, ChevronUp, Package, ShoppingCart, MessageSquare, Calendar, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface CustomerActivityWidgetProps {
   empresaId: string;
@@ -20,6 +22,7 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
   const [selectedClienteId, setSelectedClienteId] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [expandedPedidos, setExpandedPedidos] = useState<Record<string, boolean>>({});
 
   // Buscar clientes
   const { data: clientes } = useQuery({
@@ -93,7 +96,7 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
     enabled: !!selectedClienteId && !!contatos && contatos.length > 0,
   });
 
-  // Buscar pedidos do cliente
+  // Buscar pedidos do cliente com contatos
   const { data: pedidos } = useQuery({
     queryKey: ["pedidos-cliente", selectedClienteId, startDate, endDate],
     queryFn: async () => {
@@ -110,6 +113,13 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
           pessoa_enderecos(endereco, cidade),
           empresa_tipos_entrega(
             tipos_entrega(nome)
+          ),
+          contatos(
+            id,
+            whatsapp_from,
+            created_at,
+            ultima_interacao,
+            etapas!contatos_etapa_fk(nome)
           )
         `)
         .eq("pessoa_id", selectedClienteId)
@@ -128,6 +138,13 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
     },
     enabled: !!selectedClienteId,
   });
+
+  const togglePedido = (pedidoId: string) => {
+    setExpandedPedidos(prev => ({
+      ...prev,
+      [pedidoId]: !prev[pedidoId]
+    }));
+  };
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
@@ -270,93 +287,148 @@ export function CustomerActivityWidget({ empresaId, isMinimized, onToggleMinimiz
 
                 <Separator />
 
-                {/* Timeline de Atividades */}
+                {/* Lista de Pedidos */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Timeline de Atividades</h3>
+                  <h3 className="text-lg font-semibold">Pedidos do Cliente</h3>
                   
-                  {/* Pedidos */}
-                  {pedidos && pedidos.length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                        <ShoppingCart className="h-4 w-4" />
-                        Pedidos
-                      </h4>
-                      {pedidos.map((pedido) => (
-                        <Card key={pedido.id}>
-                          <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <CardTitle className="text-base">
-                                  Pedido #{pedido.numero}
-                                </CardTitle>
-                                <CardDescription>
-                                  {format(new Date(pedido.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                                </CardDescription>
-                              </div>
-                              {getStatusBadge(pedido.status)}
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-2">
-                              <div className="text-sm">
-                                <span className="font-medium">Total:</span>{" "}
-                                {Number(pedido.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                              </div>
-                              {pedido.pedido_itens && pedido.pedido_itens.length > 0 && (
-                                <div>
-                                  <div className="text-sm font-medium mb-1">Produtos:</div>
-                                  <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                                    {pedido.pedido_itens.map((item: any) => (
-                                      <li key={item.id}>
-                                        • {item.produtos?.descricao} - Qtd: {item.quantidade} - {" "}
-                                        {Number(item.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
+                  {pedidos && pedidos.length > 0 ? (
+                    <div className="border rounded-lg">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Pedido</TableHead>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Situação</TableHead>
+                            <TableHead>Etapa</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead className="w-[100px]"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {pedidos.map((pedido) => (
+                            <Collapsible
+                              key={pedido.id}
+                              open={expandedPedidos[pedido.id]}
+                              onOpenChange={() => togglePedido(pedido.id)}
+                              asChild
+                            >
+                              <>
+                                <TableRow className="cursor-pointer">
+                                  <TableCell className="font-medium">#{pedido.numero}</TableCell>
+                                  <TableCell>
+                                    {format(new Date(pedido.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                                  </TableCell>
+                                  <TableCell>{getStatusBadge(pedido.status)}</TableCell>
+                                  <TableCell>
+                                    {pedido.contatos?.etapas?.nome || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    {Number(pedido.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                  </TableCell>
+                                  <TableCell>
+                                    <CollapsibleTrigger asChild>
+                                      <Button variant="ghost" size="sm">
+                                        <Info className="h-4 w-4 mr-1" />
+                                        {expandedPedidos[pedido.id] ? "Ocultar" : "Detalhes"}
+                                      </Button>
+                                    </CollapsibleTrigger>
+                                  </TableCell>
+                                </TableRow>
+                                
+                                <CollapsibleContent asChild>
+                                  <TableRow>
+                                    <TableCell colSpan={6} className="bg-muted/50">
+                                      <div className="space-y-4 p-4">
+                                        {/* Produtos */}
+                                        {pedido.pedido_itens && pedido.pedido_itens.length > 0 && (
+                                          <div>
+                                            <h4 className="font-semibold mb-2 flex items-center gap-2">
+                                              <Package className="h-4 w-4" />
+                                              Produtos
+                                            </h4>
+                                            <div className="bg-background rounded-md p-3 space-y-2">
+                                              {pedido.pedido_itens.map((item: any) => (
+                                                <div key={item.id} className="flex justify-between text-sm">
+                                                  <span>{item.produtos?.descricao}</span>
+                                                  <span className="text-muted-foreground">
+                                                    Qtd: {item.quantidade} × {Number(item.valor_unitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} = {" "}
+                                                    <span className="font-medium text-foreground">
+                                                      {Number(item.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                                    </span>
+                                                  </span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
 
-                  {/* Conversas */}
-                  {contatos && contatos.length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4" />
-                        Conversas
-                      </h4>
-                      {contatos.map((contato) => (
-                        <Card key={contato.id}>
-                          <CardHeader className="pb-3">
-                            <CardTitle className="text-base">
-                              Conversa - {contato.etapas?.nome}
-                            </CardTitle>
-                            <CardDescription>
-                              {format(new Date(contato.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="text-sm">
-                              <span className="font-medium">WhatsApp:</span> {contato.whatsapp_from}
-                            </div>
-                            {contato.ultima_interacao && (
-                              <div className="text-sm text-muted-foreground">
-                                Última interação: {format(new Date(contato.ultima_interacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                              </div>
-                            )}
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
+                                        {/* Informações da Conversa */}
+                                        {pedido.contatos && (
+                                          <div>
+                                            <h4 className="font-semibold mb-2 flex items-center gap-2">
+                                              <MessageSquare className="h-4 w-4" />
+                                              Conversa
+                                            </h4>
+                                            <div className="bg-background rounded-md p-3 space-y-1 text-sm">
+                                              <div><span className="font-medium">WhatsApp:</span> {pedido.contatos.whatsapp_from}</div>
+                                              {pedido.contatos.ultima_interacao && (
+                                                <div>
+                                                  <span className="font-medium">Última interação:</span>{" "}
+                                                  {format(new Date(pedido.contatos.ultima_interacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        )}
 
-                  {(!pedidos || pedidos.length === 0) && (!contatos || contatos.length === 0) && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Nenhuma atividade encontrada para o período selecionado
+                                        {/* Informações de Entrega */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                          {pedido.pessoa_enderecos && (
+                                            <div>
+                                              <h4 className="font-semibold mb-2 text-sm">Endereço de Entrega</h4>
+                                              <div className="bg-background rounded-md p-3 text-sm">
+                                                <div>{pedido.pessoa_enderecos.endereco}</div>
+                                                <div>{pedido.pessoa_enderecos.cidade}</div>
+                                              </div>
+                                            </div>
+                                          )}
+                                          
+                                          {pedido.empresa_tipos_entrega && (
+                                            <div>
+                                              <h4 className="font-semibold mb-2 text-sm">Tipo de Entrega</h4>
+                                              <div className="bg-background rounded-md p-3 text-sm">
+                                                {pedido.empresa_tipos_entrega.tipos_entrega?.nome}
+                                                {pedido.vlr_frete > 0 && (
+                                                  <div className="text-muted-foreground">
+                                                    Frete: {Number(pedido.vlr_frete).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {pedido.observacoes && (
+                                          <div>
+                                            <h4 className="font-semibold mb-2 text-sm">Observações</h4>
+                                            <div className="bg-background rounded-md p-3 text-sm">
+                                              {pedido.observacoes}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                </CollapsibleContent>
+                              </>
+                            </Collapsible>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                      Nenhum pedido encontrado para o período selecionado
                     </div>
                   )}
                 </div>
