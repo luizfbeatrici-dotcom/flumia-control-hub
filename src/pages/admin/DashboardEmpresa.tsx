@@ -6,12 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Package, ShoppingCart, MessageSquare } from "lucide-react";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 import { LostSalesWidget } from "@/components/company/LostSalesWidget";
+import { CustomerActivityWidget } from "@/components/company/CustomerActivityWidget";
 import { useMemo, useState } from "react";
 
 export default function DashboardEmpresa() {
   const { id } = useParams<{ id: string }>();
   const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(true);
   const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(true);
+  const [isCustomerActivityMinimized, setIsCustomerActivityMinimized] = useState(true);
 
   const { data: empresa } = useQuery({
     queryKey: ["empresa", id],
@@ -179,6 +181,12 @@ export default function DashboardEmpresa() {
           empresaId={id!}
           isMinimized={isLostSalesMinimized}
           onToggleMinimize={() => setIsLostSalesMinimized(!isLostSalesMinimized)}
+        />
+
+        <CustomerActivityWidget
+          empresaId={id!}
+          isMinimized={isCustomerActivityMinimized}
+          onToggleMinimize={() => setIsCustomerActivityMinimized(!isCustomerActivityMinimized)}
         />
       </div>
     </DashboardLayout>
