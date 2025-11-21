@@ -929,53 +929,91 @@ export default function EmpresaDetalhes() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <ScrollArea className="w-full">
-            <TabsList className="inline-flex h-auto w-full justify-start gap-2 bg-transparent p-0">
-              <TabsTrigger value="info" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Informações
-              </TabsTrigger>
-              <TabsTrigger value="aplicativos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Aplicativos
-              </TabsTrigger>
-              <TabsTrigger value="produtos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Produtos
-              </TabsTrigger>
-              <TabsTrigger value="clientes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Clientes
-              </TabsTrigger>
-              <TabsTrigger value="pedidos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Pedidos
-              </TabsTrigger>
-              <TabsTrigger value="contatos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Phone className="h-4 w-4 mr-2" />
-                Contatos
-              </TabsTrigger>
-              <TabsTrigger value="usuarios" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Usuários
-              </TabsTrigger>
-              <TabsTrigger value="api-tokens" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Key className="h-4 w-4 mr-2" />
-                API Tokens
-              </TabsTrigger>
-              <TabsTrigger value="mercadopago" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Mercado Pago
-              </TabsTrigger>
-              <TabsTrigger value="entregas" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Tipos de Entrega
-              </TabsTrigger>
-              <TabsTrigger value="configuracoes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Settings className="h-4 w-4 mr-2" />
-                Configurações
-              </TabsTrigger>
-              {isAdminMaster && (
-                <TabsTrigger value="parametros" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Parâmetros
+          <div className="relative border-b">
+            <ScrollArea className="w-full whitespace-nowrap">
+              <TabsList className="inline-flex h-12 w-max justify-start gap-1 bg-transparent p-1">
+                <TabsTrigger 
+                  value="info" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  Informações
                 </TabsTrigger>
-              )}
-            </TabsList>
-          </ScrollArea>
+                <TabsTrigger 
+                  value="aplicativos" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  Aplicativos
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="produtos" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  Produtos
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="clientes" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  Clientes
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="pedidos" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  Pedidos
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="contatos" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  <Phone className="h-4 w-4 mr-2" />
+                  Contatos
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="usuarios" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  Usuários
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="api-tokens" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  <Key className="h-4 w-4 mr-2" />
+                  API Tokens
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="mercadopago" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Mercado Pago
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="entregas" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  Tipos de Entrega
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="configuracoes" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configurações
+                </TabsTrigger>
+                {isAdminMaster && (
+                  <TabsTrigger 
+                    value="parametros" 
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Parâmetros
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </ScrollArea>
+          </div>
 
           {/* Aba Informações */}
           <TabsContent value="info">
