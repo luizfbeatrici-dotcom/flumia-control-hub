@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,33 +23,37 @@ import { downloadClientesTemplate, ClienteImportRow } from "@/lib/excelUtilsClie
 
 export default function Clientes() {
   const { profile } = useAuth();
+  const { selectedEmpresaId } = useEmpresaSelector();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPessoa, setSelectedPessoa] = useState<any>(null);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
+  // Usa selectedEmpresaId se disponível (admin master), senão usa empresa_id do profile
+  const empresaId = selectedEmpresaId || profile?.empresa_id;
+
   const { data: pessoas = [], isLoading } = useQuery({
-    queryKey: ["pessoas", profile?.empresa_id],
+    queryKey: ["pessoas", empresaId],
     queryFn: async () => {
-      if (!profile?.empresa_id) return [];
+      if (!empresaId) return [];
 
       const { data, error } = await supabase
         .from("pessoas")
         .select("*")
-        .eq("empresa_id", profile.empresa_id)
+        .eq("empresa_id", empresaId)
         .order("nome");
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!profile?.empresa_id,
+    enabled: !!empresaId,
   });
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
       const { error } = await supabase.from("pessoas").insert({
         ...data,
-        empresa_id: profile?.empresa_id,
+        empresa_id: empresaId,
       });
       if (error) throw error;
     },
@@ -117,7 +122,7 @@ export default function Clientes() {
         cnpjf: cliente.cnpjf,
         email: cliente.email,
         celular: cliente.celular,
-        empresa_id: profile?.empresa_id,
+        empresa_id: empresaId,
       }));
 
       const { error } = await supabase.from("pessoas").insert(clientesData);
@@ -133,7 +138,7 @@ export default function Clientes() {
         const { data: pessoasInseridas } = await supabase
           .from("pessoas")
           .select("id, nome")
-          .eq("empresa_id", profile?.empresa_id)
+          .eq("empresa_id", empresaId)
           .order("created_at", { ascending: false })
           .limit(clientesData.length);
 
