@@ -8,12 +8,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 import { LostSalesWidget } from "@/components/company/LostSalesWidget";
+import { CustomerActivityWidget } from "@/components/company/CustomerActivityWidget";
 
 export default function CompanyDashboard() {
   const { profile, isAdminMaster, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isSalesFunnelMinimized, setIsSalesFunnelMinimized] = useState(true);
   const [isLostSalesMinimized, setIsLostSalesMinimized] = useState(true);
+  const [isCustomerActivityMinimized, setIsCustomerActivityMinimized] = useState(true);
 
   useEffect(() => {
     if (!authLoading && isAdminMaster) {
@@ -174,6 +176,13 @@ export default function CompanyDashboard() {
           empresaId={profile?.empresa_id || ""}
           isMinimized={isLostSalesMinimized}
           onToggleMinimize={() => setIsLostSalesMinimized(!isLostSalesMinimized)}
+        />
+
+        {/* Widget de Atividades do Cliente */}
+        <CustomerActivityWidget
+          empresaId={profile?.empresa_id || ""}
+          isMinimized={isCustomerActivityMinimized}
+          onToggleMinimize={() => setIsCustomerActivityMinimized(!isCustomerActivityMinimized)}
         />
       </div>
     </DashboardLayout>
