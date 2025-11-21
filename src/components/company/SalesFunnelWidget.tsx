@@ -181,74 +181,76 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
         </div>
       </CardHeader>
       {!isMinimized && (
-        <CardContent>
-        {!etapas || etapas.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            Nenhuma etapa disponível
-          </p>
-        ) : (
-          <ScrollArea className="w-full">
-            <div className="flex gap-4 pb-4" style={{ minWidth: `${etapas.length * 320}px` }}>
-              {etapas.map((etapa) => (
-                <div
-                  key={etapa.id}
-                  className="flex-shrink-0 w-80 rounded-lg border bg-card"
-                >
-                  <div className="p-4 border-b bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">{etapa.nome}</h3>
-                      <Badge variant="secondary">{etapa.pedidos.length}</Badge>
-                    </div>
-                  </div>
-                  <ScrollArea className="h-[500px]">
-                    <div className="p-3 space-y-3">
-                      {etapa.pedidos.length === 0 ? (
-                        <p className="text-center text-sm text-muted-foreground py-8">
-                          Nenhum pedido
-                        </p>
-                      ) : (
-                        etapa.pedidos.map((pedido) => (
-                          <Card 
-                            key={pedido.id} 
-                            className="p-3 hover:shadow-md transition-shadow cursor-pointer"
-                            onClick={() => setSelectedPedido(pedido.id)}
-                          >
-                            <div className="space-y-2">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1">
-                                  <p className="font-medium text-sm">
-                                    Pedido #{pedido.numero}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground line-clamp-1">
-                                    {pedido.pessoas?.nome || pedido.contatos?.name || pedido.contatos?.wa_id}
-                                  </p>
+        <CardContent className="max-h-[600px] overflow-hidden">
+          <ScrollArea className="h-[550px]">
+            {!etapas || etapas.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Nenhuma etapa disponível
+              </p>
+            ) : (
+              <div className="w-full">
+                <div className="flex gap-4 pb-4" style={{ minWidth: `${etapas.length * 320}px` }}>
+                  {etapas.map((etapa) => (
+                    <div
+                      key={etapa.id}
+                      className="flex-shrink-0 w-80 rounded-lg border bg-card"
+                    >
+                      <div className="p-4 border-b bg-muted/50">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold">{etapa.nome}</h3>
+                          <Badge variant="secondary">{etapa.pedidos.length}</Badge>
+                        </div>
+                      </div>
+                      <ScrollArea className="h-[450px]">
+                        <div className="p-3 space-y-3">
+                          {etapa.pedidos.length === 0 ? (
+                            <p className="text-center text-sm text-muted-foreground py-8">
+                              Nenhum pedido
+                            </p>
+                          ) : (
+                            etapa.pedidos.map((pedido) => (
+                              <Card 
+                                key={pedido.id} 
+                                className="p-3 hover:shadow-md transition-shadow cursor-pointer"
+                                onClick={() => setSelectedPedido(pedido.id)}
+                              >
+                                <div className="space-y-2">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <p className="font-medium text-sm">
+                                        Pedido #{pedido.numero}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground line-clamp-1">
+                                        {pedido.pessoas?.nome || pedido.contatos?.name || pedido.contatos?.wa_id}
+                                      </p>
+                                    </div>
+                                    <Badge variant="secondary" className="text-xs">
+                                      {pedido.status || 'N/A'}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-xs text-muted-foreground">
+                                      {format(new Date(pedido.created_at), 'dd/MM/yyyy HH:mm')}
+                                    </p>
+                                    <p className="font-semibold text-sm">
+                                      {new Intl.NumberFormat('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL',
+                                      }).format(pedido.total || 0)}
+                                    </p>
+                                  </div>
                                 </div>
-                                <Badge variant="secondary" className="text-xs">
-                                  {pedido.status || 'N/A'}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <p className="text-xs text-muted-foreground">
-                                  {format(new Date(pedido.created_at), 'dd/MM/yyyy HH:mm')}
-                                </p>
-                                <p className="font-semibold text-sm">
-                                  {new Intl.NumberFormat('pt-BR', {
-                                    style: 'currency',
-                                    currency: 'BRL',
-                                  }).format(pedido.total || 0)}
-                                </p>
-                              </div>
-                            </div>
-                          </Card>
-                        ))
-                      )}
+                              </Card>
+                            ))
+                          )}
+                        </div>
+                      </ScrollArea>
                     </div>
-                  </ScrollArea>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </ScrollArea>
-        )}
         </CardContent>
       )}
 
