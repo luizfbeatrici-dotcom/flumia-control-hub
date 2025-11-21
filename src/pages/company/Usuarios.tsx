@@ -17,20 +17,25 @@ import { Badge } from "@/components/ui/badge";
 import { UsuarioDialog } from "@/components/admin/UsuarioDialog";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 
 export default function UsuariosEmpresa() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState<any>(null);
   const queryClient = useQueryClient();
   const { profile } = useAuth();
+  const { selectedEmpresaId } = useEmpresaSelector();
+
+  // Usa selectedEmpresaId se disponível (admin master), senão usa empresa_id do profile
+  const empresaId = selectedEmpresaId || profile?.empresa_id;
 
   const { data: usuarios, isLoading } = useQuery({
-    queryKey: ["usuarios-empresa", profile?.empresa_id],
+    queryKey: ["usuarios-empresa", empresaId],
     queryFn: async () => {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("empresa_id", profile?.empresa_id)
+        .eq("empresa_id", empresaId)
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
