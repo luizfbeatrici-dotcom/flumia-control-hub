@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, ShoppingCart, MessageSquare } from "lucide-react";
+import { Package, Users, ShoppingCart, MessageSquare, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -89,6 +89,26 @@ export default function CompanyDashboard() {
       .reduce((sum, p) => sum + (Number(p.total) || 0), 0);
   }, [pedidos]);
 
+  const ticketMedio = useMemo(() => {
+    if (!pedidos) return 0;
+    const mesAtual = new Date().getMonth();
+    const anoAtual = new Date().getFullYear();
+    
+    const vendasFinalizadas = pedidos.filter((p) => {
+      const dataPedido = new Date(p.created_at || "");
+      return (
+        dataPedido.getMonth() === mesAtual &&
+        dataPedido.getFullYear() === anoAtual &&
+        p.status === "completed"
+      );
+    });
+
+    if (vendasFinalizadas.length === 0) return 0;
+
+    const valorTotal = vendasFinalizadas.reduce((sum, p) => sum + (Number(p.total) || 0), 0);
+    return valorTotal / vendasFinalizadas.length;
+  }, [pedidos]);
+
 
   return (
     <DashboardLayout>
@@ -157,6 +177,21 @@ export default function CompanyDashboard() {
                 }).format(vendasMesAtual || 0)}
               </div>
               <p className="text-xs text-muted-foreground">Total de vendas no mês atual</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Ticket Médio do Mês</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(ticketMedio || 0)}
+              </div>
+              <p className="text-xs text-muted-foreground">Valor médio por venda finalizada</p>
             </CardContent>
           </Card>
         </div>
