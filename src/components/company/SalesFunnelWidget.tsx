@@ -220,16 +220,15 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
               Ocultar raias sem cards
             </label>
           </div>
-          <div className="relative h-[550px] overflow-hidden border rounded-lg">
-            <ScrollArea className="h-full w-full">
-              {!etapasFiltradas || etapasFiltradas.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  Nenhuma etapa disponível
-                </p>
-              ) : (
-                <div className="p-4">
-                  <div className="flex gap-4" style={{ minWidth: `${etapasFiltradas.length * 320}px` }}>
-                    {etapasFiltradas.map((etapa) => (
+          <div className="w-full overflow-x-auto border rounded-lg" style={{ maxHeight: '550px' }}>
+            {!etapasFiltradas || etapasFiltradas.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Nenhuma etapa disponível
+              </p>
+            ) : (
+              <div className="p-4 inline-block min-w-full">
+                <div className="flex gap-4">
+                  {etapasFiltradas.map((etapa) => (
                     <div
                       key={etapa.id}
                       className="flex-shrink-0 w-80 rounded-lg border bg-card"
@@ -285,11 +284,10 @@ export function SalesFunnelWidget({ empresaId, isMinimized, onToggleMinimize }: 
                         </div>
                       </ScrollArea>
                     </div>
-                    ))}
-                  </div>
+                  ))}
                 </div>
-              )}
-            </ScrollArea>
+              </div>
+            )}
           </div>
         </CardContent>
       )}
