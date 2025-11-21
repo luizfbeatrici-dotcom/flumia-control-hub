@@ -1243,6 +1243,7 @@ export type Database = {
           principal: boolean | null
           regiao: string | null
           siafi: string | null
+          uf: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1260,6 +1261,7 @@ export type Database = {
           principal?: boolean | null
           regiao?: string | null
           siafi?: string | null
+          uf?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1277,6 +1279,7 @@ export type Database = {
           principal?: boolean | null
           regiao?: string | null
           siafi?: string | null
+          uf?: string | null
           updated_at?: string | null
         }
         Relationships: [
