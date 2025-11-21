@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LostSalesWidgetProps {
   empresaId: string;
@@ -47,9 +49,29 @@ interface Etapa {
 }
 
 export function LostSalesWidget({ empresaId, isMinimized, onToggleMinimize }: LostSalesWidgetProps) {
+  const { user } = useAuth();
   const [selectedPedido, setSelectedPedido] = useState<string | null>(null);
   const [conversaAberta, setConversaAberta] = useState(false);
   const [produtosAberto, setProdutosAberto] = useState(true);
+  const [hideEmptyLanes, setHideEmptyLanes] = useState(false);
+
+  // Carregar preferência do localStorage
+  useEffect(() => {
+    if (user?.id) {
+      const savedPreference = localStorage.getItem(`kanban-lost-hide-empty-lanes-${user.id}`);
+      if (savedPreference !== null) {
+        setHideEmptyLanes(savedPreference === 'true');
+      }
+    }
+  }, [user?.id]);
+
+  // Salvar preferência no localStorage
+  const handleToggleEmptyLanes = (checked: boolean) => {
+    setHideEmptyLanes(checked);
+    if (user?.id) {
+      localStorage.setItem(`kanban-lost-hide-empty-lanes-${user.id}`, String(checked));
+    }
+  };
 
   const { data: etapas, isLoading } = useQuery({
     queryKey: ["kanban-pedidos-cancelados", empresaId],
@@ -157,6 +179,9 @@ export function LostSalesWidget({ empresaId, isMinimized, onToggleMinimize }: Lo
   }
 
   const totalPedidos = etapas?.reduce((acc, etapa) => acc + etapa.pedidos.length, 0) || 0;
+  const etapasFiltradas = hideEmptyLanes 
+    ? etapas?.filter(etapa => etapa.pedidos.length > 0) 
+    : etapas;
 
   return (
     <Card>
@@ -181,16 +206,30 @@ export function LostSalesWidget({ empresaId, isMinimized, onToggleMinimize }: Lo
         </div>
       </CardHeader>
       {!isMinimized && (
-        <CardContent className="max-h-[600px] overflow-hidden">
-          <ScrollArea className="h-[550px]">
-            {!etapas || etapas.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                Nenhuma etapa disponível
-              </p>
-            ) : (
-              <div className="w-full">
-                <div className="flex gap-4 pb-4" style={{ minWidth: `${etapas.length * 320}px` }}>
-                  {etapas.map((etapa) => (
+        <CardContent className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="hide-empty-lanes-lost"
+              checked={hideEmptyLanes}
+              onCheckedChange={handleToggleEmptyLanes}
+            />
+            <label
+              htmlFor="hide-empty-lanes-lost"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              Ocultar raias sem cards
+            </label>
+          </div>
+          <div className="relative h-[550px] overflow-hidden border rounded-lg">
+            <ScrollArea className="h-full w-full">
+              {!etapasFiltradas || etapasFiltradas.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  Nenhuma etapa disponível
+                </p>
+              ) : (
+                <div className="p-4">
+                  <div className="flex gap-4" style={{ minWidth: `${etapasFiltradas.length * 320}px` }}>
+                    {etapasFiltradas.map((etapa) => (
                     <div
                       key={etapa.id}
                       className="flex-shrink-0 w-80 rounded-lg border bg-card"
@@ -246,11 +285,12 @@ export function LostSalesWidget({ empresaId, isMinimized, onToggleMinimize }: Lo
                         </div>
                       </ScrollArea>
                     </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </ScrollArea>
+              )}
+            </ScrollArea>
+          </div>
         </CardContent>
       )}
 
