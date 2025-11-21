@@ -1,6 +1,7 @@
 import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle, MessageCircle, DollarSign, Bell, UserCheck } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +23,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const { profile, isAdminMaster, signOut } = useAuth();
+  const { selectedEmpresaId } = useEmpresaSelector();
   const collapsed = state === "collapsed";
 
   const adminMasterItems = [
@@ -45,7 +47,9 @@ export function AppSidebar() {
     { title: "Configurações", url: "/configuracoes", icon: Settings },
   ];
 
-  const items = isAdminMaster ? adminMasterItems : companyItems;
+  // Se admin master selecionou uma empresa específica, mostrar menus da empresa
+  const showCompanyView = isAdminMaster && selectedEmpresaId;
+  const items = showCompanyView ? companyItems : (isAdminMaster ? adminMasterItems : companyItems);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -60,7 +64,7 @@ export function AppSidebar() {
             <div className="flex flex-col">
               <span className="text-sm font-semibold text-sidebar-foreground">flum.ia</span>
               <span className="text-xs text-sidebar-foreground/60">
-                {isAdminMaster ? "Admin Master" : "Painel Gerencial"}
+                {showCompanyView ? "Visão da Empresa" : (isAdminMaster ? "Admin Master" : "Painel Gerencial")}
               </span>
             </div>
           )}
