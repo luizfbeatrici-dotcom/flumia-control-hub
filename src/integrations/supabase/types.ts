@@ -1010,6 +1010,7 @@ export type Database = {
           pix_url: string
           status: string | null
           ticket_url: string | null
+          tipo_pagamento: string
           updated_at: string | null
         }
         Insert: {
@@ -1028,6 +1029,7 @@ export type Database = {
           pix_url: string
           status?: string | null
           ticket_url?: string | null
+          tipo_pagamento?: string
           updated_at?: string | null
         }
         Update: {
@@ -1046,6 +1048,7 @@ export type Database = {
           pix_url?: string
           status?: string | null
           ticket_url?: string | null
+          tipo_pagamento?: string
           updated_at?: string | null
         }
         Relationships: [
