@@ -60,21 +60,22 @@ export default function CompanyDashboard() {
     enabled: !!empresaId,
   });
 
-  const { data: contatos } = useQuery({
-    queryKey: ["contatos", empresaId],
+  // Buscar pedidos pendentes para o widget de Conversas Ativas
+  const { data: pedidosPendentes } = useQuery({
+    queryKey: ["pedidos-pendentes", empresaId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contatos")
-        .select("*")
+      const { count, error } = await supabase
+        .from("pedidos")
+        .select("*", { count: "exact", head: true })
         .eq("empresa_id", empresaId || "")
-        .eq("status", "ativo");
+        .eq("status", "pending");
       if (error) throw error;
-      return data;
+      return count;
     },
     enabled: !!empresaId,
   });
 
-  const conversasAtivasCount = contatos?.length || 0;
+  const conversasAtivasCount = pedidosPendentes || 0;
 
   const vendasMesAtual = useMemo(() => {
     if (!pedidos) return 0;
@@ -172,7 +173,7 @@ export default function CompanyDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{conversasAtivasCount || 0}</div>
-              <p className="text-xs text-muted-foreground">Contatos com status ativo</p>
+              <p className="text-xs text-muted-foreground">Pedidos pendentes</p>
             </CardContent>
           </Card>
         </div>
