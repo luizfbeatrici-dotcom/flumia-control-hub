@@ -1414,6 +1414,45 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_config: {
+        Row: {
+          created_at: string | null
+          id: string
+          smtp_from_email: string | null
+          smtp_from_name: string | null
+          smtp_host: string | null
+          smtp_password: string | null
+          smtp_port: number | null
+          smtp_use_tls: boolean | null
+          smtp_user: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          smtp_from_email?: string | null
+          smtp_from_name?: string | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_use_tls?: boolean | null
+          smtp_user?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          smtp_from_email?: string | null
+          smtp_from_name?: string | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_use_tls?: boolean | null
+          smtp_user?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pre_cadastros: {
         Row: {
           bairro: string | null
