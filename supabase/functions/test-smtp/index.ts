@@ -1,6 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { Buffer } from "https://deno.land/std@0.177.0/node/buffer.ts";
 import nodemailer from "https://esm.sh/nodemailer@6.9.7";
+
+// Make Buffer available globally for nodemailer
+(globalThis as any).Buffer = Buffer;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
