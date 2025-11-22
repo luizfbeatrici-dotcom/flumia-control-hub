@@ -61,7 +61,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 
-
 export default function EmpresaDetalhes() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -932,79 +931,79 @@ export default function EmpresaDetalhes() {
           <div className="relative border-b">
             <ScrollArea className="w-full whitespace-nowrap">
               <TabsList className="inline-flex h-12 w-max justify-start gap-1 bg-transparent p-1">
-                <TabsTrigger 
-                  value="info" 
+                <TabsTrigger
+                  value="info"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   Informações
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="aplicativos" 
+                <TabsTrigger
+                  value="aplicativos"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   Aplicativos
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="produtos" 
+                <TabsTrigger
+                  value="produtos"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   Produtos
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="clientes" 
+                <TabsTrigger
+                  value="clientes"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   Clientes
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="pedidos" 
+                <TabsTrigger
+                  value="pedidos"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   Pedidos
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="contatos" 
+                <TabsTrigger
+                  value="contatos"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   <Phone className="h-4 w-4 mr-2" />
                   Contatos
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="usuarios" 
+                <TabsTrigger
+                  value="usuarios"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   Usuários
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="api-tokens" 
+                <TabsTrigger
+                  value="api-tokens"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   <Key className="h-4 w-4 mr-2" />
                   API Tokens
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="mercadopago" 
+                <TabsTrigger
+                  value="mercadopago"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   <CreditCard className="h-4 w-4 mr-2" />
                   Mercado Pago
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="entregas" 
+                <TabsTrigger
+                  value="entregas"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   Tipos de Entrega
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="configuracoes" 
+                <TabsTrigger
+                  value="configuracoes"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Configurações
                 </TabsTrigger>
                 {isAdminMaster && (
-                  <TabsTrigger 
-                    value="parametros" 
+                  <TabsTrigger
+                    value="parametros"
                     className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                   >
                     <Settings className="h-4 w-4 mr-2" />
@@ -1078,10 +1077,10 @@ export default function EmpresaDetalhes() {
                     <p className="text-base">{empresa.dominio || "-"}</p>
                   </div>
                 </div>
-                
+
                 {/* Logo Section */}
                 {empresa.logo_url && (
-                  <div className="flex justify-center pt-4 border-t">
+                  <div className="flex justify-start pt-4 border-t">
                     <div className="relative group">
                       <img
                         src={empresa.logo_url}
