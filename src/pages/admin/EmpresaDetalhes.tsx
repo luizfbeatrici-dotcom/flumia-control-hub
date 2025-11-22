@@ -1026,19 +1026,6 @@ export default function EmpresaDetalhes() {
                 </Button>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Logo Section */}
-                {empresa.logo_url && (
-                  <div className="flex justify-center pb-4 border-b">
-                    <div className="relative group">
-                      <img
-                        src={empresa.logo_url}
-                        alt={`Logo ${empresa.fantasia}`}
-                        className="h-32 w-auto object-contain rounded-lg border-2 border-border/50 bg-background p-4 shadow-sm"
-                      />
-                    </div>
-                  </div>
-                )}
-                
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Razão Social</p>
@@ -1091,6 +1078,19 @@ export default function EmpresaDetalhes() {
                     <p className="text-base">{empresa.dominio || "-"}</p>
                   </div>
                 </div>
+                
+                {/* Logo Section */}
+                {empresa.logo_url && (
+                  <div className="flex justify-center pt-4 border-t">
+                    <div className="relative group">
+                      <img
+                        src={empresa.logo_url}
+                        alt={`Logo ${empresa.fantasia}`}
+                        className="h-32 w-auto object-contain rounded-lg border-2 border-border/50 bg-background p-4 shadow-sm"
+                      />
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
