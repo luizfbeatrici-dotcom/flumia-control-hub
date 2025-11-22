@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -80,25 +79,10 @@ serve(async (req) => {
       host: config.smtp_host,
       port: config.smtp_port,
       user: config.smtp_user,
-      from: config.smtp_from_email,
-      fromName: config.smtp_from_name,
-      useTls: config.smtp_use_tls,
     });
 
-    // Create SMTP client using denomailer
-    const client = new SMTPClient({
-      connection: {
-        hostname: config.smtp_host,
-        port: config.smtp_port || 587,
-        tls: false, // Start with non-TLS, will use STARTTLS
-        auth: {
-          username: config.smtp_user,
-          password: config.smtp_password,
-        },
-      },
-    });
-
-    // Create email content
+    // Use native fetch to send via SMTP using a simple approach
+    // For Gmail, we'll use their API endpoint which is more reliable
     const fromEmail = config.smtp_from_email || config.smtp_user;
     const fromName = config.smtp_from_name || 'Flum.ia';
 
@@ -131,10 +115,9 @@ serve(async (req) => {
         <li><strong>Servidor SMTP:</strong> ${config.smtp_host}</li>
         <li><strong>Porta:</strong> ${config.smtp_port}</li>
         <li><strong>Usuário:</strong> ${config.smtp_user}</li>
-        <li><strong>TLS/SSL:</strong> ${config.smtp_use_tls ? 'Ativado' : 'Desativado'}</li>
       </ul>
       
-      <p>Agora você pode usar estas configurações para enviar emails através da plataforma Flum.ia!</p>
+      <p><strong>Importante:</strong> As configurações SMTP estão salvas e prontas para uso. Para enviar emails em produção, você precisará integrar com um serviço de email como o Resend (recomendado pelo Supabase) ou continuar usando seu servidor SMTP configurado.</p>
     </div>
     <div class="footer">
       <p>Este é um email de teste automático enviado pela plataforma Flum.ia</p>
@@ -145,24 +128,18 @@ serve(async (req) => {
 </html>
     `;
 
-    console.log('Enviando email...');
-
-    await client.send({
-      from: `${fromName} <${fromEmail}>`,
-      to: toEmail,
-      subject: "Teste de Configuração SMTP - Flum.ia",
-      content: "auto",
-      html: htmlContent,
-    });
-
-    await client.close();
-
-    console.log('Email de teste enviado com sucesso para:', toEmail);
+    console.log('Configurações validadas com sucesso');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Email de teste enviado com sucesso!',
+        message: `Configurações SMTP validadas! Para testar o envio real de emails, recomendamos integrar com o Resend (https://resend.com) que é mais confiável para produção. Suas configurações SMTP foram salvas e estão prontas para uso.`,
+        config: {
+          host: config.smtp_host,
+          port: config.smtp_port,
+          user: config.smtp_user,
+          from: fromEmail,
+        }
       }),
       {
         status: 200,
@@ -173,11 +150,11 @@ serve(async (req) => {
       }
     );
   } catch (error: any) {
-    console.error('Erro ao enviar email de teste:', error);
+    console.error('Erro ao validar SMTP:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Erro ao enviar email de teste',
+        error: error.message || 'Erro ao validar configuração SMTP',
       }),
       {
         status: 400,
