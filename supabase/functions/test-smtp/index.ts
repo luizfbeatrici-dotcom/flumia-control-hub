@@ -47,6 +47,8 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
 </body>
 </html>`;
 
+  console.log('Conectando ao servidor SMTP...');
+  
   // Conectar ao servidor SMTP
   const conn = await Deno.connect({
     hostname: config.smtp_host,
@@ -59,84 +61,105 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
   async function readLine(): Promise<string> {
     const buffer = new Uint8Array(1024);
     const n = await conn.read(buffer);
-    return decoder.decode(buffer.subarray(0, n || 0));
+    const response = decoder.decode(buffer.subarray(0, n || 0));
+    console.log('SMTP <<', response.trim());
+    return response;
   }
 
   async function writeLine(data: string) {
+    console.log('SMTP >>', data);
     await conn.write(encoder.encode(data + '\r\n'));
   }
 
-  // Ler mensagem de boas-vindas
-  await readLine();
+  try {
+    // Ler mensagem de boas-vindas
+    await readLine();
 
-  // EHLO
-  await writeLine(`EHLO ${config.smtp_host}`);
-  await readLine();
+    // EHLO
+    await writeLine(`EHLO ${config.smtp_host}`);
+    await readLine();
 
-  // STARTTLS
-  await writeLine('STARTTLS');
-  await readLine();
+    // STARTTLS
+    await writeLine('STARTTLS');
+    await readLine();
 
-  // Upgrade para TLS
-  const tlsConn = await Deno.startTls(conn, { hostname: config.smtp_host });
+    console.log('Iniciando TLS...');
+    // Upgrade para TLS
+    const tlsConn = await Deno.startTls(conn, { hostname: config.smtp_host });
 
-  async function readLineTls(): Promise<string> {
-    const buffer = new Uint8Array(1024);
-    const n = await tlsConn.read(buffer);
-    return decoder.decode(buffer.subarray(0, n || 0));
+    async function readLineTls(): Promise<string> {
+      const buffer = new Uint8Array(1024);
+      const n = await tlsConn.read(buffer);
+      const response = decoder.decode(buffer.subarray(0, n || 0));
+      console.log('TLS <<', response.trim());
+      return response;
+    }
+
+    async function writeLineTls(data: string) {
+      console.log('TLS >>', data);
+      await tlsConn.write(encoder.encode(data + '\r\n'));
+    }
+
+    // EHLO novamente após TLS
+    await writeLineTls(`EHLO ${config.smtp_host}`);
+    await readLineTls();
+
+    // AUTH LOGIN
+    await writeLineTls('AUTH LOGIN');
+    await readLineTls();
+
+    // Enviar username em base64
+    await writeLineTls(btoa(config.smtp_user));
+    await readLineTls();
+
+    // Enviar password em base64
+    await writeLineTls(btoa(config.smtp_password));
+    const authResponse = await readLineTls();
+    
+    if (!authResponse.includes('235')) {
+      throw new Error('Falha na autenticação SMTP: ' + authResponse);
+    }
+
+    // MAIL FROM
+    await writeLineTls(`MAIL FROM:<${fromEmail}>`);
+    await readLineTls();
+
+    // RCPT TO
+    await writeLineTls(`RCPT TO:<${toEmail}>`);
+    await readLineTls();
+
+    // DATA
+    await writeLineTls('DATA');
+    await readLineTls();
+
+    // Enviar conteúdo do email
+    const emailContent = [
+      `From: ${fromName} <${fromEmail}>`,
+      `To: ${toEmail}`,
+      `Subject: Teste de Configuração SMTP - Flum.ia`,
+      `MIME-Version: 1.0`,
+      `Content-Type: text/html; charset=utf-8`,
+      '',
+      htmlContent,
+      '.',
+    ].join('\r\n');
+
+    await writeLineTls(emailContent);
+    const dataResponse = await readLineTls();
+    
+    if (!dataResponse.includes('250')) {
+      throw new Error('Falha ao enviar email: ' + dataResponse);
+    }
+
+    // QUIT
+    await writeLineTls('QUIT');
+    
+    tlsConn.close();
+    console.log('Email enviado com sucesso via SMTP!');
+  } catch (error) {
+    conn.close();
+    throw error;
   }
-
-  async function writeLineTls(data: string) {
-    await tlsConn.write(encoder.encode(data + '\r\n'));
-  }
-
-  // EHLO novamente após TLS
-  await writeLineTls(`EHLO ${config.smtp_host}`);
-  await readLineTls();
-
-  // AUTH LOGIN
-  await writeLineTls('AUTH LOGIN');
-  await readLineTls();
-
-  // Enviar username em base64
-  await writeLineTls(btoa(config.smtp_user));
-  await readLineTls();
-
-  // Enviar password em base64
-  await writeLineTls(btoa(config.smtp_password));
-  await readLineTls();
-
-  // MAIL FROM
-  await writeLineTls(`MAIL FROM:<${fromEmail}>`);
-  await readLineTls();
-
-  // RCPT TO
-  await writeLineTls(`RCPT TO:<${toEmail}>`);
-  await readLineTls();
-
-  // DATA
-  await writeLineTls('DATA');
-  await readLineTls();
-
-  // Enviar conteúdo do email
-  const emailContent = [
-    `From: ${fromName} <${fromEmail}>`,
-    `To: ${toEmail}`,
-    `Subject: Teste de Configuração SMTP - Flum.ia`,
-    `MIME-Version: 1.0`,
-    `Content-Type: text/html; charset=utf-8`,
-    '',
-    htmlContent,
-    '.',
-  ].join('\r\n');
-
-  await writeLineTls(emailContent);
-  await readLineTls();
-
-  // QUIT
-  await writeLineTls('QUIT');
-  
-  tlsConn.close();
 }
 
 serve(async (req) => {
