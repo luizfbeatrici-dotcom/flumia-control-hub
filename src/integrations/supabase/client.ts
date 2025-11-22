@@ -10,8 +10,25 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: {
+      getItem: (key: string) => {
+        if (typeof document === 'undefined') return null;
+        const cookies = document.cookie.split(';');
+        const cookie = cookies.find(c => c.trim().startsWith(`${key}=`));
+        return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+      },
+      setItem: (key: string, value: string) => {
+        if (typeof document === 'undefined') return;
+        document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax; Secure`;
+      },
+      removeItem: (key: string) => {
+        if (typeof document === 'undefined') return;
+        document.cookie = `${key}=; path=/; max-age=0; SameSite=Lax; Secure`;
+      }
+    },
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   }
 });
