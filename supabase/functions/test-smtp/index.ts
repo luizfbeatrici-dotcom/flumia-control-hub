@@ -14,6 +14,9 @@ serve(async (req) => {
   }
 
   try {
+    console.log('=== Início do teste SMTP ===');
+    console.log('Authorization header:', req.headers.get('Authorization') ? 'Presente' : 'Ausente');
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -25,16 +28,21 @@ serve(async (req) => {
     );
 
     // Verify user is authenticated
+    console.log('Verificando autenticação do usuário...');
     const {
       data: { user },
       error: userError,
     } = await supabaseClient.auth.getUser();
 
+    console.log('User:', user?.id, 'Error:', userError?.message);
+
     if (userError || !user) {
+      console.error('Erro de autenticação:', userError);
       throw new Error('Não autorizado');
     }
 
     // Verify user is admin_master
+    console.log('Verificando role admin_master para user:', user.id);
     const { data: roles, error: roleError } = await supabaseClient
       .from('user_roles')
       .select('role')
@@ -42,7 +50,10 @@ serve(async (req) => {
       .eq('role', 'admin_master')
       .single();
 
+    console.log('Roles encontradas:', roles, 'Error:', roleError?.message);
+
     if (roleError || !roles) {
+      console.error('Erro ao verificar role:', roleError);
       throw new Error('Acesso negado. Apenas admin_master pode testar SMTP.');
     }
 
