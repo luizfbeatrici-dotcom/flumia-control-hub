@@ -145,13 +145,17 @@ export function UsuarioDialog({ open, onOpenChange, onSave, usuario, empresaId }
     
     setIsResettingPassword(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(usuario.email, {
-        redirectTo: `${window.location.origin}/auth`,
+      const { data, error } = await supabase.functions.invoke('send-password-reset', {
+        body: { email: usuario.email }
       });
-      
+
       if (error) throw error;
-      
-      toast.success("Email de redefinição de senha enviado com sucesso!");
+
+      if (data?.success) {
+        toast.success(data.message || "Email de redefinição de senha enviado com sucesso!");
+      } else {
+        throw new Error(data?.error || "Erro ao enviar email de redefinição");
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao enviar email de redefinição");
     } finally {
