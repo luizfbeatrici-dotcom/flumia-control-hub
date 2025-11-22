@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { LogoUpload } from "@/components/admin/LogoUpload";
+import { Separator } from "@/components/ui/separator";
 
 const empresaSchema = z.object({
   razao_social: z.string().min(1, "Razão social é obrigatória").max(255),
@@ -101,7 +103,23 @@ export function EmpresaDialog({ open, onOpenChange, onSave, empresa }: EmpresaDi
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {empresa && (
+              <>
+                <div>
+                  <h3 className="text-sm font-medium mb-3">Logo da Empresa</h3>
+                  <LogoUpload 
+                    empresaId={empresa.id} 
+                    currentLogoUrl={empresa.logo_url}
+                    onLogoChange={(logoUrl) => {
+                      // Atualizar preview local se necessário
+                    }}
+                  />
+                </div>
+                <Separator />
+              </>
+            )}
+            
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}

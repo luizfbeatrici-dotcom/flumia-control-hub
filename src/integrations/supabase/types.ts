@@ -434,6 +434,7 @@ export type Database = {
           endereco: string | null
           fantasia: string
           id: string
+          logo_url: string | null
           plano_id: string | null
           razao_social: string
           taxa_transacao: number | null
@@ -451,6 +452,7 @@ export type Database = {
           endereco?: string | null
           fantasia: string
           id?: string
+          logo_url?: string | null
           plano_id?: string | null
           razao_social: string
           taxa_transacao?: number | null
@@ -468,6 +470,7 @@ export type Database = {
           endereco?: string | null
           fantasia?: string
           id?: string
+          logo_url?: string | null
           plano_id?: string | null
           razao_social?: string
           taxa_transacao?: number | null
