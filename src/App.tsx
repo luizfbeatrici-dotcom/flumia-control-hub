@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { EmpresaSelectorProvider } from "@/contexts/EmpresaSelectorContext";
 import Auth from "./pages/Auth";
@@ -29,17 +30,19 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import Leads from "./pages/admin/Leads";
 import AddProductsTemp from "./pages/admin/AddProductsTemp";
+import ThemeDemo from "./pages/admin/ThemeDemo";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <EmpresaSelectorProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <EmpresaSelectorProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -150,6 +153,14 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/theme-demo"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <ThemeDemo />
+                  </ProtectedRoute>
+                }
+              />
             
             {/* Company Routes */}
             <Route
@@ -208,6 +219,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

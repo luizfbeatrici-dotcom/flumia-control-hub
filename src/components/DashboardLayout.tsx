@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { EmpresaSelector } from "@/components/EmpresaSelector";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "react-router-dom";
 import flumiaLogo from "@/assets/flumia-logo.png";
@@ -39,6 +40,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             <div className="flex items-center gap-4">
               {mostrarSeletor && <EmpresaSelector />}
+              <ThemeToggle />
               <NotificationBell />
             </div>
           </header>
