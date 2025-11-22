@@ -31,6 +31,7 @@ import Index from "./pages/Index";
 import Leads from "./pages/admin/Leads";
 import AddProductsTemp from "./pages/admin/AddProductsTemp";
 import ThemeDemo from "./pages/admin/ThemeDemo";
+import AuditLogs from "./pages/admin/AuditLogs";
 
 const queryClient = new QueryClient();
 
@@ -170,6 +171,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdminMaster>
                     <ThemeDemo />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/audit-logs"
+                element={
+                  <ProtectedRoute requireAdminMaster>
+                    <AuditLogs />
                   </ProtectedRoute>
                 }
               />

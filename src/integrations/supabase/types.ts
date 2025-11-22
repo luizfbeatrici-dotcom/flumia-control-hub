@@ -105,6 +105,60 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          action_type: string
+          admin_email: string | null
+          admin_name: string | null
+          admin_user_id: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string
+          target_email: string | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_email?: string | null
+          admin_name?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name: string
+          target_email?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_email?: string | null
+          admin_name?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string
+          target_email?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       caracteristicas: {
         Row: {
           ativo: boolean
@@ -1776,6 +1830,18 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_audit_event: {
+        Args: {
+          p_action_type: string
+          p_metadata?: Json
+          p_new_values?: Json
+          p_old_values?: Json
+          p_record_id?: string
+          p_table_name: string
+          p_target_user_id?: string
+        }
+        Returns: string
       }
       search_produtos_by_embedding: {
         Args: {
