@@ -88,7 +88,10 @@ serve(async (req) => {
     // Create SMTP client
     const client = new SmtpClient();
 
-    await client.connectTLS({
+    console.log('Conectando ao SMTP...');
+    
+    // Connect using STARTTLS (not direct TLS)
+    await client.connect({
       hostname: config.smtp_host,
       port: config.smtp_port || 587,
       username: config.smtp_user,
