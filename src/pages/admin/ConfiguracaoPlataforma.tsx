@@ -118,17 +118,8 @@ export default function ConfiguracaoPlataforma() {
     setShowTestDialog(false);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error('Sessão não encontrada');
-      }
-
       const response = await supabase.functions.invoke('test-smtp', {
         body: { toEmail: profile.email },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
       });
 
       if (response.error) {
