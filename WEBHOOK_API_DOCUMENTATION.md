@@ -93,6 +93,9 @@ curl -X GET \
       "sku": "MART001",
       "preco1": 29.90,
       "ativo": true,
+      "saldo": 100,
+      "saldo_minimo": 10,
+      "saldo_maximo": 500,
       "created_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -111,6 +114,9 @@ Quando buscar por ID, retorna o produto diretamente:
   "sku": "MART001",
   "preco1": 29.90,
   "ativo": true,
+  "saldo": 100,
+  "saldo_minimo": 10,
+  "saldo_maximo": 500,
   "created_at": "2025-10-24T00:00:00Z"
 }
 ```
@@ -147,7 +153,10 @@ Você pode enviar um único produto ou um array de produtos:
   "subgrupo": "Básicas",
   "visibilidade": "visible",
   "ativo": true,
-  "limite_venda": 10
+  "limite_venda": 10,
+  "saldo": 100,
+  "saldo_minimo": 10,
+  "saldo_maximo": 500
 }
 ```
 
@@ -157,12 +166,14 @@ Você pode enviar um único produto ou um array de produtos:
   {
     "descricao": "Martelo",
     "sku": "MART001",
-    "preco1": 29.90
+    "preco1": 29.90,
+    "saldo": 100
   },
   {
     "descricao": "Chave de Fenda",
     "sku": "CHAV001",
-    "preco1": 12.50
+    "preco1": 12.50,
+    "saldo": 50
   }
 ]
 ```
@@ -184,6 +195,9 @@ Você pode enviar um único produto ou um array de produtos:
 | visibilidade | string | ❌ Não | `visible`, `hidden`, `catalog_only` |
 | ativo | boolean | ❌ Não | Status do produto (padrão: true) |
 | limite_venda | number | ❌ Não | Quantidade máxima por venda |
+| saldo | number | ❌ Não | Quantidade em estoque (padrão: 0) |
+| saldo_minimo | number | ❌ Não | Estoque mínimo para alertas |
+| saldo_maximo | number | ❌ Não | Estoque máximo permitido |
 
 #### Resposta de Sucesso
 
@@ -198,12 +212,14 @@ Você pode enviar um único produto ou um array de produtos:
       "id": "uuid-do-produto-1",
       "sku": "MART001",
       "descricao": "Martelo",
+      "saldo": 100,
       "created_at": "2025-10-24T00:00:00Z"
     },
     {
       "id": "uuid-do-produto-2",
       "sku": "CHAV001",
       "descricao": "Chave de Fenda",
+      "saldo": 50,
       "created_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -230,7 +246,9 @@ Content-Type: application/json
   "sku": "MART001",
   "descricao": "Martelo Premium",
   "preco1": 35.90,
-  "ativo": true
+  "ativo": true,
+  "saldo": 150,
+  "saldo_minimo": 20
 }
 ```
 
@@ -249,6 +267,7 @@ Content-Type: application/json
       "id": "uuid-do-produto",
       "sku": "MART001",
       "descricao": "Martelo Premium",
+      "saldo": 150,
       "updated_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -494,7 +513,9 @@ curl -X POST \
     "descricao": "Parafuso 10mm",
     "sku": "PAR010",
     "preco1": 0.50,
-    "unidade": "UN"
+    "unidade": "UN",
+    "saldo": 1000,
+    "saldo_minimo": 100
   }'
 ```
 
