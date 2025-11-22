@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.test-smtp]
 verify_jwt = true
+
+[functions.send-password-reset]
+verify_jwt = false
