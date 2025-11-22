@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -51,7 +51,7 @@ export default function ConfiguracaoPlataforma() {
   });
 
   // Populate form when data is loaded
-  useState(() => {
+  useEffect(() => {
     if (config) {
       setSmtpHost(config.smtp_host || "");
       setSmtpPort(config.smtp_port || 587);
@@ -61,7 +61,7 @@ export default function ConfiguracaoPlataforma() {
       setSmtpFromName(config.smtp_from_name || "");
       setSmtpUseTls(config.smtp_use_tls ?? true);
     }
-  });
+  }, [config]);
 
   // Update mutation
   const updateConfigMutation = useMutation({
