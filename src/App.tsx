@@ -44,7 +44,19 @@ const App = () => (
           <AuthProvider>
             <EmpresaSelectorProvider>
             <Routes>
-              <Route path="/" element={<Index />} />
+              {/* Rota raiz pública */}
+              <Route path="/landing" element={<Index />} />
+              
+              {/* Rota raiz - redireciona para dashboard apropriado */}
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <div />
+                  </ProtectedRoute>
+                } 
+              />
+              
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
             

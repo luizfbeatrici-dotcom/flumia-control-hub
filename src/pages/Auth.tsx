@@ -18,18 +18,18 @@ export default function Auth() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resettingPassword, setResettingPassword] = useState(false);
-  const { signIn, user, isAdminMaster, loading: authLoading } = useAuth();
+  const { signIn, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  // Redirecionar usuário autenticado para a rota inicial apropriada
+  // IMPORTANTE: Não fazemos verificação de role aqui para evitar flash entre páginas
+  // O ProtectedRoute irá lidar com o redirecionamento correto baseado nas roles
   useEffect(() => {
     if (!authLoading && user) {
-      if (isAdminMaster) {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      // Redireciona para a rota raiz "/" que será tratada pelo ProtectedRoute
+      navigate("/");
     }
-  }, [authLoading, user, isAdminMaster, navigate]);
+  }, [authLoading, user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

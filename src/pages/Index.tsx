@@ -45,14 +45,18 @@ const Index = () => {
     mensagem: ""
   });
 
-  const { user, isAdminMaster, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   
+  // Se usuário já está autenticado, redireciona para a raiz
+  // O App.tsx irá lidar com o redirecionamento correto baseado nas roles
   useEffect(() => {
     if (!authLoading && user) {
-      navigate(isAdminMaster ? "/admin" : "/dashboard");
+      // Não verificamos isAdminMaster aqui para evitar flash
+      // O redirecionamento correto será feito pelo roteamento principal
+      navigate("/");
     }
-  }, [authLoading, user, isAdminMaster, navigate]);
+  }, [authLoading, user, navigate]);
 
   // Rastreamento inicial de visitante e tracking da sessão
   useEffect(() => {
