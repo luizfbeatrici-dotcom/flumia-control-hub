@@ -226,9 +226,16 @@ serve(async (req) => {
     }
 
     // Gerar link de redefinição
+    const redirectUrl = Deno.env.get('SUPABASE_URL')?.includes('localhost') 
+      ? 'http://localhost:3000/reset-password'
+      : `${new URL(Deno.env.get('SUPABASE_URL') || '').origin.replace('hybuoksgodflxjhjoufv.supabase.co', 'd71de021-fc77-418e-a382-ef3bc876e815.lovableproject.com')}/reset-password`;
+    
     const { data: resetData, error: resetError } = await supabaseClient.auth.admin.generateLink({
       type: 'recovery',
       email: email,
+      options: {
+        redirectTo: redirectUrl
+      }
     });
 
     if (resetError || !resetData) {
