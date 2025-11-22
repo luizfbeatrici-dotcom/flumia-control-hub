@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import flumiaLogo from "@/assets/flumia-logo.png";
 import authAiBackground from "@/assets/auth-ai-background.png";
 
@@ -12,6 +14,9 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resettingPassword, setResettingPassword] = useState(false);
   const { signIn, user, isAdminMaster, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -35,6 +40,32 @@ export default function Auth() {
     setSubmitting(false);
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResettingPassword(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('send-password-reset', {
+        body: { email: resetEmail }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(data.message || 'Email de redefinição enviado com sucesso!');
+        setShowForgotPassword(false);
+        setResetEmail("");
+      } else {
+        toast.error(data?.error || 'Erro ao enviar email de redefinição');
+      }
+    } catch (error: any) {
+      console.error('Erro ao solicitar redefinição de senha:', error);
+      toast.error(error.message || 'Erro ao enviar email de redefinição de senha');
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4 overflow-hidden">
       <div className="absolute inset-0 gradient-hero opacity-10"></div>
@@ -51,33 +82,77 @@ export default function Auth() {
           <CardDescription>Portal Administrativo de Automação</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignIn} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Entrando..." : "Entrar"}
-            </Button>
-          </form>
+          {!showForgotPassword ? (
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Senha</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Esqueceu a senha?
+                  </button>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Entrando..." : "Entrar"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handlePasswordReset} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">E-mail</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enviaremos um link para redefinição de senha para este e-mail.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setResetEmail("");
+                  }}
+                >
+                  Voltar
+                </Button>
+                <Button type="submit" className="w-full" disabled={resettingPassword}>
+                  {resettingPassword ? "Enviando..." : "Enviar"}
+                </Button>
+              </div>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
