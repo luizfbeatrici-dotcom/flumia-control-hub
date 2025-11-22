@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
+import nodemailer from "https://esm.sh/nodemailer@6.9.7";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -85,17 +85,15 @@ serve(async (req) => {
       useTls: config.smtp_use_tls,
     });
 
-    // Create SMTP client
-    const client = new SmtpClient();
-
-    console.log('Conectando ao SMTP...');
-    
-    // Connect using STARTTLS (not direct TLS)
-    await client.connect({
-      hostname: config.smtp_host,
+    // Create nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      host: config.smtp_host,
       port: config.smtp_port || 587,
-      username: config.smtp_user,
-      password: config.smtp_password,
+      secure: config.smtp_port === 465, // true for 465, false for other ports
+      auth: {
+        user: config.smtp_user,
+        pass: config.smtp_password,
+      },
     });
 
     // Create email content
@@ -145,15 +143,14 @@ serve(async (req) => {
 </html>
     `;
 
-    await client.send({
-      from: `${fromName} <${fromEmail}>`,
+    console.log('Enviando email...');
+
+    await transporter.sendMail({
+      from: `"${fromName}" <${fromEmail}>`,
       to: toEmail,
       subject: "Teste de Configuração SMTP - Flum.ia",
-      content: htmlContent,
       html: htmlContent,
     });
-
-    await client.close();
 
     console.log('Email de teste enviado com sucesso para:', toEmail);
 
