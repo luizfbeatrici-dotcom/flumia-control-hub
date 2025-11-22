@@ -20,6 +20,27 @@ export default function CompanyDashboard() {
   // Se admin master, usar a empresa selecionada; senão, usar a empresa do perfil
   const empresaId = isAdminMaster ? selectedEmpresaId : profile?.empresa_id;
 
+  // Se admin master e nenhuma empresa específica selecionada, redirecionar para dashboard master
+  if (isAdminMaster && !selectedEmpresaId) {
+    return (
+      <DashboardLayout>
+        <div className="p-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Selecione uma Empresa</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Para visualizar o dashboard de uma empresa específica, selecione uma empresa no seletor acima.
+                Para ver a visão geral de todas as empresas, acesse o <a href="/admin" className="text-primary hover:underline">Dashboard Master</a>.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   const { data: pessoas } = useQuery({
     queryKey: ["pessoas", empresaId],
     queryFn: async () => {
