@@ -39,14 +39,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (userId: string) => {
     try {
-      // Fetch profile
+      // Fetch profile with maybeSingle to handle case when profile doesn't exist yet
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
+      
+      // If profile doesn't exist, set to null but don't throw error
       setProfile(profileData);
 
       // Fetch roles
@@ -56,9 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("user_id", userId);
 
       if (rolesError) throw rolesError;
-      setRoles(rolesData.map((r) => r.role as UserRole));
+      setRoles(rolesData?.map((r) => r.role as UserRole) || []);
     } catch (error) {
       console.error("Error fetching user data:", error);
+      // Don't clear user/session on fetch error, just log it
     }
   };
 
