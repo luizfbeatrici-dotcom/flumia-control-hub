@@ -8,11 +8,23 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Settings } from "lucide-react";
+import { Loader2, Settings, Mail } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function ConfiguracaoPlataforma() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { profile } = useAuth();
 
   const [smtpHost, setSmtpHost] = useState("");
   const [smtpPort, setSmtpPort] = useState(587);
@@ -21,6 +33,8 @@ export default function ConfiguracaoPlataforma() {
   const [smtpFromEmail, setSmtpFromEmail] = useState("");
   const [smtpFromName, setSmtpFromName] = useState("");
   const [smtpUseTls, setSmtpUseTls] = useState(true);
+  const [showTestDialog, setShowTestDialog] = useState(false);
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   // Fetch platform config
   const { data: config, isLoading } = useQuery({
@@ -88,6 +102,57 @@ export default function ConfiguracaoPlataforma() {
       smtp_from_name: smtpFromName,
       smtp_use_tls: smtpUseTls,
     });
+  };
+
+  const handleTestEmail = async () => {
+    if (!profile?.email) {
+      toast({
+        title: "Erro",
+        description: "Email do usuário não encontrado",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingTest(true);
+    setShowTestDialog(false);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Sessão não encontrada');
+      }
+
+      const response = await supabase.functions.invoke('test-smtp', {
+        body: { toEmail: profile.email },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Erro ao enviar email de teste');
+      }
+
+      toast({
+        title: "Sucesso!",
+        description: `Email de teste enviado para ${profile.email}. Verifique sua caixa de entrada.`,
+      });
+    } catch (error: any) {
+      console.error('Erro ao testar SMTP:', error);
+      toast({
+        title: "Erro ao enviar teste",
+        description: error.message || "Não foi possível enviar o email de teste. Verifique as configurações.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
   };
 
   if (isLoading) {
@@ -196,18 +261,58 @@ export default function ConfiguracaoPlataforma() {
                 <Label htmlFor="smtp_use_tls">Usar TLS/SSL</Label>
               </div>
 
-              <Button
-                type="submit"
-                disabled={updateConfigMutation.isPending}
-              >
-                {updateConfigMutation.isPending && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Salvar Configurações
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  type="submit"
+                  disabled={updateConfigMutation.isPending}
+                >
+                  {updateConfigMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Salvar Configurações
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowTestDialog(true)}
+                  disabled={isSendingTest || !smtpHost || !smtpUser || !smtpPassword}
+                >
+                  {isSendingTest ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="mr-2 h-4 w-4" />
+                      Testar Configuração
+                    </>
+                  )}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
+
+        <AlertDialog open={showTestDialog} onOpenChange={setShowTestDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Testar Configuração SMTP?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Um email de teste será enviado para <strong>{profile?.email}</strong> usando as configurações SMTP atuais.
+                <br /><br />
+                Certifique-se de que as configurações estão salvas antes de testar.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleTestEmail}>
+                Enviar Teste
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );
