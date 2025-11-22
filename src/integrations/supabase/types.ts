@@ -1242,6 +1242,7 @@ export type Database = {
           estado: string | null
           ibge: string | null
           id: string
+          numero: string | null
           pessoa_id: string
           principal: boolean | null
           regiao: string | null
@@ -1260,6 +1261,7 @@ export type Database = {
           estado?: string | null
           ibge?: string | null
           id?: string
+          numero?: string | null
           pessoa_id: string
           principal?: boolean | null
           regiao?: string | null
@@ -1278,6 +1280,7 @@ export type Database = {
           estado?: string | null
           ibge?: string | null
           id?: string
+          numero?: string | null
           pessoa_id?: string
           principal?: boolean | null
           regiao?: string | null
