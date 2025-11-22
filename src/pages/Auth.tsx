@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import flumiaLogo from "@/assets/flumia-logo.png";
 import authAiBackground from "@/assets/auth-ai-background.png";
 
@@ -73,6 +74,12 @@ export default function Auth() {
         className="absolute inset-0 bg-cover bg-center opacity-20"
         style={{ backgroundImage: `url(${authAiBackground})` }}
       ></div>
+      
+      {/* Theme Toggle - Positioned top right */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+      
       <Card className="relative z-10 w-full max-w-md shadow-medium">
         <CardHeader className="space-y-1 text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-purple p-3">
