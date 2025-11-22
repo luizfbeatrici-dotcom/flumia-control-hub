@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle, MessageCircle, DollarSign, Bell, UserCheck, Server } from "lucide-react";
+import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle, MessageCircle, DollarSign, Bell, UserCheck, Server, Palette } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
@@ -36,6 +36,7 @@ export function AppSidebar() {
     { title: "Assistente", url: "/admin/configuracoes", icon: MessageCircle },
     { title: "Depoimentos", url: "/admin/depoimentos", icon: MessageSquare },
     { title: "FAQ", url: "/admin/faq", icon: HelpCircle },
+    { title: "Temas", url: "/admin/theme-demo", icon: Palette },
     { title: "Configurações Plataforma", url: "/admin/configuracao-plataforma", icon: Server },
   ];
 
