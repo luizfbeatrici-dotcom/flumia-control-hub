@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle, MessageCircle, DollarSign, Bell, UserCheck, Server, Palette } from "lucide-react";
+import { Building2, LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, MessageSquare, HelpCircle, MessageCircle, DollarSign, Bell, UserCheck, Server, Palette, Shield } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
@@ -30,6 +30,7 @@ export function AppSidebar() {
     { title: "Dashboard Master", url: "/admin", icon: LayoutDashboard },
     { title: "Empresas", url: "/admin/empresas", icon: Building2 },
     { title: "Usuários", url: "/admin/usuarios", icon: Users },
+    { title: "Auditoria", url: "/admin/audit-logs", icon: Shield },
     { title: "Bilhetagem", url: "/admin/bilhetagem", icon: DollarSign },
     { title: "Leads", url: "/admin/leads", icon: UserCheck },
     { title: "Notificações", url: "/admin/notificacoes", icon: Bell },
