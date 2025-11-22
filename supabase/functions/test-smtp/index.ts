@@ -15,29 +15,28 @@ serve(async (req) => {
 
   try {
     console.log('=== Início do teste SMTP ===');
-    console.log('Authorization header:', req.headers.get('Authorization') ? 'Presente' : 'Ausente');
+    
+    // Get JWT token from header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Token de autorização não fornecido');
+    }
+
+    console.log('Authorization header presente');
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    // Verify user is authenticated
-    console.log('Verificando autenticação do usuário...');
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser();
+    // Verify JWT and get user
+    const jwt = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(jwt);
 
-    console.log('User:', user?.id, 'Error:', userError?.message);
+    console.log('User verificado:', user?.id);
 
     if (userError || !user) {
-      console.error('Erro de autenticação:', userError);
+      console.error('Erro ao verificar usuário:', userError);
       throw new Error('Não autorizado');
     }
 
@@ -50,7 +49,7 @@ serve(async (req) => {
       .eq('role', 'admin_master')
       .single();
 
-    console.log('Roles encontradas:', roles, 'Error:', roleError?.message);
+    console.log('Roles encontradas:', roles);
 
     if (roleError || !roles) {
       console.error('Erro ao verificar role:', roleError);
