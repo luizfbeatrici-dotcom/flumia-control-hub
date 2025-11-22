@@ -6,8 +6,140 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function sendEmail(config: any, toEmail: string) {
+  const fromEmail = config.smtp_from_email || config.smtp_user;
+  const fromName = config.smtp_from_name || 'Flum.ia';
+  
+  const htmlContent = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">
+<style>
+body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+.header { background: linear-gradient(135deg, #6A0DAD, #9370DB); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+.content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+.footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+.success-icon { font-size: 48px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<div class="success-icon">✅</div>
+<h1 style="margin: 0;">Teste de SMTP Bem-Sucedido!</h1>
+</div>
+<div class="content">
+<h2>Parabéns!</h2>
+<p>Se você está lendo este email, significa que suas configurações de SMTP estão funcionando corretamente.</p>
+<h3>Detalhes da Configuração Testada:</h3>
+<ul>
+<li><strong>Servidor SMTP:</strong> ${config.smtp_host}</li>
+<li><strong>Porta:</strong> ${config.smtp_port}</li>
+<li><strong>Usuário:</strong> ${config.smtp_user}</li>
+</ul>
+<p>Agora você pode usar estas configurações para enviar emails através da plataforma Flum.ia!</p>
+</div>
+<div class="footer">
+<p>Este é um email de teste automático enviado pela plataforma Flum.ia</p>
+<p>Data/Hora: ${new Date().toLocaleString('pt-BR')}</p>
+</div>
+</div>
+</body>
+</html>`;
+
+  // Conectar ao servidor SMTP
+  const conn = await Deno.connect({
+    hostname: config.smtp_host,
+    port: config.smtp_port,
+  });
+
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  async function readLine(): Promise<string> {
+    const buffer = new Uint8Array(1024);
+    const n = await conn.read(buffer);
+    return decoder.decode(buffer.subarray(0, n || 0));
+  }
+
+  async function writeLine(data: string) {
+    await conn.write(encoder.encode(data + '\r\n'));
+  }
+
+  // Ler mensagem de boas-vindas
+  await readLine();
+
+  // EHLO
+  await writeLine(`EHLO ${config.smtp_host}`);
+  await readLine();
+
+  // STARTTLS
+  await writeLine('STARTTLS');
+  await readLine();
+
+  // Upgrade para TLS
+  const tlsConn = await Deno.startTls(conn, { hostname: config.smtp_host });
+
+  async function readLineTls(): Promise<string> {
+    const buffer = new Uint8Array(1024);
+    const n = await tlsConn.read(buffer);
+    return decoder.decode(buffer.subarray(0, n || 0));
+  }
+
+  async function writeLineTls(data: string) {
+    await tlsConn.write(encoder.encode(data + '\r\n'));
+  }
+
+  // EHLO novamente após TLS
+  await writeLineTls(`EHLO ${config.smtp_host}`);
+  await readLineTls();
+
+  // AUTH LOGIN
+  await writeLineTls('AUTH LOGIN');
+  await readLineTls();
+
+  // Enviar username em base64
+  await writeLineTls(btoa(config.smtp_user));
+  await readLineTls();
+
+  // Enviar password em base64
+  await writeLineTls(btoa(config.smtp_password));
+  await readLineTls();
+
+  // MAIL FROM
+  await writeLineTls(`MAIL FROM:<${fromEmail}>`);
+  await readLineTls();
+
+  // RCPT TO
+  await writeLineTls(`RCPT TO:<${toEmail}>`);
+  await readLineTls();
+
+  // DATA
+  await writeLineTls('DATA');
+  await readLineTls();
+
+  // Enviar conteúdo do email
+  const emailContent = [
+    `From: ${fromName} <${fromEmail}>`,
+    `To: ${toEmail}`,
+    `Subject: Teste de Configuração SMTP - Flum.ia`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/html; charset=utf-8`,
+    '',
+    htmlContent,
+    '.',
+  ].join('\r\n');
+
+  await writeLineTls(emailContent);
+  await readLineTls();
+
+  // QUIT
+  await writeLineTls('QUIT');
+  
+  tlsConn.close();
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -15,32 +147,23 @@ serve(async (req) => {
   try {
     console.log('=== Início do teste SMTP ===');
     
-    // Get JWT token from header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('Token de autorização não fornecido');
     }
 
-    console.log('Authorization header presente');
-    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    // Verify JWT and get user
     const jwt = authHeader.replace('Bearer ', '');
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(jwt);
 
-    console.log('User verificado:', user?.id);
-
     if (userError || !user) {
-      console.error('Erro ao verificar usuário:', userError);
       throw new Error('Não autorizado');
     }
 
-    // Verify user is admin_master
-    console.log('Verificando role admin_master para user:', user.id);
     const { data: roles, error: roleError } = await supabaseClient
       .from('user_roles')
       .select('role')
@@ -48,10 +171,7 @@ serve(async (req) => {
       .eq('role', 'admin_master')
       .single();
 
-    console.log('Roles encontradas:', roles);
-
     if (roleError || !roles) {
-      console.error('Erro ao verificar role:', roleError);
       throw new Error('Acesso negado. Apenas admin_master pode testar SMTP.');
     }
 
@@ -61,7 +181,6 @@ serve(async (req) => {
       throw new Error('Email de destino não fornecido');
     }
 
-    // Get SMTP configuration
     const { data: config, error: configError } = await supabaseClient
       .from('platform_config')
       .select('*')
@@ -72,74 +191,17 @@ serve(async (req) => {
     }
 
     if (!config.smtp_host || !config.smtp_user || !config.smtp_password) {
-      throw new Error('Configuração SMTP incompleta. Preencha todos os campos obrigatórios.');
+      throw new Error('Configuração SMTP incompleta.');
     }
 
-    console.log('Configurações SMTP:', {
-      host: config.smtp_host,
-      port: config.smtp_port,
-      user: config.smtp_user,
-    });
-
-    // Use native fetch to send via SMTP using a simple approach
-    // For Gmail, we'll use their API endpoint which is more reliable
-    const fromEmail = config.smtp_from_email || config.smtp_user;
-    const fromName = config.smtp_from_name || 'Flum.ia';
-
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: linear-gradient(135deg, #6A0DAD, #9370DB); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-    .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-    .success-icon { font-size: 48px; margin-bottom: 10px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="success-icon">✅</div>
-      <h1 style="margin: 0;">Teste de SMTP Bem-Sucedido!</h1>
-    </div>
-    <div class="content">
-      <h2>Parabéns!</h2>
-      <p>Se você está lendo este email, significa que suas configurações de SMTP estão funcionando corretamente.</p>
-      
-      <h3>Detalhes da Configuração Testada:</h3>
-      <ul>
-        <li><strong>Servidor SMTP:</strong> ${config.smtp_host}</li>
-        <li><strong>Porta:</strong> ${config.smtp_port}</li>
-        <li><strong>Usuário:</strong> ${config.smtp_user}</li>
-      </ul>
-      
-      <p><strong>Importante:</strong> As configurações SMTP estão salvas e prontas para uso. Para enviar emails em produção, você precisará integrar com um serviço de email como o Resend (recomendado pelo Supabase) ou continuar usando seu servidor SMTP configurado.</p>
-    </div>
-    <div class="footer">
-      <p>Este é um email de teste automático enviado pela plataforma Flum.ia</p>
-      <p>Data/Hora: ${new Date().toLocaleString('pt-BR')}</p>
-    </div>
-  </div>
-</body>
-</html>
-    `;
-
-    console.log('Configurações validadas com sucesso');
+    console.log('Enviando email para:', toEmail);
+    await sendEmail(config, toEmail);
+    console.log('Email enviado com sucesso!');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Configurações SMTP validadas! Para testar o envio real de emails, recomendamos integrar com o Resend (https://resend.com) que é mais confiável para produção. Suas configurações SMTP foram salvas e estão prontas para uso.`,
-        config: {
-          host: config.smtp_host,
-          port: config.smtp_port,
-          user: config.smtp_user,
-          from: fromEmail,
-        }
+        message: 'Email de teste enviado com sucesso!',
       }),
       {
         status: 200,
@@ -150,11 +212,11 @@ serve(async (req) => {
       }
     );
   } catch (error: any) {
-    console.error('Erro ao validar SMTP:', error);
+    console.error('Erro ao enviar email:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Erro ao validar configuração SMTP',
+        error: error.message || 'Erro ao enviar email de teste',
       }),
       {
         status: 400,
