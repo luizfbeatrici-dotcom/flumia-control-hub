@@ -19,6 +19,9 @@ interface ProdutoData {
   visibilidade?: 'visible' | 'hidden' | 'catalog_only';
   ativo?: boolean;
   limite_venda?: number;
+  saldo?: number;
+  saldo_minimo?: number;
+  saldo_maximo?: number;
 }
 
 Deno.serve(async (req) => {
@@ -72,7 +75,14 @@ Deno.serve(async (req) => {
 
       let query = supabase
         .from('produtos')
-        .select('*')
+        .select(`
+          *,
+          estoque (
+            saldo,
+            saldo_minimo,
+            saldo_maximo
+          )
+        `)
         .eq('empresa_id', empresaId)
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
@@ -88,8 +98,17 @@ Deno.serve(async (req) => {
           );
         }
         
+        // Flatten estoque data
+        const produtoComEstoque = {
+          ...data,
+          saldo: data.estoque?.[0]?.saldo || 0,
+          saldo_minimo: data.estoque?.[0]?.saldo_minimo || null,
+          saldo_maximo: data.estoque?.[0]?.saldo_maximo || null,
+          estoque: undefined
+        };
+        
         return new Response(
-          JSON.stringify(data),
+          JSON.stringify(produtoComEstoque),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -108,13 +127,22 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Flatten estoque data for all products
+      const produtosComEstoque = data.map(produto => ({
+        ...produto,
+        saldo: produto.estoque?.[0]?.saldo || 0,
+        saldo_minimo: produto.estoque?.[0]?.saldo_minimo || null,
+        saldo_maximo: produto.estoque?.[0]?.saldo_maximo || null,
+        estoque: undefined
+      }));
+
       return new Response(
         JSON.stringify({
           success: true,
           total: count || data.length,
           limit,
           offset,
-          produtos: data
+          produtos: produtosComEstoque
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -179,10 +207,35 @@ Deno.serve(async (req) => {
               error: error.message
             });
           } else {
+            // Criar ou atualizar estoque
+            const estoqueData: any = {
+              empresa_id: empresaId,
+              produto_id: data.id,
+              saldo: produto.saldo !== undefined ? produto.saldo : 0,
+            };
+
+            if (produto.saldo_minimo !== undefined) {
+              estoqueData.saldo_minimo = produto.saldo_minimo;
+            }
+            if (produto.saldo_maximo !== undefined) {
+              estoqueData.saldo_maximo = produto.saldo_maximo;
+            }
+
+            const { error: estoqueError } = await supabase
+              .from('estoque')
+              .upsert(estoqueData, {
+                onConflict: 'produto_id,empresa_id'
+              });
+
+            if (estoqueError) {
+              console.error('Erro ao criar estoque:', estoqueError);
+            }
+
             results.push({
               id: data.id,
               sku: data.sku,
               descricao: data.descricao,
+              saldo: produto.saldo || 0,
               created_at: data.created_at
             });
           }
@@ -216,10 +269,39 @@ Deno.serve(async (req) => {
               error: 'Produto não encontrado'
             });
           } else {
+            // Atualizar estoque se fornecido
+            if (produto.saldo !== undefined || produto.saldo_minimo !== undefined || produto.saldo_maximo !== undefined) {
+              const estoqueData: any = {
+                empresa_id: empresaId,
+                produto_id: data.id,
+              };
+
+              if (produto.saldo !== undefined) {
+                estoqueData.saldo = produto.saldo;
+              }
+              if (produto.saldo_minimo !== undefined) {
+                estoqueData.saldo_minimo = produto.saldo_minimo;
+              }
+              if (produto.saldo_maximo !== undefined) {
+                estoqueData.saldo_maximo = produto.saldo_maximo;
+              }
+
+              const { error: estoqueError } = await supabase
+                .from('estoque')
+                .upsert(estoqueData, {
+                  onConflict: 'produto_id,empresa_id'
+                });
+
+              if (estoqueError) {
+                console.error('Erro ao atualizar estoque:', estoqueError);
+              }
+            }
+
             results.push({
               id: data.id,
               sku: data.sku,
               descricao: data.descricao,
+              saldo: produto.saldo,
               updated_at: data.updated_at
             });
           }
