@@ -1,10 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Buffer } from "https://deno.land/std@0.177.0/node/buffer.ts";
-import nodemailer from "https://esm.sh/nodemailer@6.9.7";
-
-// Make Buffer available globally for nodemailer
-(globalThis as any).Buffer = Buffer;
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -89,14 +85,16 @@ serve(async (req) => {
       useTls: config.smtp_use_tls,
     });
 
-    // Create nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      host: config.smtp_host,
-      port: config.smtp_port || 587,
-      secure: config.smtp_port === 465, // true for 465, false for other ports
-      auth: {
-        user: config.smtp_user,
-        pass: config.smtp_password,
+    // Create SMTP client using denomailer
+    const client = new SMTPClient({
+      connection: {
+        hostname: config.smtp_host,
+        port: config.smtp_port || 587,
+        tls: false, // Start with non-TLS, will use STARTTLS
+        auth: {
+          username: config.smtp_user,
+          password: config.smtp_password,
+        },
       },
     });
 
@@ -149,12 +147,15 @@ serve(async (req) => {
 
     console.log('Enviando email...');
 
-    await transporter.sendMail({
-      from: `"${fromName}" <${fromEmail}>`,
+    await client.send({
+      from: `${fromName} <${fromEmail}>`,
       to: toEmail,
       subject: "Teste de Configuração SMTP - Flum.ia",
+      content: "auto",
       html: htmlContent,
     });
+
+    await client.close();
 
     console.log('Email de teste enviado com sucesso para:', toEmail);
 
