@@ -9,6 +9,7 @@ import { SalesFunnelWidget } from "@/components/company/SalesFunnelWidget";
 import { LostSalesWidget } from "@/components/company/LostSalesWidget";
 import { CustomerActivityWidget } from "@/components/company/CustomerActivityWidget";
 import { useEmpresaSelector } from "@/contexts/EmpresaSelectorContext";
+import { Navigate } from "react-router-dom";
 
 export default function CompanyDashboard() {
   const { profile, isAdminMaster } = useAuth();
@@ -125,25 +126,9 @@ export default function CompanyDashboard() {
     return valorTotal / vendasFinalizadas.length;
   }, [pedidos]);
 
-  // Se admin master e nenhuma empresa específica selecionada, mostrar mensagem
+  // Se admin master e nenhuma empresa específica selecionada, redirecionar para o Dashboard Master
   if (isAdminMaster && !selectedEmpresaId) {
-    return (
-      <DashboardLayout>
-        <div className="p-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Selecione uma Empresa</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Para visualizar o dashboard de uma empresa específica, selecione uma empresa no seletor acima.
-                Para ver a visão geral de todas as empresas, acesse o <a href="/admin" className="text-primary hover:underline">Dashboard Master</a>.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </DashboardLayout>
-    );
+    return <Navigate to="/admin" replace />;
   }
 
   return (
