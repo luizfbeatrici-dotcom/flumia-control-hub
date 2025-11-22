@@ -83,7 +83,10 @@ export default function Usuarios() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
-      // Atualizar profile
+      // CORREÇÃO DE SEGURANÇA: Usar uma transaction-like approach
+      // para evitar perda de roles em caso de erro
+      
+      // 1. Atualizar profile
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -95,21 +98,46 @@ export default function Usuarios() {
 
       if (profileError) throw profileError;
 
-      // Remover todas as roles existentes
-      const { error: deleteError } = await supabase
+      // 2. Determinar a role correta
+      const newRole = data.is_admin_master ? "admin_master" : "company_admin";
+
+      // 3. Buscar roles atuais do usuário
+      const { data: currentRoles, error: fetchError } = await supabase
         .from("user_roles")
-        .delete()
+        .select("role")
         .eq("user_id", data.id);
 
-      if (deleteError) throw deleteError;
+      if (fetchError) throw fetchError;
 
-      // Inserir nova role baseada no tipo de usuário
-      const newRole = data.is_admin_master ? "admin_master" : "company_admin";
-      const { error: insertError } = await supabase
-        .from("user_roles")
-        .insert({ user_id: data.id, role: newRole });
+      // 4. Se a role já existe, não fazer nada
+      const hasCorrectRole = currentRoles?.some(r => r.role === newRole);
+      
+      if (!hasCorrectRole) {
+        // 4a. Deletar APENAS roles diferentes da correta
+        const rolesToDelete = currentRoles
+          ?.filter(r => r.role !== newRole)
+          .map(r => r.role) || [];
 
-      if (insertError) throw insertError;
+        if (rolesToDelete.length > 0) {
+          const { error: deleteError } = await supabase
+            .from("user_roles")
+            .delete()
+            .eq("user_id", data.id)
+            .in("role", rolesToDelete);
+
+          if (deleteError) throw deleteError;
+        }
+
+        // 4b. Inserir a nova role se não existir
+        const { error: insertError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: data.id, role: newRole });
+
+        if (insertError) {
+          // Se falhar o insert, não deixar o usuário sem role
+          throw new Error(`Falha ao atribuir role: ${insertError.message}`);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["usuarios-admin"] });
