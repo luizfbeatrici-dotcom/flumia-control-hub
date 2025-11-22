@@ -191,6 +191,9 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
       "sku": "MART001",
       "preco1": 29.90,
       "ativo": true,
+      "saldo": 100,
+      "saldo_minimo": 10,
+      "saldo_maximo": 500,
       "created_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -299,11 +302,41 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
                           <TableCell><Badge variant="secondary">Não</Badge></TableCell>
                           <TableCell>Limite máximo por venda</TableCell>
                         </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">saldo</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell><Badge variant="secondary">Não</Badge></TableCell>
+                          <TableCell>Saldo atual em estoque (padrão: 0)</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">saldo_minimo</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell><Badge variant="secondary">Não</Badge></TableCell>
+                          <TableCell>Saldo mínimo recomendado</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">saldo_maximo</TableCell>
+                          <TableCell><Badge variant="outline">number</Badge></TableCell>
+                          <TableCell><Badge variant="secondary">Não</Badge></TableCell>
+                          <TableCell>Saldo máximo recomendado</TableCell>
+                        </TableRow>
                       </TableBody>
                     </Table>
                   </div>
 
                   <Separator />
+
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                    <p className="text-sm font-medium text-blue-600 dark:text-blue-500 mb-2">
+                      💡 Controle de Estoque
+                    </p>
+                    <ul className="text-xs text-blue-600 dark:text-blue-500 space-y-1 list-disc list-inside">
+                      <li>Os campos de estoque (<code>saldo</code>, <code>saldo_minimo</code>, <code>saldo_maximo</code>) controlam a disponibilidade do produto</li>
+                      <li>O <code>saldo</code> é atualizado automaticamente quando um pedido é finalizado</li>
+                      <li>Use <code>saldo_minimo</code> para alertas de reposição e <code>saldo_maximo</code> para controle de compras</li>
+                      <li>Se não informado, o saldo padrão é 0 (produto sem estoque)</li>
+                    </ul>
+                  </div>
 
                   <div>
                     <h4 className="font-semibold mb-2">Exemplo de Requisição</h4>
@@ -320,7 +353,10 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
   "grupo": "Manuais",
   "subgrupo": "Básicas",
   "visibilidade": "visible",
-  "ativo": true
+  "ativo": true,
+  "saldo": 100,
+  "saldo_minimo": 10,
+  "saldo_maximo": 500
 }`}
                     </pre>
                   </div>
@@ -338,6 +374,7 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
       "id": "uuid-do-produto",
       "sku": "MART001",
       "descricao": "Martelo",
+      "saldo": 100,
       "created_at": "2025-10-24T00:00:00Z"
     }
   ]
@@ -369,9 +406,16 @@ export function ApiDocumentation({ open, onOpenChange, baseUrl }: ApiDocumentati
   "sku": "MART001",
   "descricao": "Martelo Premium",
   "preco1": 35.90,
-  "ativo": true
+  "ativo": true,
+  "saldo": 150
 }`}
                     </pre>
+                  </div>
+
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mt-4">
+                    <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
+                      ⚠️ Atualização de Estoque: Ao atualizar o <code className="px-2 py-1 bg-muted rounded">saldo</code>, você está substituindo o valor atual. Para incrementar ou decrementar, primeiro consulte o saldo atual via GET.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
