@@ -29,11 +29,19 @@ import {
   Phone,
   CreditCard,
   RefreshCw,
+  MoreHorizontal,
+  Truck,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { formatDateFromDB } from "@/lib/dateUtils";
 import { EmpresaDialog } from "@/components/admin/EmpresaDialog";
@@ -929,8 +937,8 @@ export default function EmpresaDetalhes() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="relative border-b">
-            <ScrollArea className="w-full whitespace-nowrap">
-              <TabsList className="inline-flex h-12 w-max justify-start gap-1 bg-transparent p-1">
+            <div className="flex items-center gap-2 p-1">
+              <TabsList className="flex-1 inline-flex h-12 justify-start gap-1 bg-transparent p-0">
                 <TabsTrigger
                   value="info"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
@@ -941,77 +949,73 @@ export default function EmpresaDetalhes() {
                   value="aplicativos"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
+                  <Smartphone className="h-4 w-4 mr-2" />
                   Aplicativos
                 </TabsTrigger>
                 <TabsTrigger
                   value="produtos"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
+                  <Package className="h-4 w-4 mr-2" />
                   Produtos
                 </TabsTrigger>
                 <TabsTrigger
                   value="clientes"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
+                  <Users className="h-4 w-4 mr-2" />
                   Clientes
                 </TabsTrigger>
                 <TabsTrigger
                   value="pedidos"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
                 >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
                   Pedidos
                 </TabsTrigger>
-                <TabsTrigger
-                  value="contatos"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Contatos
-                </TabsTrigger>
-                <TabsTrigger
-                  value="usuarios"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
-                >
-                  Usuários
-                </TabsTrigger>
-                <TabsTrigger
-                  value="api-tokens"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
-                >
-                  <Key className="h-4 w-4 mr-2" />
-                  API Tokens
-                </TabsTrigger>
-                <TabsTrigger
-                  value="mercadopago"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Mercado Pago
-                </TabsTrigger>
-                <TabsTrigger
-                  value="entregas"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
-                >
-                  Tipos de Entrega
-                </TabsTrigger>
-                <TabsTrigger
-                  value="configuracoes"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Configurações
-                </TabsTrigger>
-                {isAdminMaster && (
-                  <TabsTrigger
-                    value="parametros"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4"
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
-                    Parâmetros
-                  </TabsTrigger>
-                )}
               </TabsList>
-            </ScrollArea>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2 h-12">
+                    <MoreHorizontal className="h-4 w-4" />
+                    Mais
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-card z-50">
+                  <DropdownMenuItem onClick={() => setActiveTab("contatos")}>
+                    <Phone className="h-4 w-4 mr-2" />
+                    Contatos
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("usuarios")}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Usuários
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("api-tokens")}>
+                    <Key className="h-4 w-4 mr-2" />
+                    API Tokens
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("mercadopago")}>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Mercado Pago
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("entregas")}>
+                    <Truck className="h-4 w-4 mr-2" />
+                    Tipos de Entrega
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("configuracoes")}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configurações
+                  </DropdownMenuItem>
+                  {isAdminMaster && (
+                    <DropdownMenuItem onClick={() => setActiveTab("parametros")}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Parâmetros
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* Aba Informações */}
